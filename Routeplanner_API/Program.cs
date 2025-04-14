@@ -1,3 +1,8 @@
+Console.WriteLine("HELLO");
+
+var db = new DbConnect();
+db.ReadUsers();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -23,3 +28,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+

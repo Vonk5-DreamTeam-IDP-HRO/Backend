@@ -1,7 +1,7 @@
-Console.WriteLine("HELLO");
+using Routeplanner_API.Database_Queries;
 
-var db = new DbConnect();
-db.ReadUsers();
+var locationDB = new LocationDbQueries();
+locationDB.ReadLocations();
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -57,6 +57,10 @@ namespace Routeplanner_API.Database_Queries
                     Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
                 }
             }
+            catch(Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
         }
 
         public void EditUser(User user)

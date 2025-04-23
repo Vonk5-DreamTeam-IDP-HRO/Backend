@@ -38,7 +38,7 @@ namespace Routeplanner_API.Database_Queries
             }
         }
 
-        public void AddLocation(string name, float latitude, float longitude, string description)
+        public void AddLocation(Location location)
         {
             try
             {
@@ -50,10 +50,10 @@ namespace Routeplanner_API.Database_Queries
 
                     using var cmd = new NpgsqlCommand(insertQuery, connection);
                     //cmd.Parameters.AddWithValue("UserId", userId);
-                    cmd.Parameters.AddWithValue("Name", name);
-                    cmd.Parameters.AddWithValue("Latitude", latitude);
-                    cmd.Parameters.AddWithValue("Longitude", longitude);
-                    cmd.Parameters.AddWithValue("Description", description);
+                    cmd.Parameters.AddWithValue("Name", location.name);
+                    cmd.Parameters.AddWithValue("Latitude", location.latitude);
+                    cmd.Parameters.AddWithValue("Longitude", location.longitude);
+                    cmd.Parameters.AddWithValue("Description", location.description);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
                     Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
@@ -65,12 +65,12 @@ namespace Routeplanner_API.Database_Queries
             }
         }
 
-        public void EditLocation(string name)
+        public void EditLocation(Location location)
         {
 
         }
 
-        public void DeleteLocation(string name)
+        public void DeleteLocation(Location location)
         {
 
         }

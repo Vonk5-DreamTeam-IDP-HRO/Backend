@@ -15,9 +15,9 @@ namespace Routeplanner_API.Database_Queries
                 {
                     connection.Open();
 
-                    string sql = "SELECT Username, Email, Password_Hash FROM Users"; // Error: Cannot find Users table.
+                    string selectQuery = "SELECT Username, Email, Password_Hash FROM Users"; // Error: Cannot find Users table.
 
-                    using (var command = new NpgsqlCommand(sql, connection))
+                    using (var command = new NpgsqlCommand(selectQuery, connection))
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -37,17 +37,34 @@ namespace Routeplanner_API.Database_Queries
             }
         }
 
-        public void AddUser(string userName, string email, string password_Hash)
+        public void AddUser(User user)
+        {
+            try
+            {
+                using (var connection = new NpgsqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string insertQuery = "INSERT INTO Users (Username, Email, PasswordHash) VALUES (@Username, @Email, @PasswordHash)";
+
+                    using var cmd = new NpgsqlCommand(insertQuery, connection);
+                    //cmd.Parameters.AddWithValue("UserId", userId);
+                    cmd.Parameters.AddWithValue("Username", user.userName);
+                    cmd.Parameters.AddWithValue("Email", user.email);
+                    cmd.Parameters.AddWithValue("PasswordHash", user.passwordHash);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
+                }
+            }
+        }
+
+        public void EditUser(User user)
         {
 
         }
 
-        public void EditUser(string userName, string email)
-        {
-
-        }
-
-        public void DeleteUser(string userName, string email)
+        public void DeleteUser(User user)
         {
 
         }

@@ -12,17 +12,17 @@ namespace Routeplanner_API.Database_Queries
 
         }
 
-        public void AddRoute(string name, string description, Location[] locations)
+        public void AddRoute(Route route)
         {
 
         }
 
-        public void EditRoute(string name)
+        public void EditRoute(Route route)
         {
 
         }
 
-        public void DeleteRoute(string name)
+        public void DeleteRoute(Route route)
         {
 
         }

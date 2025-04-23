@@ -3,34 +3,93 @@ using Npgsql;
 
 public class DbConnect
 {
-    public void ReadUsers()
-    {
-        var connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
+    private string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
 
-        try{
+    public void ReadLocations()
+    {
+        try
+        {
             using (var connection = new NpgsqlConnection(connectionString))
             {
                 connection.Open();
 
-                //var sql = "SELECT id, name, age FROM users";
+                string sql = "SELECT Name, Latitude, Longitude, Description FROM Locations";
 
-                // using (var command = new NpgsqlCommand(sql, connection))
-                // using (var reader = command.ExecuteReader())
-                // {
-                //     while (reader.Read())
-                //     {
-                //         var id = reader.GetInt32(0); // Column 0: id
-                //         var name = reader.GetString(1); // Column 1: name
-                //         var age = reader.GetInt32(2); // Column 2: age
+                using (var command = new NpgsqlCommand(sql, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string Name = reader.GetString(0);
+                        float Latitude = reader.GetFloat(1);
+                        float Longitude = reader.GetFloat(2);
+                        string Description = reader.GetString(3);
 
-                //         Console.WriteLine($"ID: {id}, Name: {name}, Age: {age}");
-                //     }
-                // }
+                        Console.WriteLine($"Name: {Name}, Latitude: {Latitude}, Longitude: {Longitude}, Description: {Description}");
+                    }
+                }
             }
         }
-        catch(Exception exception){
+        catch (Exception exception)
+        {
             Console.WriteLine(exception);
         }
-        
+    }
+
+    public void AddLocation(string name, float latitude, float longitude, string description)
+    {
+        try
+        {
+            using (var connection = new NpgsqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string insertQuery = "INSERT INTO Locations (Name, Latitude, Longitude, Description) VALUES (@Name, @Latitude, @Longitude, @Description)";
+
+                using var cmd = new NpgsqlCommand(insertQuery, connection);
+                //cmd.Parameters.AddWithValue("UserId", userId);
+                cmd.Parameters.AddWithValue("Name", name);
+                cmd.Parameters.AddWithValue("Latitude", latitude);
+                cmd.Parameters.AddWithValue("Longitude", longitude);
+                cmd.Parameters.AddWithValue("Description", description);
+
+                int rowsAffected = cmd.ExecuteNonQuery();
+                Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
+            }
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+        }
+    }
+
+    public void ReadUsers()
+    {
+        try
+        {
+            using (var connection = new NpgsqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string sql = "SELECT Username, Email, Password_Hash FROM Users"; // Error: Cannot find Users table.
+
+                using (var command = new NpgsqlCommand(sql, connection))
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string Username = reader.GetString(0);
+                        string Email = reader.GetString(1);
+                        string Password_Hash = reader.GetString(2);
+
+                        Console.WriteLine($"Username: {Username}, Email: {Email}, Password_Hash: {Password_Hash}");
+                    }
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+        }
     }
 }

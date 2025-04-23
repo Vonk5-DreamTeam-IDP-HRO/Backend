@@ -1,7 +1,7 @@
 using Routeplanner_API.Database_Queries;
 
 var locationDB = new LocationDbQueries();
-locationDB.ReadLocations();
+locationDB.GetLocations();
 
 var builder = WebApplication.CreateBuilder(args);
 

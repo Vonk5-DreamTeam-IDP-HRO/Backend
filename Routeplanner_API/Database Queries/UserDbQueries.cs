@@ -7,7 +7,7 @@ namespace Routeplanner_API.Database_Queries
     {
         private string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
 
-        public void ReadUsers()
+        public void GetUsers()
         {
             try
             {
@@ -35,6 +35,21 @@ namespace Routeplanner_API.Database_Queries
             {
                 Console.WriteLine(exception);
             }
+        }
+
+        public void AddUser(string userName, string email, string password_Hash)
+        {
+
+        }
+
+        public void EditUser(string userName, string email)
+        {
+
+        }
+
+        public void DeleteUser(string userName, string email)
+        {
+
         }
     }
 }

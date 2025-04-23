@@ -7,7 +7,7 @@ namespace Routeplanner_API.Database_Queries
     {
         private string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
 
-        public void ReadLocations()
+        public void GetLocations()
         {
             try
             {
@@ -63,6 +63,16 @@ namespace Routeplanner_API.Database_Queries
             {
                 Console.WriteLine(exception);
             }
+        }
+
+        public void EditLocation(string name)
+        {
+
+        }
+
+        public void DeleteLocation(string name)
+        {
+
         }
     }
 }

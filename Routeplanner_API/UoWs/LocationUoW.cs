@@ -13,7 +13,16 @@ namespace Routeplanner_API.UoWs
         {
             Location location = Mappers.LocationMapper.MapJsonbodyToLocationObject(jsonBody);
 
-            Database_Queries.LocationDbQueries.AddLocation(location);
+            bool locationIsValid = Helpers.LocationHelper.ValidateLocation(location);
+
+            if(locationIsValid)
+            {
+                Database_Queries.LocationDbQueries.AddLocation(location);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

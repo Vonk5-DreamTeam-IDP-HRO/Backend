@@ -13,9 +13,8 @@ namespace Routeplanner_API.Controllers
 
             if (locations == null || !locations.Any())
             {
-                return NotFound("No routes found.");
+                return NotFound("No locations found.");
             }
-
             return Ok(locations);
         }
             

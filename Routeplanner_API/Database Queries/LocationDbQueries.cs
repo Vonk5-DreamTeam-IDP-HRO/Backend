@@ -22,7 +22,6 @@ namespace Routeplanner_API.Database_Queries
                     {
                         List<Location> locations = new List<Location>();
 
-
                         while (reader.Read())
                         {
                             string Name = reader.GetString(0);

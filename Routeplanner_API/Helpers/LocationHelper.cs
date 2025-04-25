@@ -2,7 +2,7 @@
 {
     public class LocationHelper
     {
-        public bool ValidateLocation(Location location)
+        public static bool ValidateLocation(Location location)
         {
             if(location != null)
             {
@@ -10,7 +10,6 @@
                 {
                     return true;
                 }
-                return false
             }
             return false;
         }

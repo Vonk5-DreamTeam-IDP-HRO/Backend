@@ -6,18 +6,18 @@ namespace Routeplanner_API.UoWs
     {
         public static Location[]? GetLocations()
         {
-            return Database_Queries.LocationDbQueries.GetLocations();
+            return Database_Queries.LocationDbQueries.GetLocations(); // Get the Locations from the database.
         }
         
         public static void AddLocation(JsonElement jsonBody)
         {
-            Location location = Mappers.LocationMapper.MapJsonbodyToLocationObject(jsonBody);
+            Location location = Mappers.LocationMapper.MapJsonbodyToLocationObject(jsonBody); // Map jsonBody to a Location object.
 
-            bool locationIsValid = Helpers.LocationHelper.ValidateLocation(location);
+            bool locationIsValid = Helpers.LocationHelper.ValidateLocation(location); // Validate the Location.
 
             if(locationIsValid)
             {
-                Database_Queries.LocationDbQueries.AddLocation(location);
+                Database_Queries.LocationDbQueries.AddLocation(location); // Add the Location to the database.
             }
             else
             {

@@ -4,7 +4,7 @@
     {
         public string name;
         public string description;
-        public float latitude;
-        public float longitude;
+        public double latitude;
+        public double longitude;
     }
 }

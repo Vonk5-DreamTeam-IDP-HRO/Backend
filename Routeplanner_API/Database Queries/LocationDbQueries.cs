@@ -5,7 +5,7 @@ namespace Routeplanner_API.Database_Queries
 {
     public class LocationDbQueries
     {
-        private string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
+        private static string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
 
         public void GetLocations()
         {
@@ -38,7 +38,7 @@ namespace Routeplanner_API.Database_Queries
             }
         }
 
-        public void AddLocation(Location location)
+        public static void AddLocation(Location location)
         {
             try
             {

@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mappers\" />
     <Folder Include="Enums\" />
     <Folder Include="Frontend\" />
   </ItemGroup>

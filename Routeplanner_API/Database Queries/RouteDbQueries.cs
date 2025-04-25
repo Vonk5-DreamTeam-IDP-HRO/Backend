@@ -5,9 +5,9 @@ namespace Routeplanner_API.Database_Queries
 {
     public class RouteDbQueries
     {
-        private string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
+        private static string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
 
-        public void GetRoutes()
+        public static Route[]? GetRoutes()
         {
             try
             {
@@ -20,22 +20,36 @@ namespace Routeplanner_API.Database_Queries
                     using (var command = new NpgsqlCommand(selectQuery, connection))
                     using (var reader = command.ExecuteReader())
                     {
+                        List<Route> routes = new List<Route>();
+
                         while (reader.Read())
                         {
-                            string Name = reader.GetString(0);
-                            string Description = reader.GetString(1);
-                            //Location[] Locations = reader.GetObject(2);
+                            string name = reader.GetString(0);
+                            string description = reader.GetString(1);
 
-                            Console.WriteLine($"Name: {Name}, Description: {Description}, Locations: ");
+                            //var locations = reader.IsDBNull(2) ? null : reader.GetFieldValue<string[]>(2);
+
+                            Route route = new Route
+                            {
+                                name = name,
+                                description = description,
+                                //locations = locations
+                            };
+
+                            routes.Add(route);
                         }
+
+                        return routes.ToArray(); 
                     }
                 }
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
+                return null; 
             }
         }
+
 
         public static void AddRoute(Route route)
         {

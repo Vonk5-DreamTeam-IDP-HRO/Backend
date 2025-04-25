@@ -37,7 +37,7 @@ namespace Routeplanner_API.Database_Queries
             }
         }
 
-        public void AddRoute(Route route)
+        public static void AddRoute(Route route)
         {
 
         }

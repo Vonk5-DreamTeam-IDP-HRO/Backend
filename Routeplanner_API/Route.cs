@@ -4,6 +4,6 @@
     {
         public string name;
         public string description;
-        public Location[] locations;
+        public Location[]? locations;
     }
 }

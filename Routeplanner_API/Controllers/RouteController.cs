@@ -10,7 +10,7 @@ namespace Routeplanner_API.Controllers
         [HttpGet]
         public ActionResult<Route[]> GetRoutes()
         {
-            var routes = RouteDbQueries.GetRoutes();
+            var routes = UoWs.RouteUoW.GetRoutes();
 
             if (routes == null || !routes.Any())
             {

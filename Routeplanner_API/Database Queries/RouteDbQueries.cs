@@ -35,7 +35,6 @@ namespace Routeplanner_API.Database_Queries
                                 description = description,
                                 //locations = locations
                             };
-
                             routes.Add(route);
                         }
 

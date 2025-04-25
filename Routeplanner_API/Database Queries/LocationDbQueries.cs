@@ -7,7 +7,7 @@ namespace Routeplanner_API.Database_Queries
     {
         private static string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
 
-        public void GetLocations()
+        public static Location[]? GetLocations()
         {
             try
             {
@@ -15,26 +15,38 @@ namespace Routeplanner_API.Database_Queries
                 {
                     connection.Open();
 
-                    string sql = "SELECT Name, Latitude, Longitude, Description FROM Locations";
+                    string selectQuery = "SELECT Name, Latitude, Longitude, Description FROM Locations";
 
-                    using (var command = new NpgsqlCommand(sql, connection))
+                    using (var command = new NpgsqlCommand(selectQuery, connection))
                     using (var reader = command.ExecuteReader())
                     {
+                        List<Location> locations = new List<Location>();
+
+
                         while (reader.Read())
                         {
                             string Name = reader.GetString(0);
-                            float Latitude = reader.GetFloat(1);
-                            float Longitude = reader.GetFloat(2);
+                            float Latitude = reader.GetDouble(1);
+                            float Longitude = reader.GetDouble(2);
                             string Description = reader.GetString(3);
 
-                            Console.WriteLine($"Name: {Name}, Latitude: {Latitude}, Longitude: {Longitude}, Description: {Description}");
+                            Location location = new Location()
+                            {
+                                name = Name,
+                                description = Description
+                                latitude = Latitude,
+                                longitude = Longitude,
+                            };
+                            locations.Add(location);
                         }
+                        return locations.ToArray();
                     }
                 }
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
+                return null;
             }
         }
 

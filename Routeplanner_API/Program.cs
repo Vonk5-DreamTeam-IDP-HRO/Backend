@@ -1,11 +1,11 @@
 using Routeplanner_API.Database_Queries;
 
-var locationDB = new LocationDbQueries();
-locationDB.GetLocations();
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<Routeplanner_API.Database_Queries.LocationDbQueries>();
+builder.Services.AddScoped<Routeplanner_API.UoWs.LocationUoW>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

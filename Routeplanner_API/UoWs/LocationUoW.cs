@@ -27,7 +27,20 @@ namespace Routeplanner_API.UoWs
 
         public static void AddLocationDetails(JsonElement jsonBody)
         {
-            throw new NotImplementedException();
+            AddLocation(jsonBody); // Add the Location.
+
+            LocationDetails locationDetails = Mappers.LocationMapper.MapJsonbodyToLocationDetailsObject(jsonBody);
+
+            bool locationDetailsIsValid = Helpers.LocationHelper.ValidateLocationDetails(locationDetails); // Validate the LocationDetails.
+
+            if (locationDetailsIsValid)
+            {
+                Database_Queries.LocationDbQueries.AddLocationDetails(locationDetails); // Add the LocationDetails to the database.
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

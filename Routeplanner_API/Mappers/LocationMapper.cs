@@ -11,10 +11,25 @@ namespace Routeplanner_API.Mappers
         {
             return new Location()
             {
-                name = jsonBody.GetProperty("name").GetString(),
-                description = jsonBody.GetProperty("description").GetString(),
-                latitude = jsonBody.GetProperty("latitude").GetDouble(),
-                longitude = jsonBody.GetProperty("longitude").GetDouble(),
+                Name = jsonBody.GetProperty("name").GetString(),
+                Description = jsonBody.GetProperty("description").GetString(),
+                Latitude = jsonBody.GetProperty("latitude").GetDouble(),
+                Longitude = jsonBody.GetProperty("longitude").GetDouble(),
+            };
+        }
+
+        public static LocationDetails MapJsonbodyToLocationDetailsObject(JsonElement jsonBody)
+        {
+            return new LocationDetails()
+            {
+                Address = jsonBody.GetProperty("name").GetString(),
+                City = jsonBody.GetProperty("name").GetString(),
+                Country = jsonBody.GetProperty("name").GetString(),
+                ZipCode = jsonBody.GetProperty("name").GetString(),
+                PhoneNumber = jsonBody.GetProperty("name").GetString(),
+                Website = jsonBody.GetProperty("name").GetString(),
+                Category = jsonBody.GetProperty("name").GetString(),
+                Accessibility = jsonBody.GetProperty("name").GetString(),
             };
         }
     }

@@ -6,7 +6,7 @@
         {
             if (route != null)
             {
-                if (route.name != null || route.description != null || route.locations != null)
+                if (route.Name != null && route.Description != null && route.Locations != null)
                 {
                     return true;
                 }

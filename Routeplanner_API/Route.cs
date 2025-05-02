@@ -2,8 +2,8 @@
 {
     public class Route
     {
-        public string name { get; set; }
-        public string description { get; set; }
-        public Location[]? locations { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public Location[]? Locations { get; set; }
     }
 }

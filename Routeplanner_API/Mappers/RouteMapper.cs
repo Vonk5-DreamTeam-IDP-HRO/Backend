@@ -8,8 +8,8 @@ namespace Routeplanner_API.Mappers
         {
             return new Route()
             {
-                name = jsonBody.GetProperty("name").GetString(),
-                description = jsonBody.GetProperty("description").GetString(),
+                Name = jsonBody.GetProperty("name").GetString(),
+                Description = jsonBody.GetProperty("description").GetString(),
                 //locations = 
             };
         }

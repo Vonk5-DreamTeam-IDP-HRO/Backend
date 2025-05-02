@@ -45,7 +45,7 @@ namespace Routeplanner_API.Database_Queries
                 {
                     connection.Open();
 
-                    string insertQuery = "INSERT INTO Users (Username, Email, PasswordHash) VALUES (@Username, @Email, @PasswordHash)";
+                    string insertQuery = "INSERT INTO Users (username, email, password_hash) VALUES (@Username, @Email, @PasswordHash)";
 
                     using var cmd = new NpgsqlCommand(insertQuery, connection);
                     //cmd.Parameters.AddWithValue("UserId", userId);

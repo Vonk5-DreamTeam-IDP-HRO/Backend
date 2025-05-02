@@ -21,7 +21,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddLocation([FromBody] JsonElement jsonBody)
+        public IActionResult AddRoute([FromBody] JsonElement jsonBody)
         {
             try
             {

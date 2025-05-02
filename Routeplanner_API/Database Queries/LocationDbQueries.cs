@@ -76,6 +76,11 @@ namespace Routeplanner_API.Database_Queries
             }
         }
 
+        public static void AddLocationDetails(Location location)
+        {
+
+        }
+
         public void EditLocation(Location location)
         {
 

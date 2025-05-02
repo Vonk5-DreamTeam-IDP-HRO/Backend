@@ -31,5 +31,19 @@ namespace Routeplanner_API.Controllers
             }
             return Ok("Location added successfully.");
         }
+
+        [HttpPost]
+        public IActionResult AddLocationDetails([FromBody] JsonElement jsonBody)
+        {
+            try
+            {
+                UoWs.LocationUoW.AddLocationDetails(jsonBody);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok("Location added successfully.");
+        }
     }
 }

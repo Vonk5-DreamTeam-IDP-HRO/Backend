@@ -2,9 +2,9 @@
 {
     public class Location
     {
-        public string name;
-        public string description;
-        public double latitude;
-        public double longitude;
+        public string name { get; set; }
+        public string description { get; set; }
+        public double latitude { get; set; }
+        public double longitude { get; set; }
     }
 }

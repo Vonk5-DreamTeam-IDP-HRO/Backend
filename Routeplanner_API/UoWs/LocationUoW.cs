@@ -24,5 +24,10 @@ namespace Routeplanner_API.UoWs
                 throw new NotImplementedException();
             }
         }
+
+        public static void AddLocationDetails(JsonElement jsonBody)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

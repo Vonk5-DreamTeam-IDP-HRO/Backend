@@ -2,8 +2,8 @@
 {
     public class User
     {
-        public string userName;
-        public string email;
-        public string passwordHash;
+        public string userName { get; set; }
+        public string email { get; set; }
+        public string passwordHash { get; set; }
     }
 }

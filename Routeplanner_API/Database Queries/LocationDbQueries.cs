@@ -57,7 +57,7 @@ namespace Routeplanner_API.Database_Queries
                 {
                     connection.Open();
 
-                    string insertQuery = "INSERT INTO Locations (Name, Latitude, Longitude, Description) VALUES (@Name, @Latitude, @Longitude, @Description)";
+                    string insertQuery = "INSERT INTO Locations (name, latitude, longitude, description) VALUES (@Name, @Latitude, @Longitude, @Description)";
 
                     using var cmd = new NpgsqlCommand(insertQuery, connection);
                     //cmd.Parameters.AddWithValue("UserId", userId);

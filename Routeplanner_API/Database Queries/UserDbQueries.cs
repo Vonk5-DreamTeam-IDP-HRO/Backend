@@ -15,7 +15,7 @@ namespace Routeplanner_API.Database_Queries
                 {
                     connection.Open();
 
-                    string selectQuery = "SELECT Username, Email, Password_Hash FROM Users"; // Error: Cannot find Users table.
+                    string selectQuery = "SELECT username, email, password_hash FROM Users"; // Error: Cannot find Users table.
 
                     using (var command = new NpgsqlCommand(selectQuery, connection))
                     using (var reader = command.ExecuteReader())
@@ -49,9 +49,9 @@ namespace Routeplanner_API.Database_Queries
 
                     using var cmd = new NpgsqlCommand(insertQuery, connection);
                     //cmd.Parameters.AddWithValue("UserId", userId);
-                    cmd.Parameters.AddWithValue("Username", user.userName);
-                    cmd.Parameters.AddWithValue("Email", user.email);
-                    cmd.Parameters.AddWithValue("PasswordHash", user.passwordHash);
+                    cmd.Parameters.AddWithValue("Username", user.UserName);
+                    cmd.Parameters.AddWithValue("Email", user.Email);
+                    cmd.Parameters.AddWithValue("PasswordHash", user.PasswordHash);
 
                     int rowsAffected = cmd.ExecuteNonQuery();
                     Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");

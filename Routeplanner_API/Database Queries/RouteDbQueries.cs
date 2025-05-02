@@ -15,7 +15,7 @@ namespace Routeplanner_API.Database_Queries
                 {
                     connection.Open();
 
-                    string selectQuery = "SELECT Name, Description, Locations FROM Routes";
+                    string selectQuery = "SELECT name, description, Locations FROM Routes";
 
                     using (var command = new NpgsqlCommand(selectQuery, connection))
                     using (var reader = command.ExecuteReader())
@@ -31,8 +31,8 @@ namespace Routeplanner_API.Database_Queries
 
                             Route route = new Route
                             {
-                                name = name,
-                                description = description,
+                                Name = name,
+                                Description = description,
                                 //locations = locations
                             };
                             routes.Add(route);

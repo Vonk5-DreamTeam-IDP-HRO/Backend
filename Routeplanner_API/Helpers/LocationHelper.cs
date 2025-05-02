@@ -2,16 +2,41 @@
 {
     public class LocationHelper
     {
-        public static bool ValidateLocation(Location location)
+        private static List<string> errors = new List<string>();
+
+        public static bool isLocationValid(Location location)
         {
-            if(location != null)
+            ValidateLocation(location);
+            return !errors.Any();
+        }
+
+        public static void ValidateLocation(Location location)
+        {
+            if (location == null)
             {
-                if(location.Name != null && location.Description != null && location.Latitude != 0 && location.Longitude != 0)
-                {
-                    return true;
-                }
+                errors.Add("Location cannot be null.");
+                return;
             }
-            return false;
+
+            if (string.IsNullOrWhiteSpace(location.Name))
+            {
+                errors.Add("Name is required.");
+            }
+
+            if (location.Name != null && location.Name.Length > 255)
+            {
+                errors.Add("Name must not exceed 255 characters.");
+            }
+
+            if (location.Latitude == 0)
+            {
+                errors.Add("Latitude cannot be 0");
+            }
+
+            if (location.Longitude == 0)
+            {
+                errors.Add("Longitude cannot be 0");
+            }
         }
 
         public static bool ValidateLocationDetails(LocationDetails locationDetails)
@@ -34,3 +59,10 @@
         }
     }
 }
+
+// Check if location is null.
+// Check if name already exists
+// Check if name is not null.
+// Check if name to too long for varchar
+// Check if lat long is not null.
+// Check if lat long is on land. 

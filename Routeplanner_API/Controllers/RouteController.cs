@@ -5,6 +5,7 @@ using System.Text.Json;
 namespace Routeplanner_API.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class RouteController : ControllerBase
     {
         [HttpGet]

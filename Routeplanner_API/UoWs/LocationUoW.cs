@@ -13,7 +13,7 @@ namespace Routeplanner_API.UoWs
         {
             Location location = Mappers.LocationMapper.MapJsonbodyToLocationObject(jsonBody); // Map jsonBody to a Location object.
 
-            bool locationIsValid = Helpers.LocationHelper.ValidateLocation(location); // Validate the Location.
+            bool locationIsValid = Helpers.LocationHelper.isLocationValid(location); // Validate the Location.
 
             if(locationIsValid)
             {
@@ -29,7 +29,7 @@ namespace Routeplanner_API.UoWs
         {
             AddLocation(jsonBody); // Add the Location.
 
-            LocationDetails locationDetails = Mappers.LocationMapper.MapJsonbodyToLocationDetailsObject(jsonBody);
+            LocationDetails locationDetails = Mappers.LocationMapper.MapJsonbodyToLocationDetailsObject(jsonBody); // Map jsonBody to a LocationDetails object.
 
             bool locationDetailsIsValid = Helpers.LocationHelper.ValidateLocationDetails(locationDetails); // Validate the LocationDetails.
 

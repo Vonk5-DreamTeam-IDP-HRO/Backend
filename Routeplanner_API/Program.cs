@@ -1,7 +1,14 @@
+using Routeplanner_API;
 using Routeplanner_API.Database_Queries;
 
-var locationDB = new LocationDbQueries();
-locationDB.GetLocations();
+var tempLocation = new Location()
+{
+    Name = "paultest",
+    Description = "paultest",
+    Latitude = 10,
+    Longitude = 20,
+};
+LocationDbQueries.AddLocation(tempLocation);
 
 var builder = WebApplication.CreateBuilder(args);
 

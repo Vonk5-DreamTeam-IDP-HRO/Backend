@@ -1,28 +1,30 @@
 ﻿using System;
 using Npgsql;
+using Routeplanner_API.Extensions;
 
 namespace Routeplanner_API.Database_Queries
 {
     public class LocationDbQueries
     {
         private readonly IConfiguration _configuration;
+        private readonly string _connectionString;
 
         public LocationDbQueries(IConfiguration configuration)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _connectionString = _configuration.GetValidatedConnectionString();
         }
 
         public Location[]? GetLocations()
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrEmpty(_connectionString))
             {
                 throw new InvalidOperationException("Error: Database Connection string 'DefaultConnection' not found.");
             }
 
             try
             {
-                using var connection = new NpgsqlConnection(connectionString);
+                using var connection = new NpgsqlConnection(_connectionString);
                 connection.Open();
                 const string selectQuery = "SELECT Name, Latitude, Longitude, Description FROM Locations";
                 using var command = new NpgsqlCommand(selectQuery, connection);
@@ -55,17 +57,9 @@ namespace Routeplanner_API.Database_Queries
 
         public void AddLocation(Location location)
         {
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                Console.WriteLine("Error: Database connection string 'DefaultConnection' not found in configuration.");
-                // Consider throwing an exception
-                return;
-            }
-
             try
             {
-                using var connection = new NpgsqlConnection(connectionString);
+                using var connection = new NpgsqlConnection(_connectionString);
                 connection.Open();
                 const string insertQuery = "INSERT INTO Locations (Name, Latitude, Longitude, Description) VALUES (@Name, @Latitude, @Longitude, @Description)";
                 using var cmd = new NpgsqlCommand(insertQuery, connection);

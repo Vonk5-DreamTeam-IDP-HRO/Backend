@@ -17,42 +17,30 @@ namespace Routeplanner_API.Database_Queries
 
         public Location[]? GetLocations()
         {
-          try
+            try
             {
                 using var connection = new NpgsqlConnection(_connectionString);
                 connection.Open();
                 const string selectQuery = "SELECT Name, Latitude, Longitude, Description FROM Locations";
                 using var command = new NpgsqlCommand(selectQuery, connection);
                 using var reader = command.ExecuteReader();
-                var locations = new List<Location>();
+                List<Location> locations = new List<Location>();
+
                 while (reader.Read())
                 {
-                    var name = reader.GetString(0);
-                    var latitude = reader.GetFloat(1);
-                    var longitude = reader.GetFloat(2);
-                    var description = reader.GetString(3);
-                    var location = new Location
+                    string name = reader.GetString(0);
+                    double latitude = reader.GetDouble(1);
+                    double longitude = reader.GetDouble(2);
+                    string description = reader.GetString(3);
+
+                    Location location = new Location()
                     {
-                        List<Location> locations = new List<Location>();
-
-                        while (reader.Read())
-                        {
-                            string Name = reader.GetString(0);
-                            double Latitude = reader.GetDouble(1);
-                            double Longitude = reader.GetDouble(2);
-                            string Description = reader.GetString(3);
-
-                            Location location = new Location()
-                            {
-                                Name = Name,
-                                Description = Description,
-                                Latitude = Latitude,
-                                Longitude = Longitude,
-                            };
-                            locations.Add(location);
-                        }
-                        return locations.ToArray();
-                    }
+                        Name = name,
+                        Description = description,
+                        Latitude = latitude,
+                        Longitude = longitude,
+                    };
+                    locations.Add(location);
                 }
                 return locations.ToArray();
             }
@@ -91,7 +79,7 @@ namespace Routeplanner_API.Database_Queries
             }
         }
 
-        public static void AddLocationDetails(LocationDetails locationDetails)
+        public void AddLocationDetails(LocationDetails locationDetails)
         {
             try
             {
@@ -121,17 +109,14 @@ namespace Routeplanner_API.Database_Queries
                 Console.WriteLine("An error occurred while inserting data:");
                 Console.WriteLine(exception.Message);
             }
-
         }
 
         public void EditLocation(Location location)
         {
-
         }
 
         public void DeleteLocation(Location location)
         {
-
         }
     }
 }

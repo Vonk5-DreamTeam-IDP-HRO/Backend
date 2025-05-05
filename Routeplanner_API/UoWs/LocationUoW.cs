@@ -1,27 +1,34 @@
-﻿using System.Text.Json;
+﻿using Routeplanner_API.Database_Queries;
+using System.Text.Json;
 
 namespace Routeplanner_API.UoWs
 {
     public class LocationUoW
     {
-        public static Location[]? GetLocations()
+        private readonly LocationDbQueries _locationDbQueries;
+
+        public LocationUoW(LocationDbQueries locationDbQueries)
         {
-            return Database_Queries.LocationDbQueries.GetLocations(); // Get the Locations from the database.
+            _locationDbQueries = locationDbQueries ?? throw new ArgumentNullException(nameof(locationDbQueries));
+        }
+        public Location[]? GetLocations()
+        {
+            return _locationDbQueries.GetLocations(); // Get all Locations from the database directlyu.
         }
         
-        public static void AddLocation(JsonElement jsonBody)
+        public void AddLocation(JsonElement jsonBody)
         {
-            Location location = Mappers.LocationMapper.MapJsonbodyToLocationObject(jsonBody); // Map jsonBody to a Location object.
+            var location = Mappers.LocationMapper.MapJsonbodyToLocationObject(jsonBody); // Map jsonBody to a Location object.
 
-            bool locationIsValid = Helpers.LocationHelper.ValidateLocation(location); // Validate the Location.
+            var locationIsValid = Helpers.LocationHelper.ValidateLocation(location); // Validate the Location.
 
             if(locationIsValid)
             {
-                Database_Queries.LocationDbQueries.AddLocation(location); // Add the Location to the database.
+                _locationDbQueries.AddLocation(location); // Add the Location to the database.
             }
             else
             {
-                throw new NotImplementedException();
+                throw new NotImplementedException("Validation failed");
             }
         }
     }

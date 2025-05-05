@@ -1,14 +1,21 @@
 using Routeplanner_API.Database_Queries;
 
-var locationDB = new LocationDbQueries();
-locationDB.GetLocations();
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<LocationDbQueries>();
+builder.Services.AddScoped<Routeplanner_API.UoWs.LocationUoW>();
+
+builder.Services.AddScoped<RouteDbQueries>();
+builder.Services.AddScoped<Routeplanner_API.UoWs.RouteUoW>();
+
+builder.Services.AddScoped<UserDbQueries>();
+builder.Services.AddScoped<Routeplanner_API.UoWs.UserUoW>();
+
+builder.Services.AddScoped<Routeplanner_API.Mappers.LocationMapper>();
+builder.Services.AddScoped<Routeplanner_API.Mappers.RouteMapper>();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -28,4 +35,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-

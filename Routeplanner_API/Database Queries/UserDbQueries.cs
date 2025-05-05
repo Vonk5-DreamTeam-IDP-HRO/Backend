@@ -1,17 +1,25 @@
 ﻿using System;
 using Npgsql;
+using Routeplanner_API.Extensions; // Added using statement for the extension method
 
 namespace Routeplanner_API.Database_Queries
 {
     public class UserDbQueries
     {
-        private string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
+        private readonly IConfiguration _configuration;
+        private readonly string _connectionString;
+
+        public UserDbQueries(IConfiguration configuration)
+        {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _connectionString = _configuration.GetValidatedConnectionString();
+        }
 
         public void GetUsers()
         {
             try
             {
-                using (var connection = new NpgsqlConnection(connectionString))
+                using (var connection = new NpgsqlConnection(_connectionString))
                 {
                     connection.Open();
 
@@ -41,7 +49,7 @@ namespace Routeplanner_API.Database_Queries
         {
             try
             {
-                using (var connection = new NpgsqlConnection(connectionString))
+                using (var connection = new NpgsqlConnection(_connectionString))
                 {
                     connection.Open();
 
@@ -57,7 +65,7 @@ namespace Routeplanner_API.Database_Queries
                     Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
                 }
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 Console.WriteLine(exception);
             }

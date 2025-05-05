@@ -1,78 +1,83 @@
 ﻿using System;
 using Npgsql;
+using Routeplanner_API.Extensions;
 
 namespace Routeplanner_API.Database_Queries
 {
     public class LocationDbQueries
     {
-        private static string connectionString = "Host=145.24.222.95;Port=8765;Username=dreamteam;Password=dreamteam;Database=postgres";
+        private readonly IConfiguration _configuration;
+        private readonly string _connectionString;
 
-        public static Location[]? GetLocations()
+        public LocationDbQueries(IConfiguration configuration)
         {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _connectionString = _configuration.GetValidatedConnectionString();
+        }
+
+        public Location[]? GetLocations()
+        {
+            if (string.IsNullOrEmpty(_connectionString))
+            {
+                throw new InvalidOperationException("Error: Database Connection string 'DefaultConnection' not found.");
+            }
+
             try
             {
-                using (var connection = new NpgsqlConnection(connectionString))
+                using var connection = new NpgsqlConnection(_connectionString);
+                connection.Open();
+                const string selectQuery = "SELECT Name, Latitude, Longitude, Description FROM Locations";
+                using var command = new NpgsqlCommand(selectQuery, connection);
+                using var reader = command.ExecuteReader();
+                var locations = new List<Location>();
+                while (reader.Read())
                 {
-                    connection.Open();
-
-                    string selectQuery = "SELECT Name, Latitude, Longitude, Description FROM Locations";
-
-                    using (var command = new NpgsqlCommand(selectQuery, connection))
-                    using (var reader = command.ExecuteReader())
+                    var name = reader.GetString(0);
+                    var latitude = reader.GetFloat(1);
+                    var longitude = reader.GetFloat(2);
+                    var description = reader.GetString(3);
+                    var location = new Location
                     {
-                        List<Location> locations = new List<Location>();
-
-                        while (reader.Read())
-                        {
-                            string Name = reader.GetString(0);
-                            float Latitude = reader.GetDouble(1);
-                            float Longitude = reader.GetDouble(2);
-                            string Description = reader.GetString(3);
-
-                            Location location = new Location()
-                            {
-                                name = Name,
-                                description = Description
-                                latitude = Latitude,
-                                longitude = Longitude,
-                            };
-                            locations.Add(location);
-                        }
-                        return locations.ToArray();
-                    }
+                        name = name,
+                        latitude = latitude,
+                        longitude = longitude,
+                        description = description,
+                    };
+                    locations.Add(location);
                 }
+                return locations.ToArray();
             }
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
+                // TODO: Implement better and more specific logging for example using ILogger
                 return null;
             }
         }
 
-        public static void AddLocation(Location location)
+        public void AddLocation(Location location)
         {
             try
             {
-                using (var connection = new NpgsqlConnection(connectionString))
-                {
-                    connection.Open();
-
-                    string insertQuery = "INSERT INTO Locations (Name, Latitude, Longitude, Description) VALUES (@Name, @Latitude, @Longitude, @Description)";
-
-                    using var cmd = new NpgsqlCommand(insertQuery, connection);
-                    //cmd.Parameters.AddWithValue("UserId", userId);
-                    cmd.Parameters.AddWithValue("Name", location.name);
-                    cmd.Parameters.AddWithValue("Latitude", location.latitude);
-                    cmd.Parameters.AddWithValue("Longitude", location.longitude);
-                    cmd.Parameters.AddWithValue("Description", location.description);
-
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
-                }
+                using var connection = new NpgsqlConnection(_connectionString);
+                connection.Open();
+                const string insertQuery = "INSERT INTO Locations (Name, Latitude, Longitude, Description) VALUES (@Name, @Latitude, @Longitude, @Description)";
+                using var cmd = new NpgsqlCommand(insertQuery, connection);
+                cmd.Parameters.AddWithValue("Name", location.name);
+                cmd.Parameters.AddWithValue("Latitude", location.latitude);
+                cmd.Parameters.AddWithValue("Longitude", location.longitude);
+                cmd.Parameters.AddWithValue("Description", location.description);
+                var rowsAffected = cmd.ExecuteNonQuery();
+                Console.WriteLine($"Inserted {rowsAffected} row(s) into the database."); // Use ILogger ideally
+            }
+            catch (NpgsqlException pgEx)
+            {
+                Console.WriteLine($"Database error in AddLocation: {pgEx.Message}");
+                // Consider re-throwing or handling differently
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+                Console.WriteLine($"Generic error in AddLocation: {exception}");
             }
         }
 

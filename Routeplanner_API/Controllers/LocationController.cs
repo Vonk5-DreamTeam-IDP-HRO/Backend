@@ -5,7 +5,8 @@ using System.Text.Json;
 namespace Routeplanner_API.Controllers
 {
     [ApiController]
-    // TODO: Add more explicitity to the route, for example: [Route("api/[controller]")]
+    [Route("api/[controller]")]
+    
     public class LocationController : ControllerBase
     {
         private readonly LocationUoW _locationUoW;
@@ -44,6 +45,20 @@ namespace Routeplanner_API.Controllers
             try
             {
                 _locationUoW.AddLocation(jsonBody);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok("Location added successfully.");
+        }
+
+        [HttpPost]
+        public IActionResult AddLocationDetails([FromBody] JsonElement jsonBody)
+        {
+            try
+            {
+                UoWs.LocationUoW.AddLocationDetails(jsonBody);
             }
             catch (Exception ex)
             {

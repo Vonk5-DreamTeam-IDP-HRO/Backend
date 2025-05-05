@@ -17,12 +17,7 @@ namespace Routeplanner_API.Database_Queries
 
         public Location[]? GetLocations()
         {
-            if (string.IsNullOrEmpty(_connectionString))
-            {
-                throw new InvalidOperationException("Error: Database Connection string 'DefaultConnection' not found.");
-            }
-
-            try
+          try
             {
                 using var connection = new NpgsqlConnection(_connectionString);
                 connection.Open();
@@ -38,12 +33,26 @@ namespace Routeplanner_API.Database_Queries
                     var description = reader.GetString(3);
                     var location = new Location
                     {
-                        name = name,
-                        latitude = latitude,
-                        longitude = longitude,
-                        description = description,
-                    };
-                    locations.Add(location);
+                        List<Location> locations = new List<Location>();
+
+                        while (reader.Read())
+                        {
+                            string Name = reader.GetString(0);
+                            double Latitude = reader.GetDouble(1);
+                            double Longitude = reader.GetDouble(2);
+                            string Description = reader.GetString(3);
+
+                            Location location = new Location()
+                            {
+                                Name = Name,
+                                Description = Description,
+                                Latitude = Latitude,
+                                Longitude = Longitude,
+                            };
+                            locations.Add(location);
+                        }
+                        return locations.ToArray();
+                    }
                 }
                 return locations.ToArray();
             }
@@ -59,26 +68,60 @@ namespace Routeplanner_API.Database_Queries
         {
             try
             {
-                using var connection = new NpgsqlConnection(_connectionString);
-                connection.Open();
-                const string insertQuery = "INSERT INTO Locations (Name, Latitude, Longitude, Description) VALUES (@Name, @Latitude, @Longitude, @Description)";
-                using var cmd = new NpgsqlCommand(insertQuery, connection);
-                cmd.Parameters.AddWithValue("Name", location.name);
-                cmd.Parameters.AddWithValue("Latitude", location.latitude);
-                cmd.Parameters.AddWithValue("Longitude", location.longitude);
-                cmd.Parameters.AddWithValue("Description", location.description);
-                var rowsAffected = cmd.ExecuteNonQuery();
-                Console.WriteLine($"Inserted {rowsAffected} row(s) into the database."); // Use ILogger ideally
-            }
-            catch (NpgsqlException pgEx)
-            {
-                Console.WriteLine($"Database error in AddLocation: {pgEx.Message}");
-                // Consider re-throwing or handling differently
+                using (var connection = new NpgsqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string insertQuery = "INSERT INTO Locations (name, latitude, longitude, description) VALUES (@Name, @Latitude, @Longitude, @Description)";
+
+                    using var cmd = new NpgsqlCommand(insertQuery, connection);
+                    //cmd.Parameters.AddWithValue("UserId", userId);
+                    cmd.Parameters.AddWithValue("Name", location.Name);
+                    cmd.Parameters.AddWithValue("Latitude", location.Latitude);
+                    cmd.Parameters.AddWithValue("Longitude", location.Longitude);
+                    cmd.Parameters.AddWithValue("Description", location.Description);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
+                }
             }
             catch (Exception exception)
             {
                 Console.WriteLine($"Generic error in AddLocation: {exception}");
             }
+        }
+
+        public static void AddLocationDetails(LocationDetails locationDetails)
+        {
+            try
+            {
+                using (var connection = new NpgsqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    string insertQuery = @"INSERT INTO location_details (address, city, country, zip_code, phone_number, website, category, accessibility)
+                                           VALUES (@Address, @City, @Country, @ZipCode, @PhoneNumber, @Website, @Category, @Accessibility)";
+
+                    using var cmd = new NpgsqlCommand(insertQuery, connection);
+                    cmd.Parameters.AddWithValue("@Address", locationDetails.Address);
+                    cmd.Parameters.AddWithValue("@City", locationDetails.City);
+                    cmd.Parameters.AddWithValue("@Country", locationDetails.Country);
+                    cmd.Parameters.AddWithValue("@ZipCode", locationDetails.ZipCode);
+                    cmd.Parameters.AddWithValue("@PhoneNumber", locationDetails.PhoneNumber);
+                    cmd.Parameters.AddWithValue("@Website", locationDetails.Website);
+                    cmd.Parameters.AddWithValue("@Category", locationDetails.Category);
+                    cmd.Parameters.AddWithValue("@Accessibility", locationDetails.Accessibility);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("An error occurred while inserting data:");
+                Console.WriteLine(exception.Message);
+            }
+
         }
 
         public void EditLocation(Location location)

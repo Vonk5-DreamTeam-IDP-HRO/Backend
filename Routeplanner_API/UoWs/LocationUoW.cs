@@ -19,8 +19,7 @@ namespace Routeplanner_API.UoWs
         public void AddLocation(JsonElement jsonBody)
         {
             var location = Mappers.LocationMapper.MapJsonbodyToLocationObject(jsonBody); // Map jsonBody to a Location object.
-
-            var locationIsValid = Helpers.LocationHelper.ValidateLocation(location); // Validate the Location.
+            bool locationIsValid = Helpers.LocationHelper.isLocationValid(location); // Validate the Location.
 
             if(locationIsValid)
             {
@@ -29,6 +28,24 @@ namespace Routeplanner_API.UoWs
             else
             {
                 throw new NotImplementedException("Validation failed");
+            }
+        }
+
+        public static void AddLocationDetails(JsonElement jsonBody)
+        {
+            AddLocation(jsonBody); // Add the Location.
+
+            LocationDetails locationDetails = Mappers.LocationMapper.MapJsonbodyToLocationDetailsObject(jsonBody); // Map jsonBody to a LocationDetails object.
+
+            bool locationDetailsIsValid = Helpers.LocationHelper.ValidateLocationDetails(locationDetails); // Validate the LocationDetails.
+
+            if (locationDetailsIsValid)
+            {
+                Database_Queries.LocationDbQueries.AddLocationDetails(locationDetails); // Add the LocationDetails to the database.
+            }
+            else
+            {
+                throw new NotImplementedException();
             }
         }
     }

@@ -5,6 +5,7 @@ using System.Text.Json;
 namespace Routeplanner_API.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class RouteController : ControllerBase
     {
         [HttpGet]
@@ -21,7 +22,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddLocation([FromBody] JsonElement jsonBody)
+        public IActionResult AddRoute([FromBody] JsonElement jsonBody)
         {
             try
             {

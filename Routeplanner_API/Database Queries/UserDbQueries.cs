@@ -55,21 +55,18 @@ namespace Routeplanner_API.Database_Queries
         {
             try
             {
-                using (var connection = new NpgsqlConnection(_connectionString))
-                {
-                    connection.Open();
+                using var connection = new NpgsqlConnection(_connectionString);             
+                connection.Open();
+                string insertQuery = "INSERT INTO Users (username, email, password_hash) VALUES (@Username, @Email, @PasswordHash)";
+                using var command = new NpgsqlCommand(insertQuery, connection);
 
-                    string insertQuery = "INSERT INTO Users (username, email, password_hash) VALUES (@Username, @Email, @PasswordHash)";
+                //cmd.Parameters.AddWithValue("UserId", userId);
+                command.Parameters.AddWithValue("Username", user.UserName);
+                command.Parameters.AddWithValue("Email", user.Email);
+                command.Parameters.AddWithValue("PasswordHash", user.PasswordHash);
 
-                    using var cmd = new NpgsqlCommand(insertQuery, connection);
-                    //cmd.Parameters.AddWithValue("UserId", userId);
-                    cmd.Parameters.AddWithValue("Username", user.UserName);
-                    cmd.Parameters.AddWithValue("Email", user.Email);
-                    cmd.Parameters.AddWithValue("PasswordHash", user.PasswordHash);
-
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    _logger.LogInformation("Inserted {RowsAffected} row(s) into the database.", rowsAffected);
-                }
+                int rowsAffected = command.ExecuteNonQuery();
+                _logger.LogInformation("Inserted {RowsAffected} row(s) into the database.", rowsAffected);                
             }
             catch (Exception exception)
             {

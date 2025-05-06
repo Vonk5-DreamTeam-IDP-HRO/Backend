@@ -21,7 +21,7 @@ namespace Routeplanner_API.UoWs
         {
             var user = Mappers.UserMapper.MapJsonBodyToUserObject(jsonBody); // Map the JsonBody to an User object. 
 
-            bool userIsValid = Helpers.UserHelper.ValidateUser(user); // Validate the User.
+            bool userIsValid = Helpers.UserHelper.isUserValid(user); // Validate the User.
 
             if (userIsValid)
             {

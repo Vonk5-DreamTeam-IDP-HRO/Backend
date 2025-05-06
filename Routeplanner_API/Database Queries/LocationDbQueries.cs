@@ -70,8 +70,6 @@ namespace Routeplanner_API.Database_Queries
 
                 int rowsAffected = command.ExecuteNonQuery();
                 _logger.LogInformation("Inserted {RowsAffected} row(s) into the database.", rowsAffected);
-
-
             }
             catch (Exception exception)
             {
@@ -100,8 +98,6 @@ namespace Routeplanner_API.Database_Queries
 
                 int rowsAffected = command.ExecuteNonQuery();
                 _logger.LogInformation("Inserted {RowsAffected} row(s) into the database.", rowsAffected);
-
-
             }
             catch (Exception exception)
             {

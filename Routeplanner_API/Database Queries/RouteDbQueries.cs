@@ -8,11 +8,14 @@ namespace Routeplanner_API.Database_Queries
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
+        private readonly ILogger _logger;
 
-        public RouteDbQueries(IConfiguration configuration)
+        public RouteDbQueries(IConfiguration configuration, ILogger logger)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _connectionString = _configuration.GetValidatedConnectionString();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
         }
 
         public Route[]? GetRoutes()
@@ -52,7 +55,7 @@ namespace Routeplanner_API.Database_Queries
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
+                _logger.LogError(exception.ToString());
                 return null;
             }
         }

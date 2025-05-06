@@ -58,7 +58,7 @@ namespace Routeplanner_API.Controllers
         {
             try
             {
-                UoWs.LocationUoW.AddLocationDetails(jsonBody);
+                _locationUoW.AddLocationDetails(jsonBody);
             }
             catch (Exception ex)
             {

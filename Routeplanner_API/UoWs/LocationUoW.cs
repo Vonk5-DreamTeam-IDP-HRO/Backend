@@ -31,7 +31,7 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public static void AddLocationDetails(JsonElement jsonBody)
+        public void AddLocationDetails(JsonElement jsonBody)
         {
             AddLocation(jsonBody); // Add the Location.
 
@@ -41,7 +41,7 @@ namespace Routeplanner_API.UoWs
 
             if (locationDetailsIsValid)
             {
-                Database_Queries.LocationDbQueries.AddLocationDetails(locationDetails); // Add the LocationDetails to the database.
+                _locationDbQueries.AddLocationDetails(locationDetails); // Add the LocationDetails to the database.
             }
             else
             {

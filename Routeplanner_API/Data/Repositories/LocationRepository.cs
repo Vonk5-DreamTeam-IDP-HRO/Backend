@@ -18,7 +18,8 @@ namespace Routeplanner_API.Data.Repositories
         public async Task<Location?> GetByIdAsync(int locationId)
         {
             return await _context.Locations
-                                 .Include(l => l.LocationDetail)
+            // Uncomment if you want to include LocationDetail and OpeningTimes
+                                 // .Include(l => l.LocationDetail) 
                                  // .Include(l => l.OpeningTimes) // Add other includes as needed
                                  .FirstOrDefaultAsync(l => l.LocationId == locationId);
         }
@@ -26,7 +27,7 @@ namespace Routeplanner_API.Data.Repositories
         public async Task<IEnumerable<Location>> GetAllAsync()
         {
             return await _context.Locations
-                                 .Include(l => l.LocationDetail)
+                                 // .Include(l => l.LocationDetail)
                                  // .Include(l => l.OpeningTimes)
                                  .ToListAsync();
         }

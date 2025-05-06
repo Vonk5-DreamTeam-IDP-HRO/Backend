@@ -53,7 +53,7 @@ namespace Routeplanner_API.UoWs
                 // locationEntity.UserId = ...; 
 
                 var createdLocation = await _locationRepository.CreateAsync(locationEntity);
-                _logger.LogInformation("Location created successfully with ID: {LocationId}", createdLocation.Id);
+                _logger.LogInformation("Location created successfully with ID: {LocationId}", createdLocation.LocationId);
                 return _mapper.Map<LocationDto>(createdLocation);
             }
             catch (Exception ex)

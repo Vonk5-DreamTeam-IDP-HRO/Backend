@@ -2,9 +2,9 @@
 {
     public class UserHelper
     {
-        public static bool ValidateUser(User user)
+        public static bool ValidateUser(User user) // To do 
         {
-            return true;
+            return true; 
         }
     }
 }

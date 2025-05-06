@@ -8,11 +8,13 @@ namespace Routeplanner_API.Database_Queries
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
+        private readonly ILogger _logger;
 
-        public LocationDbQueries(IConfiguration configuration)
+        public LocationDbQueries(IConfiguration configuration, ILogger logger)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _connectionString = _configuration.GetValidatedConnectionString();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public Location[]? GetLocations()
@@ -46,8 +48,7 @@ namespace Routeplanner_API.Database_Queries
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception);
-                // TODO: Implement better and more specific logging for example using ILogger
+                _logger.LogError(exception.ToString());            
                 return null;
             }
         }
@@ -56,26 +57,25 @@ namespace Routeplanner_API.Database_Queries
         {
             try
             {
-                using (var connection = new NpgsqlConnection(_connectionString))
-                {
-                    connection.Open();
+                using var connection = new NpgsqlConnection(_connectionString);                
+                connection.Open();
+                string insertQuery = "INSERT INTO Locations (name, latitude, longitude, description) VALUES (@Name, @Latitude, @Longitude, @Description)";
+                using var command = new NpgsqlCommand(insertQuery, connection);
 
-                    string insertQuery = "INSERT INTO Locations (name, latitude, longitude, description) VALUES (@Name, @Latitude, @Longitude, @Description)";
+                //command.Parameters.AddWithValue("UserId", new Guid());
+                command.Parameters.AddWithValue("Name", location.Name);
+                command.Parameters.AddWithValue("Latitude", location.Latitude);
+                command.Parameters.AddWithValue("Longitude", location.Longitude);
+                command.Parameters.AddWithValue("Description", location.Description);
 
-                    using var cmd = new NpgsqlCommand(insertQuery, connection);
-                    //cmd.Parameters.AddWithValue("UserId", userId);
-                    cmd.Parameters.AddWithValue("Name", location.Name);
-                    cmd.Parameters.AddWithValue("Latitude", location.Latitude);
-                    cmd.Parameters.AddWithValue("Longitude", location.Longitude);
-                    cmd.Parameters.AddWithValue("Description", location.Description);
+                int rowsAffected = command.ExecuteNonQuery();
+                _logger.LogInformation("Inserted {RowsAffected} row(s) into the database.", rowsAffected);
 
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
-                }
+
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"Generic error in AddLocation: {exception}");
+                _logger.LogError(exception.ToString());
             }
         }
 
@@ -83,31 +83,29 @@ namespace Routeplanner_API.Database_Queries
         {
             try
             {
-                using (var connection = new NpgsqlConnection(_connectionString))
-                {
-                    connection.Open();
+                using var connection = new NpgsqlConnection(_connectionString);               
+                connection.Open();
+                string insertQuery = @"INSERT INTO location_details (address, city, country, zip_code, phone_number, website, category, accessibility)
+                                        VALUES (@Address, @City, @Country, @ZipCode, @PhoneNumber, @Website, @Category, @Accessibility)";
+                using var command = new NpgsqlCommand(insertQuery, connection);
 
-                    string insertQuery = @"INSERT INTO location_details (address, city, country, zip_code, phone_number, website, category, accessibility)
-                                           VALUES (@Address, @City, @Country, @ZipCode, @PhoneNumber, @Website, @Category, @Accessibility)";
+                command.Parameters.AddWithValue("@Address", locationDetails.Address);
+                command.Parameters.AddWithValue("@City", locationDetails.City);
+                command.Parameters.AddWithValue("@Country", locationDetails.Country);
+                command.Parameters.AddWithValue("@ZipCode", locationDetails.ZipCode);
+                command.Parameters.AddWithValue("@PhoneNumber", locationDetails.PhoneNumber);
+                command.Parameters.AddWithValue("@Website", locationDetails.Website);
+                command.Parameters.AddWithValue("@Category", locationDetails.Category);
+                command.Parameters.AddWithValue("@Accessibility", locationDetails.Accessibility);
 
-                    using var cmd = new NpgsqlCommand(insertQuery, connection);
-                    cmd.Parameters.AddWithValue("@Address", locationDetails.Address);
-                    cmd.Parameters.AddWithValue("@City", locationDetails.City);
-                    cmd.Parameters.AddWithValue("@Country", locationDetails.Country);
-                    cmd.Parameters.AddWithValue("@ZipCode", locationDetails.ZipCode);
-                    cmd.Parameters.AddWithValue("@PhoneNumber", locationDetails.PhoneNumber);
-                    cmd.Parameters.AddWithValue("@Website", locationDetails.Website);
-                    cmd.Parameters.AddWithValue("@Category", locationDetails.Category);
-                    cmd.Parameters.AddWithValue("@Accessibility", locationDetails.Accessibility);
+                int rowsAffected = command.ExecuteNonQuery();
+                _logger.LogInformation("Inserted {RowsAffected} row(s) into the database.", rowsAffected);
 
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    Console.WriteLine($"Inserted {rowsAffected} row(s) into the database.");
-                }
+
             }
             catch (Exception exception)
             {
-                Console.WriteLine("An error occurred while inserting data:");
-                Console.WriteLine(exception.Message);
+                _logger.LogError(exception.ToString());
             }
         }
 

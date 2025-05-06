@@ -15,7 +15,7 @@ namespace Routeplanner_API.Database_Queries
             _connectionString = _configuration.GetValidatedConnectionString();
         }
 
-        public void GetUsers()
+        public User[] GetUsers()
         {
             try
             {

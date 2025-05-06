@@ -11,6 +11,7 @@ namespace Routeplanner_API.UoWs
         {
             _locationDbQueries = locationDbQueries ?? throw new ArgumentNullException(nameof(locationDbQueries));
         }
+
         public Location[]? GetLocations()
         {
             return _locationDbQueries.GetLocations(); // Get all Locations from the database directlyu.
@@ -19,6 +20,7 @@ namespace Routeplanner_API.UoWs
         public void AddLocation(JsonElement jsonBody)
         {
             var location = Mappers.LocationMapper.MapJsonbodyToLocationObject(jsonBody); // Map jsonBody to a Location object.
+
             bool locationIsValid = Helpers.LocationHelper.isLocationValid(location); // Validate the Location.
 
             if(locationIsValid)
@@ -31,8 +33,8 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public static void AddLocationDetails(JsonElement jsonBody)
-        {
+        public void AddLocationDetails(JsonElement jsonBody)
+        {            
             AddLocation(jsonBody); // Add the Location.
 
             LocationDetails locationDetails = Mappers.LocationMapper.MapJsonbodyToLocationDetailsObject(jsonBody); // Map jsonBody to a LocationDetails object.
@@ -41,7 +43,7 @@ namespace Routeplanner_API.UoWs
 
             if (locationDetailsIsValid)
             {
-                Database_Queries.LocationDbQueries.AddLocationDetails(locationDetails); // Add the LocationDetails to the database.
+                _locationDbQueries.AddLocationDetails(locationDetails); // Add the LocationDetails to the database.
             }
             else
             {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.Database_Queries;
 using System.Text.Json;
+using Routeplanner_API.UoWs;
 
 namespace Routeplanner_API.Controllers
 {
@@ -8,10 +9,17 @@ namespace Routeplanner_API.Controllers
     [Route("api/[controller]")]
     public class RouteController : ControllerBase
     {
+        private readonly RouteUoW _routeUoW;
+
+        public RouteController(IConfiguration configuration)
+        {
+            _routeUoW = new RouteUoW(configuration);
+        }
+
         [HttpGet]
         public ActionResult<Route[]> GetRoutes()
         {
-            var routes = UoWs.RouteUoW.GetRoutes();
+            var routes = _routeUoW.GetRoutes();
 
             if (routes == null || !routes.Any())
             {
@@ -26,7 +34,7 @@ namespace Routeplanner_API.Controllers
         {
             try
             {
-                UoWs.RouteUoW.AddRoute(jsonBody);
+                _routeUoW.AddRoute(jsonBody);
             }
             catch (Exception ex)
             {
@@ -34,6 +42,5 @@ namespace Routeplanner_API.Controllers
             }
             return Ok("Route added successfully.");
         }
-        
     }
 }

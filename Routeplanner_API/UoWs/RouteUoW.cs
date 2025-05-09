@@ -1,15 +1,23 @@
 ﻿using System.Text.Json;
+using Routeplanner_API.Database_Queries;
 
 namespace Routeplanner_API.UoWs
 {
     public class RouteUoW
     {
-        public static Route[]? GetRoutes()
+        private readonly RouteDbQueries _routeDbQueries;
+
+        public RouteUoW(IConfiguration configuration)
         {
-            return Database_Queries.RouteDbQueries.GetRoutes(); // Get the Routes from the database.
+            _routeDbQueries = new RouteDbQueries(configuration);
         }
 
-        public static void AddRoute(JsonElement jsonBody)
+        public Route[]? GetRoutes()
+        {
+            return _routeDbQueries.GetRoutes(); // Get the Routes from the database.
+        }
+
+        public void AddRoute(JsonElement jsonBody)
         {
             Route route = Mappers.RouteMapper.MapJsonBodyToRouteObject(jsonBody); // Map the jsonBody to a Route object.
 
@@ -17,7 +25,7 @@ namespace Routeplanner_API.UoWs
 
             if (routeIsValid)
             {
-                Database_Queries.RouteDbQueries.AddRoute(route); // Add the Route to the database.
+                _routeDbQueries.AddRoute(route); // Add the Route to the database.
             }
             else
             {

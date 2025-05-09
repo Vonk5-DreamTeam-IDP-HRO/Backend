@@ -49,7 +49,7 @@ namespace Routeplanner_API.UoWs
                 // userEntity.UserId = ...; 
 
                 var createdUser = await _userDbQueries.CreateAsync(userEntity);
-                _logger.LogInformation("User created successfully with ID: {userId}", createdUser.userId);
+                _logger.LogInformation("User created successfully with ID: {userId}", createdUser.UserId);
                 return _mapper.Map<UserDto>(createdUser);
             }
             catch (Exception ex)

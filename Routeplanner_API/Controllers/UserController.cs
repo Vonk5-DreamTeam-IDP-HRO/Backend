@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Routeplanner_API.DTO;
+using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
 using System.Text.Json;
 
@@ -18,37 +20,120 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<User[]> GetUsers()
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
             try
             {
-                User[] users = _userUoW.GetUsers();
-                if (users == null || users.Length == 0)
-                {
-                    _logger.LogWarning("GetUsers returned null, possibly due to a database issue.");
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Failed to retrieve users.");
-                }
+                var users = await _userUoW.GetUsersAsync();
                 return Ok(users);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while getting users.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                _logger.LogError(ex, "Error occurred while getting all users.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while retrieving users.");
+            }
+        }
+
+        [HttpGet("{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<UserDto>> GetUserById(int userId)
+        {
+            try
+            {
+                var user = await _userUoW.GetUsersByIdAsync(userId);
+                if (user == null)
+                {
+                    _logger.LogInformation("User with ID {userId} not found.", userId);
+                    return NotFound($"User with ID {userId} not found.");
+                }
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting user with ID {userId}.", userId);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while retrieving user {userId}.");
             }
         }
 
         [HttpPost]
-        public IActionResult AddUser([FromBody] JsonElement jsonBody)
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("CreateUser called with invalid model state.");
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                _userUoW.AddUser(jsonBody);
+                var createdUser = await _userUoW.CreateUserAsync(createUserDto);
+                return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                _logger.LogError(ex, "Error occurred while creating a new user. Input: {@createUserDto}", createUserDto);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while creating the user.");
             }
-            return Ok("User added successfully.");
+        }
+
+        [HttpPut("{userId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<LocationDto>> UpdateUser(int userId, [FromBody] UpdateUserDto updateUserDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("UpdateUser called with invalid model state for ID {userId}.", userId);
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updatedUser = await _userUoW.UpdateUserAsync(userId, updateUserDto);
+                if (updatedUser == null)
+                {
+                    _logger.LogWarning("Attempted to update non-existent user with ID {userId}.", userId);
+                    return NotFound($"User with ID {userId} not found for update.");
+                }
+                return Ok(updatedUser);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating user with ID {userId}. Input: {@updateUserDto}", userId, updateUserDto);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while updating user {userId}.");
+            }
+        }
+
+        [HttpDelete("{userId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            try
+            {
+                var success = await _userUoW.DeleteUserAsync(userId);
+                if (!success)
+                {
+                    _logger.LogWarning("Attempted to delete non-existent user with ID {userId}.", userId);
+                    return NotFound($"User with ID {userId} not found for deletion.");
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting user with ID {userId}.", userId);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while deleting user {userId}.");
+            }
         }
     }
 }

@@ -4,9 +4,14 @@ using Routeplanner_API.Data;
 
 namespace Routeplanner_API.Database_Queries
 {
-    public class LocationDbQueries(RouteplannerDbContext context) : ILocationDbQueries
+    public class LocationDbQueries : ILocationDbQueries
     {
-        private readonly RouteplannerDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
+        private readonly RouteplannerDbContext _context;
+
+        public LocationDbQueries(RouteplannerDbContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         public async Task<Location?> GetByIdAsync(int locationId)
         {

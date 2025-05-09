@@ -2,7 +2,6 @@ using Routeplanner_API;
 using Routeplanner_API.Database_Queries; // Can be removed after refactor is completed
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Data;
-using Routeplanner_API.Data.Repositories;
 using Routeplanner_API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,11 +13,11 @@ builder.Services.AddDbContext<RouteplannerDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 // Register Repositories
-builder.Services.AddScoped<ILocationRepository, LocationRepository>();
+builder.Services.AddScoped<ILocationDbQueries, LocationDbQueries>();
 // TODO: Register other repositories (IRouteRepository, IUserRepository) here
 
 // Register Unit of Works / Services
-builder.Services.AddScoped<Routeplanner_API.UoWs.LocationService>();
+builder.Services.AddScoped<Routeplanner_API.UoWs.LocationUoW>();
 builder.Services.AddScoped<Routeplanner_API.UoWs.RouteUoW>();
 builder.Services.AddScoped<Routeplanner_API.UoWs.UserUoW>();
 

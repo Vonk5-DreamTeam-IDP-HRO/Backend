@@ -2,9 +2,9 @@ using Routeplanner_API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Routeplanner_API.Data.Repositories
+namespace Routeplanner_API.Database_Queries
 {
-    public interface ILocationRepository
+    public interface ILocationDbQueries
     {
         Task<Location?> GetByIdAsync(int locationId);
         Task<IEnumerable<Location>> GetAllAsync();

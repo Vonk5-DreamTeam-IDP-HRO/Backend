@@ -1,21 +1,17 @@
 ﻿using AutoMapper;
-using Routeplanner_API.Data.Repositories;
 using Routeplanner_API.DTO;
 using Routeplanner_API.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using Routeplanner_API.Database_Queries;
 
 namespace Routeplanner_API.UoWs
 {
-    public class LocationService
+    public class LocationUoW
     {
-        private readonly ILocationRepository _locationRepository;
+        private readonly ILocationDbQueries _locationRepository;
         private readonly IMapper _mapper;
-        private readonly ILogger<LocationService> _logger;
+        private readonly ILogger<LocationUoW> _logger;
 
-        public LocationService(ILocationRepository locationRepository, IMapper mapper, ILogger<LocationService> logger)
+        public LocationUoW(ILocationDbQueries locationRepository, IMapper mapper, ILogger<LocationUoW> logger)
         {
             _locationRepository = locationRepository ?? throw new ArgumentNullException(nameof(locationRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));

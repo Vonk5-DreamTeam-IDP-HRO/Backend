@@ -1,19 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Routeplanner_API.Data;
 
-namespace Routeplanner_API.Data.Repositories
+namespace Routeplanner_API.Database_Queries
 {
-    public class LocationRepository : ILocationRepository
+    public class LocationDbQueries(RouteplannerDbContext context) : ILocationDbQueries
     {
-        private readonly RouteplannerDbContext _context;
-
-        public LocationRepository(RouteplannerDbContext context)
-        {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly RouteplannerDbContext _context = context ?? throw new ArgumentNullException(nameof(context));
 
         public async Task<Location?> GetByIdAsync(int locationId)
         {

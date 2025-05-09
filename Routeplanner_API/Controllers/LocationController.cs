@@ -11,10 +11,10 @@ namespace Routeplanner_API.Controllers
     [Route("api/[controller]")]
     public class LocationController : ControllerBase
     {
-        private readonly LocationService _locationUoW;
+        private readonly LocationUoW _locationUoW;
         private readonly ILogger<LocationController> _logger;
 
-        public LocationController(LocationService locationUoW, ILogger<LocationController> logger)
+        public LocationController(LocationUoW locationUoW, ILogger<LocationController> logger)
         {
             _locationUoW = locationUoW ?? throw new ArgumentNullException(nameof(locationUoW));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

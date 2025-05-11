@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
+using Route = Routeplanner_API.Models.Route;
 
 namespace Routeplanner_API.Data;
 

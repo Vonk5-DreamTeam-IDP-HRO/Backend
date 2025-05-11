@@ -1,79 +1,60 @@
 ﻿using System;
-using Npgsql;
-using Routeplanner_API.Extensions;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Routeplanner_API.Data;
+using Routeplanner_API.Models;
+using Route = Routeplanner_API.Models.Route;
+
 
 namespace Routeplanner_API.Database_Queries
 {
-    public class RouteDbQueries
+    public class RouteDbQueries : IRouteDbQueries
     {
-        private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
-        private readonly ILogger _logger;
+        private readonly RouteplannerDbContext _context;
 
-        public RouteDbQueries(IConfiguration configuration, ILogger logger)
+        public RouteDbQueries(RouteplannerDbContext context)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _connectionString = _configuration.GetValidatedConnectionString();
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public Route[]? GetRoutes()
+        public async Task<Route?> GetByIdAsync(int routeId)
         {
-            try
+            return await _context.Routes
+                .FirstOrDefaultAsync(r => r.RouteId == routeId);
+        }
+        public async Task<IEnumerable<Route?>> GetAllAsync()
+        {
+            return await _context.Routes
+                .ToListAsync();
+        }
+
+        public async Task<Route> CreateAsync(Route route)
+        {
+            ArgumentNullException.ThrowIfNull(route);
+            await _context.Routes.AddAsync(route);
+            await _context.SaveChangesAsync();
+            return route;
+        }
+
+        public async Task<Route?> UpdateAsync(Route route)
+        {
+            ArgumentNullException.ThrowIfNull(route);
+            var existingRoute = await _context.Routes.FindAsync(route.RouteId);
+            if (existingRoute == null)
             {
-                using (var connection = new NpgsqlConnection(_connectionString))
-                {
-                    connection.Open();
-
-                    string selectQuery = "SELECT name, description, Locations FROM Routes";
-
-                    using (var command = new NpgsqlCommand(selectQuery, connection))
-                    using (var reader = command.ExecuteReader())
-                    {
-                        List<Route> routes = new List<Route>();
-
-                        while (reader.Read())
-                        {
-                            string name = reader.GetString(0);
-                            string description = reader.GetString(1);
-
-                            //var locations = reader.IsDBNull(2) ? null : reader.GetFieldValue<string[]>(2);
-
-                            Route route = new Route
-                            {
-                                Name = name,
-                                Description = description,
-                                //locations = locations
-                            };
-                            routes.Add(route);
-                        }
-
-                        return routes.ToArray();
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception.ToString());
                 return null;
             }
-        }
-
-
-        public void AddRoute(Route route)
-        {
-
-        }
-
-        public void EditRoute(Route route)
-        {
-
-        }
-
-        public void DeleteRoute(Route route)
-        {
-
+            // EF Core's change tracker will automatically detect changes to properties
+            // when SaveChangesAsync is called. If you are mapping from a DTO,
+            // ensure all intended properties are updated on 'existingRoute'.
+            // AutoMapper can help here in the service layer.
+            // For a direct update like this, you'd typically update properties of 'existingRoute'
+            // from 'route' (the input parameter).
+            // Example of updating properties (assuming 'route' has the new values):
+            _context.Entry(existingRoute).CurrentValues.SetValues(route);
+            existingRoute.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return existingRoute;
         }
     }
 }

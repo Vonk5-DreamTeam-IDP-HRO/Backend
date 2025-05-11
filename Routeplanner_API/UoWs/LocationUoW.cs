@@ -7,13 +7,13 @@ namespace Routeplanner_API.UoWs
 {
     public class LocationUoW
     {
-        private readonly ILocationDbQueries _locationRepository;
+        private readonly ILocationDbQueries _locationDbQueries;
         private readonly IMapper _mapper;
         private readonly ILogger<LocationUoW> _logger;
 
-        public LocationUoW(ILocationDbQueries locationRepository, IMapper mapper, ILogger<LocationUoW> logger)
+        public LocationUoW(ILocationDbQueries locationDbQueries, IMapper mapper, ILogger<LocationUoW> logger)
         {
-            _locationRepository = locationRepository ?? throw new ArgumentNullException(nameof(locationRepository));
+            _locationDbQueries = locationDbQueries ?? throw new ArgumentNullException(nameof(locationDbQueries));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -21,14 +21,14 @@ namespace Routeplanner_API.UoWs
         public async Task<IEnumerable<LocationDto>> GetLocationsAsync()
         {
             _logger.LogInformation("Getting all locations");
-            var locations = await _locationRepository.GetAllAsync();
+            var locations = await _locationDbQueries.GetAllAsync();
             return _mapper.Map<IEnumerable<LocationDto>>(locations);
         }
 
         public async Task<LocationDto?> GetLocationByIdAsync(int locationId)
         {
             _logger.LogInformation("Getting location with ID: {LocationId}", locationId);
-            var location = await _locationRepository.GetByIdAsync(locationId);
+            var location = await _locationDbQueries.GetByIdAsync(locationId);
             if (location == null)
             {
                 _logger.LogWarning("Location with ID: {LocationId} not found", locationId);
@@ -48,7 +48,7 @@ namespace Routeplanner_API.UoWs
                 // Potentially set UserId if applicable and not directly from DTO
                 // locationEntity.UserId = ...; 
 
-                var createdLocation = await _locationRepository.CreateAsync(locationEntity);
+                var createdLocation = await _locationDbQueries.CreateAsync(locationEntity);
                 _logger.LogInformation("Location created successfully with ID: {LocationId}", createdLocation.LocationId);
                 return _mapper.Map<LocationDto>(createdLocation);
             }
@@ -63,7 +63,7 @@ namespace Routeplanner_API.UoWs
         {
             _logger.LogInformation("Updating location with ID: {LocationId}", locationId);
 
-            var existingLocation = await _locationRepository.GetByIdAsync(locationId);
+            var existingLocation = await _locationDbQueries.GetByIdAsync(locationId);
             if (existingLocation == null)
             {
                 _logger.LogWarning("Location with ID: {LocationId} not found for update", locationId);
@@ -78,7 +78,7 @@ namespace Routeplanner_API.UoWs
                 // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
                 // existingLocation.UpdatedAt = DateTime.UtcNow;
 
-                var updatedLocation = await _locationRepository.UpdateAsync(existingLocation);
+                var updatedLocation = await _locationDbQueries.UpdateAsync(existingLocation);
                 _logger.LogInformation("Location with ID: {LocationId} updated successfully", locationId);
                 return _mapper.Map<LocationDto>(updatedLocation);
             }
@@ -94,7 +94,7 @@ namespace Routeplanner_API.UoWs
             _logger.LogInformation("Deleting location with ID: {LocationId}", locationId);
             try
             {
-                var result = await _locationRepository.DeleteAsync(locationId);
+                var result = await _locationDbQueries.DeleteAsync(locationId);
                 if (result)
                 {
                     _logger.LogInformation("Location with ID: {LocationId} deleted successfully", locationId);

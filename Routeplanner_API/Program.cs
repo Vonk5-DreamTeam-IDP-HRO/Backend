@@ -8,7 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Register DbContext with the validated connection string.
 // This ensures that the connection string is valid before the application starts.
-var connectionString = builder.Configuration.GetValidatedConnectionString();
+var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
+    .AddConfiguration(builder.Configuration.GetSection("Logging"))
+    .AddConsole()
+    .AddDebug());
+var logger = loggerFactory.CreateLogger<Program>(); // Create a logger instance
+
+var connectionString = builder.Configuration.GetValidatedConnectionString(logger); // Pass the logger
 builder.Services.AddDbContext<RouteplannerDbContext>(options =>
     options.UseNpgsql(connectionString));
 

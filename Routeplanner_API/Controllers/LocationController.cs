@@ -9,6 +9,7 @@ namespace Routeplanner_API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class LocationController : ControllerBase
     {
         private readonly LocationUoW _locationUoW;
@@ -134,6 +135,23 @@ namespace Routeplanner_API.Controllers
             {
                 _logger.LogError(ex, "Error occurred while deleting location with ID {LocationId}.", locationId);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while deleting location {locationId}.");
+            }
+        }
+
+        [HttpGet("grouped-selectable")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<SelectableLocationDto>))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetGroupedSelectableLocations()
+        {
+            try
+            {
+                var groupedLocations = await _locationUoW.GetGroupedSelectableLocationsAsync();
+                return Ok(groupedLocations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching grouped selectable locations.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while fetching grouped selectable locations.");
             }
         }
     }

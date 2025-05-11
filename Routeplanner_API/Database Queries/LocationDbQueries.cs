@@ -85,5 +85,12 @@ namespace Routeplanner_API.Database_Queries
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<IEnumerable<Location>> GetAllWithDetailsAsync()
+        {
+            return await _context.Locations
+                                 .Include(l => l.LocationDetail) // Eager load LocationDetail
+                                 .ToListAsync();
+        }
     }
 }

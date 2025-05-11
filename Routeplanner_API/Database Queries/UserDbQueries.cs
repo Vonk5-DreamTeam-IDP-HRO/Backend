@@ -1,87 +1,62 @@
-﻿using System;
-using Npgsql;
-using Routeplanner_API.Extensions; // Added using statement for the extension method
+﻿using Microsoft.EntityFrameworkCore;
+using Routeplanner_API.Models;
+using Routeplanner_API.Data;
 
 namespace Routeplanner_API.Database_Queries
 {
-    public class UserDbQueries
+    public class UserDbQueries : IUserDbQueries
     {
-        private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
-        private readonly ILogger _logger;
+        private readonly RouteplannerDbContext _context;
 
-        public UserDbQueries(IConfiguration configuration, ILogger logger)
+        public UserDbQueries(RouteplannerDbContext context)
         {
-            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _connectionString = _configuration.GetValidatedConnectionString();
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public User[]? GetUsers()
+        public async Task<User?> GetByIdAsync(int userId)
         {
-            try
-            {
-                using var connection = new NpgsqlConnection(_connectionString);              
-                connection.Open();
-                string selectQuery = "SELECT username, email, password_hash FROM Users"; // Error: Cannot find Users table.
-                using var command = new NpgsqlCommand(selectQuery, connection);
-                using var reader = command.ExecuteReader();
-                List<User> users = new List<User>();
+            return await _context.Users.FirstOrDefaultAsync(l => l.UserId == userId);
+        }
 
-                while (reader.Read())
-                {
-                    string username = reader.GetString(0);
-                    string email = reader.GetString(1);
-                    string password_Hash = reader.GetString(2);
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
 
-                    User user = new User()
-                    {
-                        UserName = username,
-                        Email = email,
-                        PasswordHash = password_Hash
-                    };
-                    users.Add(user);
-                }
-                return users.ToArray();
-            }
-            catch (Exception exception)
+        public async Task<User> CreateAsync(User user)
+        {
+            ArgumentNullException.ThrowIfNull(user);
+
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<User?> UpdateAsync(User user)
+        {
+            ArgumentNullException.ThrowIfNull(user);
+
+            var existingUser = await _context.Users.FindAsync(user.UserId);
+            if (existingUser == null)
             {
-                _logger.LogError(exception.ToString());
                 return null;
             }
+
+            await _context.SaveChangesAsync();
+            return existingUser;
         }
 
-        public void AddUser(User user)
+        public async Task<bool> DeleteAsync(int userId)
         {
-            try
+            var userToDelete = await _context.Users.FindAsync(userId);
+            if (userToDelete == null)
             {
-                using var connection = new NpgsqlConnection(_connectionString);             
-                connection.Open();
-                string insertQuery = "INSERT INTO Users (username, email, password_hash) VALUES (@Username, @Email, @PasswordHash)";
-                using var command = new NpgsqlCommand(insertQuery, connection);
-
-                //cmd.Parameters.AddWithValue("UserId", userId);
-                command.Parameters.AddWithValue("Username", user.UserName);
-                command.Parameters.AddWithValue("Email", user.Email);
-                command.Parameters.AddWithValue("PasswordHash", user.PasswordHash);
-
-                int rowsAffected = command.ExecuteNonQuery();
-                _logger.LogInformation("Inserted {RowsAffected} row(s) into the database.", rowsAffected);                
+                return false;
             }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception.ToString());
-            }
-        }
 
-        public void EditUser(User user)
-        {
-
-        }
-
-        public void DeleteUser(User user)
-        {
-
+            _context.Users.Remove(userToDelete);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

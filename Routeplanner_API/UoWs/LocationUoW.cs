@@ -111,32 +111,5 @@ namespace Routeplanner_API.UoWs
                 throw;
             }
         }
-
-        public async Task<List<SelectableLocationDto>> GetGroupedSelectableLocationsAsync()
-        {
-            _logger.LogInformation("Getting grouped selectable locations as a flat list");
-            var locationsFromDb = await _locationDbQueries.GetAllWithDetailsAsync();
-            
-            var selectableLocations = new List<SelectableLocationDto>();
-
-            foreach (var location in locationsFromDb)
-            {
-                string categoryName = "Uncategorized"; // Default category
-                if (location.LocationDetail != null && !string.IsNullOrEmpty(location.LocationDetail.Category))
-                {
-                    categoryName = location.LocationDetail.Category;
-                }
-
-                selectableLocations.Add(new SelectableLocationDto
-                {
-                    LocationId = location.LocationId,
-                    Name = location.Name, // Assuming Location model has a Name property
-                    Category = categoryName
-                });
-            }
-            
-            _logger.LogInformation("Successfully retrieved {Count} selectable locations.", selectableLocations.Count);
-            return selectableLocations;
-        }
     }
 }

@@ -11,6 +11,5 @@ namespace Routeplanner_API.Database_Queries
         Task<Location> CreateAsync(Location location);
         Task<Location?> UpdateAsync(Location location); // Returns null if not found
         Task<bool> DeleteAsync(int locationId);
-        Task<IEnumerable<Location>> GetAllWithDetailsAsync(); // Added for grouped locations
     }
 }

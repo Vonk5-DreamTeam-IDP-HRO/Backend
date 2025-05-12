@@ -14,7 +14,7 @@ namespace Routeplanner_API.Extensions
         /// <param name="key">The connection string key (defaults to "DefaultConnection").</param>
         /// <returns>The validated connection string.</returns>
         /// <exception cref="InvalidOperationException">Thrown if the connection string is not found or is empty.</exception>
-        public static string GetValidatedConnectionString(this IConfiguration configuration, ILogger logger, string key = "ThijsHROConnection")
+        public static string GetValidatedConnectionString(this IConfiguration configuration, ILogger logger, string key = "DefaultConnection")
         {
             ArgumentNullException.ThrowIfNull(configuration);
             ArgumentNullException.ThrowIfNull(logger);
@@ -27,7 +27,7 @@ namespace Routeplanner_API.Extensions
             if (string.IsNullOrEmpty(connectionString))
             {
                 logger.LogWarning("Primary connection string '{Key}' not found, attempting to use fallback connection", key);
-                var temporaryConnectionString = configuration[$"{connectionStringText}:DefaultConnection"];
+                var temporaryConnectionString = configuration[$"{connectionStringText}:ThijsHROConnection"];
 
                 if (string.IsNullOrEmpty(temporaryConnectionString))
                 {

@@ -1,12 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 using Routeplanner_API.DTO;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 
 namespace Routeplanner_API.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
@@ -63,7 +70,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
+        public async Task<ActionResult<UserDto>> CreateUser([FromBody] UserDto createUserDto)
         {
             if (!ModelState.IsValid)
             {
@@ -74,7 +81,11 @@ namespace Routeplanner_API.Controllers
             try
             {
                 var createdUser = await _userUoW.CreateUserAsync(createUserDto);
-                return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser);
+                //return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser); // Old return statement
+
+                var token = _userUoW.GenerateJwtToken(createdUser);
+                
+                return Ok(new { Token = token });
             }
             catch (Exception ex)
             {
@@ -134,6 +145,15 @@ namespace Routeplanner_API.Controllers
                 _logger.LogError(ex, "Error occurred while deleting user with ID {userId}.", userId);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while deleting user {userId}.");
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserDto userDto)
+        {
+            var user = await _userUoW.FindUserByEmailAsync(userDto.Email);
+            if (user != null && await _userUoW.CheckPasswordAsync(user, userDto.PasswordHash))
+                return Ok(new { Token = _userUoW.GenerateJwtToken(user) });
+            return Unauthorized();
         }
     }
 }

@@ -15,12 +15,17 @@ namespace Routeplanner_API.Database_Queries
 
         public async Task<User?> GetByIdAsync(int userId)
         {
-            return await _context.Users.FirstOrDefaultAsync(l => l.UserId == userId);
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _context.Users.ToListAsync();
+        }
+
+        public async Task<User?> FindUserByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u=> u.Email == email); // wut? user heeft geen email veld.
         }
 
         public async Task<User> CreateAsync(User user)

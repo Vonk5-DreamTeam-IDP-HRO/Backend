@@ -75,7 +75,7 @@ namespace Routeplanner_API.Controllers
             try
             {
                 var createdUser = await _userUoW.CreateUserAsync(createUserDto);
-                //return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser); // Old return statement
+                //return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser); // Old CreateAccount return statement
 
                 var token = _userUoW.GenerateJwtToken(createdUser);
                 
@@ -89,6 +89,8 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPost("login")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Login([FromBody] UserDto userDto)
         {
             var user = await _userUoW.FindUserByEmailAsync(userDto.Email);
@@ -96,7 +98,8 @@ namespace Routeplanner_API.Controllers
             {
                 return Ok(new { Token = _userUoW.GenerateJwtToken(user) });
             }
-            return Unauthorized();
+            
+            return StatusCode(StatusCodes.Status401Unauthorized, $"User with email {userDto.Email} not found.");
         }
 
         [HttpPut("{userId}")]

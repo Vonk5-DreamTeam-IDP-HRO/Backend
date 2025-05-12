@@ -1,13 +1,8 @@
 ﻿using AutoMapper;
-using Routeplanner_API.DTO;
-using Routeplanner_API.Models;
 using Routeplanner_API.Database_Queries;
+using Routeplanner_API.DTO;
 using Routeplanner_API.Helpers;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Microsoft.EntityFrameworkCore.Design;
+using Routeplanner_API.Models;
 
 namespace Routeplanner_API.UoWs
 {
@@ -51,7 +46,7 @@ namespace Routeplanner_API.UoWs
         {
             _logger.LogInformation("Finding user with email: {email}", email);
 
-            var user = await _userDbQueries.FindUserByEmailAsync(email);
+            UserConfidential? user = await _userDbQueries.FindUserByEmailAsync(email);
 
             if (user == null)
             {

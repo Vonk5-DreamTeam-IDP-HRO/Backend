@@ -4,6 +4,6 @@ namespace Routeplanner_API.Helpers
 {
     public interface IUserHelper
     {
-        public string GenerateJwtToken(UserDto user);
+        string GenerateJwtToken(UserDto user);
     }
 }

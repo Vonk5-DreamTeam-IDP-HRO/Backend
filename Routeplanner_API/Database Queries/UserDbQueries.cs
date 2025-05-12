@@ -23,9 +23,9 @@ namespace Routeplanner_API.Database_Queries
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<User?> FindUserByEmailAsync(string email)
+        public async Task<UserConfidential?> FindUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u=> u.Email == email); // wut? user heeft geen email veld.
+            return await _context.UserConfidentials.FirstOrDefaultAsync(u=> u.Email == email); // wut? user heeft geen email veld.
         }
 
         public async Task<User> CreateAsync(User user)

@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
 using Routeplanner_API.DTO;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 
 namespace Routeplanner_API.Controllers
 {
@@ -94,6 +88,17 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserDto userDto)
+        {
+            var user = await _userUoW.FindUserByEmailAsync(userDto.Email);
+            if (user != null && await _userUoW.CheckPasswordAsync(user, userDto.PasswordHash))
+            {
+                return Ok(new { Token = _userUoW.GenerateJwtToken(user) });
+            }
+            return Unauthorized();
+        }
+
         [HttpPut("{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -145,15 +150,6 @@ namespace Routeplanner_API.Controllers
                 _logger.LogError(ex, "Error occurred while deleting user with ID {userId}.", userId);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while deleting user {userId}.");
             }
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserDto userDto)
-        {
-            var user = await _userUoW.FindUserByEmailAsync(userDto.Email);
-            if (user != null && await _userUoW.CheckPasswordAsync(user, userDto.PasswordHash))
-                return Ok(new { Token = _userUoW.GenerateJwtToken(user) });
-            return Unauthorized();
         }
     }
 }

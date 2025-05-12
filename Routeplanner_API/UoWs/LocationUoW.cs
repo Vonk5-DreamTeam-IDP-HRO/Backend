@@ -111,5 +111,20 @@ namespace Routeplanner_API.UoWs
                 throw;
             }
         }
+
+        public async Task<IEnumerable<string?>> GetUniqueCategoriesAsync()
+        {
+            _logger.LogInformation("Getting unique location categories");
+            try
+            {
+                var categories = await _locationDbQueries.GetUniqueCategoriesAsync();
+                return categories.Where(c => !string.IsNullOrEmpty(c)); 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting unique location categories: {ErrorMessage}", ex.Message);
+                throw;
+            }
+        }
     }
 }

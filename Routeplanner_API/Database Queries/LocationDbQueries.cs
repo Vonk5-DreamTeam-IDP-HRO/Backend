@@ -85,5 +85,13 @@ namespace Routeplanner_API.Database_Queries
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<IEnumerable<string?>> GetUniqueCategoriesAsync()
+        {
+            return await _context.LocationDetails
+                                 .Select(ld => ld.Category)
+                                 .Distinct()
+                                 .ToListAsync();
+        }
     }
 }

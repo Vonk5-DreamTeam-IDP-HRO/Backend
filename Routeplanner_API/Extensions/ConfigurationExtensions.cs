@@ -22,7 +22,7 @@ namespace Routeplanner_API.Extensions
             const string connectionStringText = "ConnectionStrings";
             logger.LogDebug("Attempting to retrieve connection string with key: {Key}", key);
 
-            var connectionString = configuration.GetConnectionString((connectionStringText + key));
+            var connectionString = configuration[(connectionStringText + ":" + key)];
 
             if (string.IsNullOrEmpty(connectionString))
             {

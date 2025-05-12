@@ -1,5 +1,5 @@
 using AutoMapper;
-using Routeplanner_API.DTO;
+using Routeplanner_API.DTO.Location;
 using Routeplanner_API.Models;
 
 namespace Routeplanner_API.Mappers

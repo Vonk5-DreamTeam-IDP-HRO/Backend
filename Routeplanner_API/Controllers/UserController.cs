@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Routeplanner_API.DTO;
+using Routeplanner_API.DTO.Location;
+using Routeplanner_API.DTO.User;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
 using System.Text.Json;

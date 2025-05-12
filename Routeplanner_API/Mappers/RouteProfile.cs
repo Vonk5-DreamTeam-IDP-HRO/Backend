@@ -1,5 +1,5 @@
 using AutoMapper;
-using Routeplanner_API.DTO;
+using Routeplanner_API.DTO.Route;
 using Routeplanner_API.Models;
 using System;
 using Route = Routeplanner_API.Models.Route;

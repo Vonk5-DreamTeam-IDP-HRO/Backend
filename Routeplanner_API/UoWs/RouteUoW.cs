@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using Routeplanner_API.Database_Queries;
-using Routeplanner_API.DTO;
+using Routeplanner_API.DTO.Route;
 
 namespace Routeplanner_API.UoWs
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Routeplanner_API.DTO
+namespace Routeplanner_API.DTO.User
 {
     public class CreateUserDto
     {

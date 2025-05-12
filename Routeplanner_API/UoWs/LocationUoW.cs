@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Routeplanner_API.DTO;
 using Routeplanner_API.Models;
 using Routeplanner_API.Database_Queries;
+using Routeplanner_API.DTO.Location;
 
 namespace Routeplanner_API.UoWs
 {

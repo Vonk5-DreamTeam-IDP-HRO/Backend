@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.Database_Queries;
 using System.Text.Json;
-using Routeplanner_API.DTO;
 using Routeplanner_API.UoWs;
 using AutoMapper;
+using Routeplanner_API.DTO.Route;
 
 namespace Routeplanner_API.Controllers
 {

@@ -1,4 +1,4 @@
-namespace Routeplanner_API.DTO
+namespace Routeplanner_API.DTO.Location
 {
     public class LocationDto
     {

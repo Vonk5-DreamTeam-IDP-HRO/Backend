@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Routeplanner_API.DTO;
 using Routeplanner_API.UoWs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Routeplanner_API.DTO.Location;
 
 namespace Routeplanner_API.Controllers
 {

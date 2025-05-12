@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Routeplanner_API.DTO
+namespace Routeplanner_API.DTO.Route
 {
     public class RouteDto
     {

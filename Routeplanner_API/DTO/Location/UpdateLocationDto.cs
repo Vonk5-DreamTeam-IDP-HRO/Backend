@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
 
-namespace Routeplanner_API.DTO
+namespace Routeplanner_API.DTO.Location
 {
     public class UpdateLocationDto
     {

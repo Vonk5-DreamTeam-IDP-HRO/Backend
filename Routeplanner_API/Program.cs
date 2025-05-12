@@ -21,15 +21,12 @@ builder.Services.AddDbContext<RouteplannerDbContext>(options =>
 // Register Repositories
 builder.Services.AddScoped<ILocationDbQueries, LocationDbQueries>();
 builder.Services.AddScoped<IRouteDbQueries, RouteDbQueries>();
-// TODO: Register other repositories (IRouteRepository, IUserRepository) here
+builder.Services.AddScoped<IUserDbQueries, UserDbQueries>();
 
 // Register Unit of Works / Services
 builder.Services.AddScoped<Routeplanner_API.UoWs.LocationUoW>();
 builder.Services.AddScoped<Routeplanner_API.UoWs.RouteUoW>();
 builder.Services.AddScoped<Routeplanner_API.UoWs.UserUoW>();
-
-
-builder.Services.AddScoped<UserDbQueries>();     // Keep for now
 
 // Add AutoMapper and discover profiles in the current assembly
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -53,4 +50,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

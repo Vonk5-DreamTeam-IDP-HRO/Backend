@@ -184,5 +184,24 @@ namespace Routeplanner_API.Controllers
                     $"An unexpected error occurred while deleting location {locationId}.");
             }
         }
+
+        [HttpGet("GroupedSelectableLocations")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetGroupedSelectableLocations()
+        {
+            _logger.LogInformation("API endpoint called: GetGroupedSelectableLocations");
+            try
+            {
+                var groupedLocations = await _locationUoW.GetGroupedSelectableLocationsAsync();
+                return Ok(groupedLocations);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting grouped selectable locations.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "An unexpected error occurred while retrieving grouped selectable locations.");
+            }
+        }
     }
 }

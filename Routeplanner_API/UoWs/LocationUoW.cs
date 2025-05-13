@@ -126,5 +126,46 @@ namespace Routeplanner_API.UoWs
                 throw;
             }
         }
+
+        public async Task<IEnumerable<SelectableLocationDto>> GetSelectableLocationsAsync()
+        {
+            _logger.LogInformation("Getting all selectable locations (flat list)");
+            try
+            {
+                var locations = await _locationDbQueries.GetSelectableLocationsAsync();
+                return locations;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all selectable locations (flat list): {ErrorMessage}", ex.Message);
+                throw; // Rethrow to be handled by the controller or global error handler
+            }
+        }
+
+        public async Task<Dictionary<string, List<SelectableLocationDto>>> GetGroupedSelectableLocationsAsync()
+        {
+            _logger.LogInformation("Getting selectable locations grouped by category");
+            try
+            {
+                // Fetch the flat list of selectable locations
+                var selectableLocations = await _locationDbQueries.GetSelectableLocationsAsync();
+
+                // Group by category
+                var groupedLocations = selectableLocations
+                    .GroupBy(s => s.Category ?? "Uncategorized") // Group by category, handle null/empty categories
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.ToList()
+                    );
+
+                _logger.LogInformation("Successfully retrieved and grouped {Count} categories.", groupedLocations.Count);
+                return groupedLocations;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting and grouping selectable locations: {ErrorMessage}", ex.Message);
+                throw;
+            }
+        }
     }
 }

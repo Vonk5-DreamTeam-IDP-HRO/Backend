@@ -136,9 +136,14 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public string GenerateJwtToken(UserDto user)
+        public string GenerateUserJwtToken(UserDto user)
         {
-            return _userHelper.GenerateJwtToken(user);
+            return _userHelper.GenerateUserJwtToken(user);
+        }
+
+        public string GenerateAdminJwtToken(UserDto user)
+        {
+            return _userHelper.GenerateAdminJwtToken(user);
         }
     }
 }

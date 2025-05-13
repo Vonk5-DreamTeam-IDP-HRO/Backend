@@ -6,8 +6,7 @@ using Routeplanner_API.UoWs;
 
 namespace Routeplanner_API.Controllers
 {
-    [ApiController]
-    [Authorize]
+    [ApiController]   
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
@@ -21,6 +20,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
@@ -38,6 +38,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("{userId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -77,7 +78,7 @@ namespace Routeplanner_API.Controllers
                 var createdUser = await _userUoW.CreateUserAsync(createUserDto);
                 //return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser); // Old CreateAccount return statement
 
-                var token = _userUoW.GenerateJwtToken(createdUser);
+                var token = _userUoW.GenerateUserJwtToken(createdUser);
                 
                 return Ok(new { Token = token });
             }
@@ -96,13 +97,14 @@ namespace Routeplanner_API.Controllers
             var user = await _userUoW.FindUserByEmailAsync(userDto.Email);
             if (user != null && await _userUoW.CheckPasswordAsync(user, userDto.PasswordHash))
             {
-                return Ok(new { Token = _userUoW.GenerateJwtToken(user) });
+                return Ok(new { Token = _userUoW.GenerateUserJwtToken(user) });
             }
             
             return StatusCode(StatusCodes.Status401Unauthorized, $"User with email {userDto.Email} not found.");
         }
 
         [HttpPut("{userId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -133,6 +135,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpDelete("{userId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

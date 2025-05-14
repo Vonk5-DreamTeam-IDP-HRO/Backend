@@ -40,7 +40,7 @@ namespace Routeplanner_API.Helpers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateAdminJwtToken(UserDto user)
+        public string GenerateAdminJwtToken(UserDto user) // Will we use this? How will this be used? 
         {
             Claim[] claims = new[]
             {

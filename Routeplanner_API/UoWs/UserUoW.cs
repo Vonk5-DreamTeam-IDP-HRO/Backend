@@ -62,9 +62,9 @@ namespace Routeplanner_API.UoWs
 
             UserConfidential? userConfidential = await _userDbQueries.CheckPasswordAsync(password);
 
-            if (user == null)
+            if (userConfidential == null)
             {
-                _logger.LogWarning($"Password tried by user {user.Username} was incorrect");
+                _logger.LogWarning($"Password tried by user was incorrect");
                 return false;
             }
             return true;

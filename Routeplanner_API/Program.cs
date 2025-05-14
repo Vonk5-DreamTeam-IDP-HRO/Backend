@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Data;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Extensions;
+using Routeplanner_API.JWT;
 using Microsoft.OpenApi.Models; 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

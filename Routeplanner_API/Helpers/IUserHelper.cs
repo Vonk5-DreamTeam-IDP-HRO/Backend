@@ -1,4 +1,5 @@
 ﻿using Routeplanner_API.DTO;
+using Routeplanner_API.JWT;
 
 namespace Routeplanner_API.Helpers
 {

@@ -25,7 +25,12 @@ namespace Routeplanner_API.Database_Queries
 
         public async Task<UserConfidential?> FindUserByEmailAsync(string email)
         {
-            return await _context.UserConfidentials.FirstOrDefaultAsync(u=> u.Email == email); // wut? user heeft geen email veld.
+            return await _context.UserConfidentials.FirstOrDefaultAsync(u=> u.Email == email); 
+        }
+
+        public async Task<UserConfidential?> CheckPasswordAsync(string password)
+        {
+            return await _context.UserConfidentials.FirstOrDefaultAsync(u => u.PasswordHash == password);
         }
 
         public async Task<User> CreateAsync(User user)

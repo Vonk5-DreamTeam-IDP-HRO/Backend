@@ -58,7 +58,16 @@ namespace Routeplanner_API.UoWs
 
         public async Task<bool> CheckPasswordAsync(UserDto user, string password)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation($"Checking the password for user: {user.Username})");
+
+            UserConfidential? userConfidential = await _userDbQueries.CheckPasswordAsync(password);
+
+            if (user == null)
+            {
+                _logger.LogWarning($"Password tried by user {user.Username} was incorrect");
+                return false;
+            }
+            return true;
         }
 
         public async Task<UserDto> CreateUserAsync(UserDto createUserDto)

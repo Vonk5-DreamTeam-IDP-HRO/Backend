@@ -95,11 +95,15 @@ namespace Routeplanner_API.Controllers
         public async Task<IActionResult> Login([FromBody] UserDto userDto)
         {
             var user = await _userUoW.FindUserByEmailAsync(userDto.Email);
-            if (user != null && await _userUoW.CheckPasswordAsync(user, userDto.PasswordHash))
+
+            if (user != null)
             {
-                return Ok(new { Token = _userUoW.GenerateUserJwtToken(user) });
-            }
-            
+                if (await _userUoW.CheckPasswordAsync(user, userDto.PasswordHash))
+                {
+                    return Ok(new { Token = _userUoW.GenerateUserJwtToken(user) });
+                }
+                return StatusCode(StatusCodes.Status401Unauthorized, $"User with password {userDto.PasswordHash} not found.");
+            }           
             return StatusCode(StatusCodes.Status401Unauthorized, $"User with email {userDto.Email} not found.");
         }
 

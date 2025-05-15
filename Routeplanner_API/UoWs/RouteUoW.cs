@@ -32,7 +32,7 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<IEnumerable<RouteDto>>(routes);
         }
 
-        public async Task<RouteDto?> GetRouteByIdAsync(int routeId)
+        public async Task<RouteDto?> GetRouteByIdAsync(Guid routeId)
         {
             _logger.LogInformation("Getting route with ID: {RouteId}", routeId);
             var route = await _routeDbQueries.GetByIdAsync(routeId);

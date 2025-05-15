@@ -25,7 +25,7 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
-        public async Task<UserDto?> GetUsersByIdAsync(int userId)
+        public async Task<UserDto?> GetUsersByIdAsync(Guid userId)
         {
             _logger.LogInformation("Getting user with ID: {userId}", userId);
             var user = await _userDbQueries.GetByIdAsync(userId);
@@ -59,7 +59,7 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<UserDto?> UpdateUserAsync(int userId, UpdateUserDto updateUserDto)
+        public async Task<UserDto?> UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)
         {
             _logger.LogInformation("Updating user with ID: {userId}", userId);
 
@@ -89,7 +89,7 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<bool> DeleteUserAsync(int userId)
+        public async Task<bool> DeleteUserAsync(Guid userId)
         {
             _logger.LogInformation("Deleting user with ID: {userId}", userId);
             try

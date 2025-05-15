@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Routeplanner_API.Data;
 using Routeplanner_API.Models;
 using Route = Routeplanner_API.Models.Route;
 
@@ -17,7 +16,7 @@ namespace Routeplanner_API.Database_Queries
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<Route?> GetByIdAsync(int routeId)
+        public async Task<Route?> GetByIdAsync(Guid routeId)
         {
             return await _context.Routes
                 .FirstOrDefaultAsync(r => r.RouteId == routeId);

@@ -41,7 +41,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserDto>> GetUserById(int userId)
+        public async Task<ActionResult<UserDto>> GetUserById(Guid userId)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> UpdateUser(int userId, [FromBody] UpdateUserDto updateUserDto)
+        public async Task<ActionResult<LocationDto>> UpdateUser(Guid userId, [FromBody] UpdateUserDto updateUserDto)
         {
             if (!ModelState.IsValid)
             {
@@ -118,7 +118,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteUser(int userId)
+        public async Task<IActionResult> DeleteUser(Guid userId)
         {
             try
             {

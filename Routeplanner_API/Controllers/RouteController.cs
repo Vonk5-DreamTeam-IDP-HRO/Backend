@@ -48,7 +48,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<RouteDto>> GetRouteById(int routeId)
+        public async Task<ActionResult<RouteDto>> GetRouteById(Guid routeId)
         {
             try
             {

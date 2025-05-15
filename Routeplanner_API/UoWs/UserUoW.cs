@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace Routeplanner_API.UoWs
         private readonly IUserHelper _userHelper;
         private readonly IMapper _mapper;
         private readonly ILogger<UserUoW> _logger;
+        private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
 
         public UserUoW(IUserDbQueries userDbQueries, IUserHelper userHelper, IMapper mapper, ILogger<UserUoW> logger)
         {
@@ -32,6 +34,8 @@ namespace Routeplanner_API.UoWs
             try
             {
                 var userEntity = _mapper.Map<User>(createUserDto);
+
+                userEntity.UserConfidential.PasswordHash = _passwordHasher.HashPassword(userEntity, userEntity.UserConfidential.PasswordHash); // correct?
 
                 // Potentially set UserId if applicable and not directly from DTO
                 // userEntity.UserId = ...; 
@@ -53,23 +57,25 @@ namespace Routeplanner_API.UoWs
 
             if (foundUser == null)
             {
-                return new LoginDto()
+                return new LoginDto
                 {
                     Success = false,
                     Message = "Invalid username"
                 };
             }
 
-            if (receivedUserDto.PasswordHash == foundUser.PasswordHash)
+            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.Password);
+
+            if (verificationResult == PasswordVerificationResult.Success)
             {
-                return new LoginDto()
+                return new LoginDto
                 {
                     Success = true,
-                    Message = "Login succesful"
+                    Message = "Login successful"
                 };
             }
 
-            return new LoginDto()
+            return new LoginDto
             {
                 Success = false,
                 Message = "Invalid password"

@@ -1,4 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.DTO;
 using Routeplanner_API.Helpers;
@@ -21,55 +25,6 @@ namespace Routeplanner_API.UoWs
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<IEnumerable<UserDto>> GetUsersAsync()
-        {
-            _logger.LogInformation("Getting all users");
-            var users = await _userDbQueries.GetAllAsync();
-            return _mapper.Map<IEnumerable<UserDto>>(users);
-        }
-
-        public async Task<UserDto?> GetUsersByIdAsync(int userId)
-        {
-            _logger.LogInformation("Getting user with ID: {userId}", userId);
-
-            var user = await _userDbQueries.GetByIdAsync(userId);
-
-            if (user == null)
-            {
-                _logger.LogWarning("User with ID: {userId} not found", userId);
-                return null;
-            }
-            return _mapper.Map<UserDto>(user);
-        }
-
-        public async Task<UserDto?> FindUserByEmailAsync(string email)
-        {
-            _logger.LogInformation("Finding user with email: {email}", email);
-
-            UserConfidential? user = await _userDbQueries.FindUserByEmailAsync(email);
-
-            if (user == null)
-            {
-                _logger.LogWarning("User with email: {email} not found", email);
-                return null;
-            }
-            return _mapper.Map<UserDto>(user);
-        }
-
-        public async Task<bool> CheckPasswordAsync(UserDto user, string password)
-        {
-            _logger.LogInformation($"Checking the password for user: {user.Username})");
-
-            UserConfidential? userConfidential = await _userDbQueries.CheckPasswordAsync(password);
-
-            if (userConfidential == null)
-            {
-                _logger.LogWarning($"Password tried by user was incorrect");
-                return false;
-            }
-            return true;
-        }
-
         public async Task<UserDto> CreateUserAsync(UserDto createUserDto)
         {
             _logger.LogInformation("Creating new user");
@@ -90,6 +45,35 @@ namespace Routeplanner_API.UoWs
                 _logger.LogError(ex, "Error creating user: {ErrorMessage}", ex.Message);
                 throw;
             }
+        }
+
+        public async Task<LoginDto> LoginUserAsync(UserDto receivedUserDto)
+        {
+            var foundUser = await FindUserByUsername(receivedUserDto.Username);
+
+            if (foundUser == null)
+            {
+                return new LoginDto()
+                {
+                    Success = false,
+                    Message = "Invalid username"
+                };
+            }
+
+            if (receivedUserDto.PasswordHash == foundUser.PasswordHash)
+            {
+                return new LoginDto()
+                {
+                    Success = true,
+                    Message = "Login succesful"
+                };
+            }
+
+            return new LoginDto()
+            {
+                Success = false,
+                Message = "Invalid password"
+            };
         }
 
         public async Task<UserDto?> UpdateUserAsync(int userId, UpdateUserDto updateUserDto)
@@ -145,6 +129,32 @@ namespace Routeplanner_API.UoWs
             }
         }
 
+        public async Task<IEnumerable<UserDto>> GetUsersAsync()
+        {
+            _logger.LogInformation("Getting all users");
+            var users = await _userDbQueries.GetAllAsync();
+            return _mapper.Map<IEnumerable<UserDto>>(users);
+        }
+
+        public async Task<UserDto?> GetUsersByIdAsync(int userId)
+        {
+            _logger.LogInformation("Getting user with ID: {userId}", userId);
+
+            var user = await _userDbQueries.GetByIdAsync(userId);
+
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID: {userId} not found", userId);
+                return null;
+            }
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task<User?> FindUserByUsername(string username)
+        {
+            return await _userDbQueries.FindUserByUsername(username);
+        }
+      
         public string GenerateUserJwtToken(UserDto user)
         {
             return _userHelper.GenerateUserJwtToken(user);

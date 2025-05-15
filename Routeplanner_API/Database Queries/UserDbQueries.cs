@@ -13,26 +13,6 @@ namespace Routeplanner_API.Database_Queries
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<User?> GetByIdAsync(int userId)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-        }
-
-        public async Task<IEnumerable<User>> GetAllAsync()
-        {
-            return await _context.Users.ToListAsync();
-        }
-
-        public async Task<UserConfidential?> FindUserByEmailAsync(string email)
-        {
-            return await _context.UserConfidentials.FirstOrDefaultAsync(u=> u.Email == email); 
-        }
-
-        public async Task<UserConfidential?> CheckPasswordAsync(string password)
-        {
-            return await _context.UserConfidentials.FirstOrDefaultAsync(u => u.PasswordHash == password);
-        }
-
         public async Task<User> CreateAsync(User user)
         {
             ArgumentNullException.ThrowIfNull(user);
@@ -67,6 +47,32 @@ namespace Routeplanner_API.Database_Queries
             _context.Users.Remove(userToDelete);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<User?> GetByIdAsync(int userId)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+        }
+
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task<UserConfidential?> FindUserByUsername(string username)
+        {
+            var temp = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+            if (temp == null)
+                return null;
+
+            return new UserConfidential // not working yet properly. no username?
+            {
+                UserId = temp.UserId,
+                Email = temp.Email,
+                PasswordHash = temp.PasswordHash,
+                User = temp.Username
+            };
         }
     }
 }

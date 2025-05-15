@@ -6,12 +6,12 @@ namespace Routeplanner_API.Database_Queries
 {
     public interface IUserDbQueries
     {
-        Task<User?> GetByIdAsync(int userId);
-        Task<IEnumerable<User>> GetAllAsync();
-        Task<UserConfidential?> FindUserByEmailAsync(string email);
-        Task<UserConfidential?>CheckPasswordAsync(string password);
         Task<User> CreateAsync(User user);
         Task<User?> UpdateAsync(User user); // Returns null if not found
         Task<bool> DeleteAsync(int userId);
+        Task<User?> GetByIdAsync(int userId);
+        Task<IEnumerable<User>> GetAllAsync();
+        Task<User?> FindUserByUsername(string username);
+
     }
 }

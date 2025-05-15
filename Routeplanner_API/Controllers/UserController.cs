@@ -92,19 +92,15 @@ namespace Routeplanner_API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Login([FromBody] UserDto userDto)
+        public async Task<IActionResult> LoginUser([FromBody] UserDto userDto)
         {
-            var user = await _userUoW.FindUserByEmailAsync(userDto.Email);
+            var result = await _userUoW.LoginAsync(userDto);
 
-            if (user != null)
+            if (!result.Success)
             {
-                if (await _userUoW.CheckPasswordAsync(user, userDto.PasswordHash))
-                {
-                    return Ok(new { Token = _userUoW.GenerateUserJwtToken(user) });
-                }
-                return StatusCode(StatusCodes.Status401Unauthorized, $"User with password {userDto.PasswordHash} not found.");
-            }           
-            return StatusCode(StatusCodes.Status401Unauthorized, $"User with email {userDto.Email} not found.");
+                return Unauthorized(result.Message);
+            }
+            return Ok(result.Message);
         }
 
         [HttpPut("{userId}")]

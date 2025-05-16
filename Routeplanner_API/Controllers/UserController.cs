@@ -94,7 +94,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LoginUser([FromBody] UserDto userDto)
         {
-            var result = await _userUoW.LoginAsync(userDto);
+            var result = await _userUoW.LoginUserAsync(userDto);
 
             if (!result.Success)
             {

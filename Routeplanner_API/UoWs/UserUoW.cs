@@ -156,7 +156,7 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<UserDto>(user);
         }
 
-        public async Task<User?> FindUserByUsername(string username)
+        public async Task<UserConfidential?> FindUserByUsername(string username)
         {
             return await _userDbQueries.FindUserByUsername(username);
         }

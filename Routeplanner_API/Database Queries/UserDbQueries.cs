@@ -65,14 +65,14 @@ namespace Routeplanner_API.Database_Queries
 
             if (temp == null)
                 return null;
-
-            return new UserConfidential // not working yet properly. no username?
-            {
-                UserId = temp.UserId,
-                Email = temp.Email,
-                PasswordHash = temp.PasswordHash,
-                User = temp.Username
-            };
+            return null;
+            //return new UserConfidential // not working yet properly. no username?
+            //{
+            //    UserId = temp.UserId,
+            //    Email = temp.Email,
+            //    PasswordHash = temp.PasswordHash,
+            //    User = temp.Username
+            //};
         }
     }
 }

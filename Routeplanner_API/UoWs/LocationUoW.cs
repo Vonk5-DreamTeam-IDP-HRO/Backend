@@ -25,7 +25,7 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<IEnumerable<LocationDto>>(locations);
         }
 
-        public async Task<LocationDto?> GetLocationByIdAsync(int locationId)
+        public async Task<LocationDto?> GetLocationByIdAsync(Guid locationId)
         {
             _logger.LogInformation("Getting location with ID: {LocationId}", locationId);
             var location = await _locationDbQueries.GetByIdAsync(locationId);
@@ -59,7 +59,7 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<LocationDto?> UpdateLocationAsync(int locationId, UpdateLocationDto updateLocationDto)
+        public async Task<LocationDto?> UpdateLocationAsync(Guid locationId, UpdateLocationDto updateLocationDto)
         {
             _logger.LogInformation("Updating location with ID: {LocationId}", locationId);
 
@@ -89,7 +89,7 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<bool> DeleteLocationAsync(int locationId)
+        public async Task<bool> DeleteLocationAsync(Guid locationId)
         {
             _logger.LogInformation("Deleting location with ID: {LocationId}", locationId);
             try

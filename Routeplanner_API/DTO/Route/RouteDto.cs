@@ -2,14 +2,14 @@
 
 namespace Routeplanner_API.DTO.Route
 {
-    public class RouteDto
+    public sealed class RouteDto
     {
-        public int RouteId { get; set; }
-        public string Name { get; set; } = null!;
+        public Guid RouteId { get; init; }
+        public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public int? CreatedBy { get; set; }
+        public Guid? CreatedBy { get; init; }
         public bool? IsPrivate { get; set; }
-        public DateTime? CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; init; }
         public DateTime? UpdatedAt { get; set; }
     }
 }

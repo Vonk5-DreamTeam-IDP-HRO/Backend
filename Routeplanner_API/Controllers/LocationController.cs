@@ -61,7 +61,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> GetLocationById(int locationId)
+        public async Task<ActionResult<LocationDto>> GetLocationById(Guid locationId)
         {
             try
             {
@@ -129,7 +129,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> UpdateLocation(int locationId,
+        public async Task<ActionResult<LocationDto>> UpdateLocation(Guid locationId,
             [FromBody] UpdateLocationDto updateLocationDto)
         {
             if (!ModelState.IsValid)
@@ -164,7 +164,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteLocation(int locationId)
+        public async Task<IActionResult> DeleteLocation(Guid locationId)
         {
             try
             {

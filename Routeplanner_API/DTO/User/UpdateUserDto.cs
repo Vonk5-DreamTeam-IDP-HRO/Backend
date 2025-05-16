@@ -2,18 +2,14 @@
 
 namespace Routeplanner_API.DTO.User
 {
-    public class UpdateUserDto
+    public sealed class UpdateUserDto
     {
-        [Required]
-        public int UserId { get; set; }
+        public Guid UserId { get; init; } 
 
-        [Required]
-        public string Username { get; set; } = null!;
+        public string? Username { get; set; } 
 
-        [Required]
-        public string Email { get; set; } = null!;
+        public string? Email { get; set; } 
 
-        [Required]
-        public string PasswordHash { get; set; } = null!;
+        public string? PasswordHash { get; set; }
     }
 }

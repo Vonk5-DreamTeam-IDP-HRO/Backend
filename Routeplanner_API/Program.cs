@@ -1,8 +1,8 @@
 using Routeplanner_API;
 using Microsoft.EntityFrameworkCore;
-using Routeplanner_API.Data;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Extensions;
+using Routeplanner_API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

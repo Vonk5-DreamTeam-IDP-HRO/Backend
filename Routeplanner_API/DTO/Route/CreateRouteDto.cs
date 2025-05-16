@@ -2,19 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Routeplanner_API.DTO.Route
 {
-    public class CreateRouteDto
+    public sealed class CreateRouteDto
     {
         [Required]
         [StringLength(255)]
-        public string Name { get; set; } = null!;
+        public string Name { get; set; } = string.Empty;
 
         public string? Description { get; set; }
 
-        // IsPrivate is optional with default value
-        public bool IsPrivate { get; set; } = false;
+        [Required]
+        public bool IsPrivate { get; set; } = true;
 
-        // CreatedBy can be set via the service layer from the authenticated user
-        // or explicitly provided in certain scenarios
-        public int? CreatedBy { get; set; }
+        // CreatedBy will be set via the service layer from the authenticated user (which is a Guid)
+        public Guid? CreatedBy { get; set; }
     }
 }

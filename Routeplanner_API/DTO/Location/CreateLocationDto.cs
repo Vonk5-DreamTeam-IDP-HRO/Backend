@@ -2,23 +2,25 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Routeplanner_API.DTO.Location
 {
-    public class CreateLocationDto
+    public sealed class CreateLocationDto
     {
         [Required]
         [StringLength(255)]
-        public string Name { get; set; } = null!;
+        public string Name { get; init; } = string.Empty;
+
+        // Latitude and Longitude are set to Rotterdam + all deelgemeentes.
+        // THey are both given as double, but they cannot be nullable.
+        [Required]
+        [Range(51.80, 52.00)]
+        public double Latitude { get; init; }
 
         [Required]
-        [Range(-90, 90)] // Standard latitude range
-        public double Latitude { get; set; }
+        [Range(4.40, 4.60)]
+        public double Longitude { get; init; }
+
+        public string? Description { get; init; }
 
         [Required]
-        [Range(-180, 180)] // Standard longitude range
-        public double Longitude { get; set; }
-
-        public string? Description { get; set; }
-
-        // Optional: If a user creates a location, you might want to include UserId
-        // public int? UserId { get; set; } 
+        public Guid UserId { get; init; }
     }
 }

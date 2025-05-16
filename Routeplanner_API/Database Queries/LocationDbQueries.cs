@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
+using Routeplanner_API.Data;
+using Routeplanner_API.DTO.Location;
 
 namespace Routeplanner_API.Database_Queries
 {
@@ -91,6 +93,22 @@ namespace Routeplanner_API.Database_Queries
                                  .Select(ld => ld.Category)
                                  .Distinct()
                                  .ToListAsync();
+        }
+
+        public async Task<IEnumerable<SelectableLocationDto>> GetSelectableLocationsAsync()
+        {
+            return await _context.Locations
+                .Join(
+                    _context.LocationDetails,
+                    location => location.LocationId,
+                    locationDetail => locationDetail.LocationId,
+                    (location, locationDetail) => new SelectableLocationDto
+                    {
+                        LocationId = location.LocationId,
+                        Name = location.Name,
+                        Category = locationDetail.Category // This comes from LocationDetail
+                    })
+                .ToListAsync();
         }
     }
 }

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
-using Routeplanner_API.Data;
 using Routeplanner_API.DTO.Location;
 
 namespace Routeplanner_API.Database_Queries

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Routeplanner_API.Data;
+using Routeplanner_API.Models;
 using Route = Routeplanner_API.Models.Route;
+
 
 namespace Routeplanner_API.Database_Queries
 {
@@ -15,7 +16,7 @@ namespace Routeplanner_API.Database_Queries
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<Route?> GetByIdAsync(int routeId)
+        public async Task<Route?> GetByIdAsync(Guid routeId)
         {
             return await _context.Routes
                 .FirstOrDefaultAsync(r => r.RouteId == routeId);
@@ -42,6 +43,13 @@ namespace Routeplanner_API.Database_Queries
             {
                 return null;
             }
+            // EF Core's change tracker will automatically detect changes to properties
+            // when SaveChangesAsync is called. If you are mapping from a DTO,
+            // ensure all intended properties are updated on 'existingRoute'.
+            // AutoMapper can help here in the service layer.
+            // For a direct update like this, you'd typically update properties of 'existingRoute'
+            // from 'route' (the input parameter).
+            // Example of updating properties (assuming 'route' has the new values):
             _context.Entry(existingRoute).CurrentValues.SetValues(route);
             existingRoute.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();

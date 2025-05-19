@@ -1,10 +1,9 @@
 using Routeplanner_API;
 using Microsoft.EntityFrameworkCore;
-using Routeplanner_API.Data;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Extensions;
 using Routeplanner_API.JWT;
-using Microsoft.OpenApi.Models; 
+using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -75,20 +74,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddEndpointsApiExplorer();
 
 // Update Swagger configuration with valid OpenAPI version
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Routeplanner API",
-        Version = "v1",
-        Description = "API for route planning application",
-        Contact = new OpenApiContact
-        {
-            Name = "Your Team Name",
-            Email = "contact@example.com"
-        }
-    });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -96,10 +82,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Routeplanner API v1");
-    });
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -109,4 +92,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

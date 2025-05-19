@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Database_Queries;
-using Routeplanner_API.DTO;
 using Routeplanner_API.Helpers;
 using Routeplanner_API.Models;
+using Routeplanner_API.Database_Queries;
+using Routeplanner_API.DTO.User;
 
 namespace Routeplanner_API.UoWs
 {
@@ -27,7 +28,26 @@ namespace Routeplanner_API.UoWs
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<UserDto> CreateUserAsync(UserDto createUserDto)
+        public async Task<IEnumerable<UserDto>> GetUsersAsync()
+        {
+            _logger.LogInformation("Getting all users");
+            var users = await _userDbQueries.GetAllAsync();
+            return _mapper.Map<IEnumerable<UserDto>>(users);
+        }
+
+        public async Task<UserDto?> GetUsersByIdAsync(Guid userId)
+        {
+            _logger.LogInformation("Getting user with ID: {userId}", userId);
+            var user = await _userDbQueries.GetByIdAsync(userId);
+            if (user == null)
+            {
+                _logger.LogWarning("User with ID: {userId} not found", userId);
+                return null;
+            }
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
         {
             _logger.LogInformation("Creating new user");
 
@@ -82,7 +102,38 @@ namespace Routeplanner_API.UoWs
             };
         }
 
-        public async Task<UserDto?> UpdateUserAsync(int userId, UpdateUserDto updateUserDto)
+        public async Task<LoginDto> LoginUserAsync(UserDto receivedUserDto)
+        {
+            var foundUser = await FindUserByUsername(receivedUserDto.Username);
+
+            if (foundUser == null)
+            {
+                return new LoginDto
+                {
+                    Success = false,
+                    Message = "Invalid username"
+                };
+            }
+
+            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.Password);
+
+            if (verificationResult == PasswordVerificationResult.Success)
+            {
+                return new LoginDto
+                {
+                    Success = true,
+                    Message = "Login successful"
+                };
+            }
+
+            return new LoginDto
+            {
+                Success = false,
+                Message = "Invalid password"
+            };
+        }
+
+        public async Task<UserDto?> UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)
         {
             _logger.LogInformation("Updating user with ID: {userId}", userId);
 
@@ -112,7 +163,7 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<bool> DeleteUserAsync(int userId)
+        public async Task<bool> DeleteUserAsync(Guid userId)
         {
             _logger.LogInformation("Deleting user with ID: {userId}", userId);
             try
@@ -140,20 +191,6 @@ namespace Routeplanner_API.UoWs
             _logger.LogInformation("Getting all users");
             var users = await _userDbQueries.GetAllAsync();
             return _mapper.Map<IEnumerable<UserDto>>(users);
-        }
-
-        public async Task<UserDto?> GetUsersByIdAsync(int userId)
-        {
-            _logger.LogInformation("Getting user with ID: {userId}", userId);
-
-            var user = await _userDbQueries.GetByIdAsync(userId);
-
-            if (user == null)
-            {
-                _logger.LogWarning("User with ID: {userId} not found", userId);
-                return null;
-            }
-            return _mapper.Map<UserDto>(user);
         }
 
         public async Task<UserConfidential?> FindUserByUsername(string username)

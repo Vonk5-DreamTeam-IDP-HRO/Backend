@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
-using Routeplanner_API.Data;
+using Routeplanner_API.DTO.Location;
 
 namespace Routeplanner_API.Database_Queries
 {
@@ -13,7 +13,7 @@ namespace Routeplanner_API.Database_Queries
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<Location?> GetByIdAsync(int locationId)
+        public async Task<Location?> GetByIdAsync(Guid locationId)
         {
             return await _context.Locations
             // Uncomment if you want to include LocationDetail and OpeningTimes
@@ -73,7 +73,7 @@ namespace Routeplanner_API.Database_Queries
             return existingLocation;
         }
 
-        public async Task<bool> DeleteAsync(int locationId)
+        public async Task<bool> DeleteAsync(Guid locationId)
         {
             var locationToDelete = await _context.Locations.FindAsync(locationId);
             if (locationToDelete == null)
@@ -86,11 +86,28 @@ namespace Routeplanner_API.Database_Queries
             return true;
         }
 
-        public async Task<IEnumerable<Location>> GetAllWithDetailsAsync()
+        public async Task<IEnumerable<string?>> GetUniqueCategoriesAsync()
+        {
+            return await _context.LocationDetails
+                                 .Select(ld => ld.Category)
+                                 .Distinct()
+                                 .ToListAsync();
+        }
+
+        public async Task<IEnumerable<SelectableLocationDto>> GetSelectableLocationsAsync()
         {
             return await _context.Locations
-                                 .Include(l => l.LocationDetail) // Eager load LocationDetail
-                                 .ToListAsync();
+                .Join(
+                    _context.LocationDetails,
+                    location => location.LocationId,
+                    locationDetail => locationDetail.LocationId,
+                    (location, locationDetail) => new SelectableLocationDto
+                    {
+                        LocationId = location.LocationId,
+                        Name = location.Name,
+                        Category = locationDetail.Category // This comes from LocationDetail
+                    })
+                .ToListAsync();
         }
     }
 }

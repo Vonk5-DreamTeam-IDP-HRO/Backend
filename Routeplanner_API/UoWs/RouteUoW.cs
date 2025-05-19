@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using Routeplanner_API.Database_Queries;
-using Routeplanner_API.DTO;
+using Routeplanner_API.DTO.Route;
 
 namespace Routeplanner_API.UoWs
 {
@@ -32,7 +32,7 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<IEnumerable<RouteDto>>(routes);
         }
 
-        public async Task<RouteDto?> GetRouteByIdAsync(int routeId)
+        public async Task<RouteDto?> GetRouteByIdAsync(Guid routeId)
         {
             _logger.LogInformation("Getting route with ID: {RouteId}", routeId);
             var route = await _routeDbQueries.GetByIdAsync(routeId);

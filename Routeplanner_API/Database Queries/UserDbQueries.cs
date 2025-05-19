@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
-using Routeplanner_API.Data;
 
 namespace Routeplanner_API.Database_Queries
 {
@@ -36,7 +35,7 @@ namespace Routeplanner_API.Database_Queries
             return existingUser;
         }
 
-        public async Task<bool> DeleteAsync(int userId)
+        public async Task<bool> DeleteAsync(Guid userId)
         {
             var userToDelete = await _context.Users.FindAsync(userId);
             if (userToDelete == null)
@@ -49,7 +48,7 @@ namespace Routeplanner_API.Database_Queries
             return true;
         }
 
-        public async Task<User?> GetByIdAsync(int userId)
+        public async Task<User?> GetByIdAsync(Guid userId)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
         }
@@ -73,6 +72,8 @@ namespace Routeplanner_API.Database_Queries
             //    PasswordHash = temp.PasswordHash,
             //    User = temp.Username
             //};
+
+            // TODO: fix returning the UserConfidential object
         }
     }
 }

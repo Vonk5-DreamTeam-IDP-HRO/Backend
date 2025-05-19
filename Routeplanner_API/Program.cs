@@ -2,16 +2,7 @@ using Routeplanner_API;
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Extensions;
-using Routeplanner_API.JWT;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
 using Routeplanner_API.Models;
-
-//dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer deze toevoegen werkt niet 
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,39 +32,7 @@ builder.Services.AddScoped<Routeplanner_API.UoWs.UserUoW>();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();
-
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-builder.Services.Configure<JwtSettings>(jwtSettings);
-
-builder.Services.AddIdentity<User, UserRight>()
-    .AddEntityFrameworkStores<RouteplannerDbContext>()
-    .AddDefaultTokenProviders();
-
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = true;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
-    };
-});
-
 builder.Services.AddEndpointsApiExplorer();
-
-// Update Swagger configuration with valid OpenAPI version
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -87,7 +46,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

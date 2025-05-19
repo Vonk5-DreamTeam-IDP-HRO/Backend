@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.DTO.Location;
 using Routeplanner_API.DTO.User;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
+using System.Text.Json;
 
 namespace Routeplanner_API.Controllers
 {
-    [ApiController]   
+    [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
@@ -21,7 +21,6 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
@@ -39,7 +38,6 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("{userId}")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -66,7 +64,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserDto>> CreateUser([FromBody] UserDto createUserDto)
+        public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
         {
             if (!ModelState.IsValid)
             {
@@ -77,11 +75,7 @@ namespace Routeplanner_API.Controllers
             try
             {
                 var createdUser = await _userUoW.CreateUserAsync(createUserDto);
-                //return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser); // Old CreateAccount return statement
-
-                var token = _userUoW.GenerateUserJwtToken(createdUser);
-                
-                return Ok(new { Token = token });
+                return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser);
             }
             catch (Exception ex)
             {
@@ -90,22 +84,7 @@ namespace Routeplanner_API.Controllers
             }
         }
 
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> LoginUser([FromBody] UserDto userDto)
-        {
-            var result = await _userUoW.LoginUserAsync(userDto);
-
-            if (!result.Success)
-            {
-                return Unauthorized(result.Message);
-            }
-            return Ok(result.Message);
-        }
-
         [HttpPut("{userId}")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -136,7 +115,6 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpDelete("{userId}")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

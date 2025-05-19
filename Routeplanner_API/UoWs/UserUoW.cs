@@ -8,6 +8,7 @@ using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Helpers;
 using Routeplanner_API.Models;
 using Routeplanner_API.Database_Queries;
+using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.User;
 
 namespace Routeplanner_API.UoWs
@@ -102,37 +103,6 @@ namespace Routeplanner_API.UoWs
             };
         }
 
-        public async Task<LoginDto> LoginUserAsync(UserDto receivedUserDto)
-        {
-            var foundUser = await FindUserByUsername(receivedUserDto.Username);
-
-            if (foundUser == null)
-            {
-                return new LoginDto
-                {
-                    Success = false,
-                    Message = "Invalid username"
-                };
-            }
-
-            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.Password);
-
-            if (verificationResult == PasswordVerificationResult.Success)
-            {
-                return new LoginDto
-                {
-                    Success = true,
-                    Message = "Login successful"
-                };
-            }
-
-            return new LoginDto
-            {
-                Success = false,
-                Message = "Invalid password"
-            };
-        }
-
         public async Task<UserDto?> UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)
         {
             _logger.LogInformation("Updating user with ID: {userId}", userId);
@@ -186,13 +156,6 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<IEnumerable<UserDto>> GetUsersAsync()
-        {
-            _logger.LogInformation("Getting all users");
-            var users = await _userDbQueries.GetAllAsync();
-            return _mapper.Map<IEnumerable<UserDto>>(users);
-        }
-
         public async Task<UserConfidential?> FindUserByUsername(string username)
         {
             return await _userDbQueries.FindUserByUsername(username);
@@ -201,11 +164,6 @@ namespace Routeplanner_API.UoWs
         public string GenerateUserJwtToken(UserDto user)
         {
             return _userHelper.GenerateUserJwtToken(user);
-        }
-
-        public string GenerateAdminJwtToken(UserDto user)
-        {
-            return _userHelper.GenerateAdminJwtToken(user);
         }
     }
 }

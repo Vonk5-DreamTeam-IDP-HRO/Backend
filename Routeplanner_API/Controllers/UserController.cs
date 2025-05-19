@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.DTO.Location;
 using Routeplanner_API.DTO.User;
-using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
 
 namespace Routeplanner_API.Controllers
@@ -66,7 +65,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserDto>> CreateUser([FromBody] UserDto createUserDto)
+        public async Task<ActionResult<CreateUserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
         {
             if (!ModelState.IsValid)
             {

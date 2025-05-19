@@ -45,7 +45,7 @@ builder.Services.AddControllers();
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<JwtSettings>(jwtSettings);
 
-builder.Services.AddIdentity<User, UserRight>()
+builder.Services.AddIdentity<User, UserPermission>()
     .AddEntityFrameworkStores<RouteplannerDbContext>()
     .AddDefaultTokenProviders();
 

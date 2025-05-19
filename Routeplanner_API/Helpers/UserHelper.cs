@@ -4,6 +4,7 @@ using Routeplanner_API.JWT;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Routeplanner_API.DTO.User;
 
 namespace Routeplanner_API.Helpers
 {

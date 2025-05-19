@@ -2,7 +2,7 @@
 {
     public class SelectableLocationDto
     {
-        public guid LocationId { get; set; }
+        public Guid LocationId { get; set; }
         public string Name { get; set; }
         public string? Category { get; set; }
     }

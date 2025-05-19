@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Routeplanner_API.Data;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
 using Moq;
@@ -26,9 +25,10 @@ namespace Test_API.Tests
             // Arrange
             const string dnName = nameof(GetByIdAsync_ShouldReturnLocation_WhenLocationExist);
             var options = GetInMemoryDbContextOptions(dnName);
+            var  newLocationId = Guid.NewGuid();
 
             var existingLocation = new Location
-                { LocationId = 1, Name = "Test Location", Latitude = 10.0, Longitude = 20.0, Description = "" };
+                { LocationId = newLocationId, Name = "EuromastTest", Latitude = 51.903663052, Longitude = 4.459498162, Description = "" };
 
             await using (var context = new RouteplannerDbContext(options))
             {
@@ -78,7 +78,7 @@ namespace Test_API.Tests
             const string dnName = nameof(GetByIdAsync_ShouldReturnNull_WhenLocationDoesNotExist);
             var options = GetInMemoryDbContextOptions(dnName);
             // TODO: Needs to be changed if we use UUID
-            const int nonExistingLocationId = -100;
+            var nonExistingLocationId = new Guid();
 
             //create mock dependencies
             var mockMapper = new Mock<IMapper>();
@@ -105,14 +105,46 @@ namespace Test_API.Tests
             var options = GetInMemoryDbContextOptions(dnName);
             var newLocation = new CreateLocationDto
             {
-                Name = "New Location",
-                Latitude = 10.0,
-                Longitude = 20.0,
-                Description = "Test description"
+                Name = "EuromastTest",
+                Latitude = 51.903663052,
+                Longitude = 4.459498162,
+                Description = "Test description for euromast",
+                UserId = Guid.NewGuid()
             };
+
+            var mappedLocation = new Location
+            {
+                // will be generated automatically by the database because of the AutoMapper profile
+                // LocationId = Guid.NewGuid(),
+                Name = newLocation.Name,
+                Latitude = newLocation.Latitude,
+                Longitude = newLocation.Longitude,
+                Description = newLocation.Description
+            };
+
+            var returnedLocationDto = new LocationDto
+            {
+                LocationId = Guid.NewGuid(),
+                Name = newLocation.Name,
+                Latitude = newLocation.Latitude,
+                Longitude = newLocation.Longitude,
+                Description = newLocation.Description
+            };
+
             //create mock dependencies
             var mockMapper = new Mock<IMapper>();
             var mockLogger = new Mock<ILogger<LocationUoW>>();
+
+            // Setup the mapper to return the mapped location
+            mockMapper
+                .Setup(m => m.Map<Location>(It.IsAny<CreateLocationDto>()))
+                .Returns(mappedLocation);
+
+            // Setupthe mapper to return LocationDTo when mapping from Location
+            mockMapper
+                .Setup(m => m.Map<LocationDto>(It.IsAny<Location>()))
+                .Returns(returnedLocationDto);
+
             await using var context = new RouteplannerDbContext(options);
 
             // Create a repository using the context

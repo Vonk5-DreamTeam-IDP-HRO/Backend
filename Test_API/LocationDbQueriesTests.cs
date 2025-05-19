@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Routeplanner_API.Data;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
 using Moq;
@@ -28,7 +27,7 @@ namespace Test_API.Tests
             var options = GetInMemoryDbContextOptions(dnName);
 
             var existingLocation = new Location
-                { LocationId = 1, Name = "Test Location", Latitude = 10.0, Longitude = 20.0, Description = "" };
+                { LocationId = new Guid(), Name = "Test Location", Latitude = 10.0, Longitude = 20.0, Description = "" };
 
             await using (var context = new RouteplannerDbContext(options))
             {
@@ -77,8 +76,7 @@ namespace Test_API.Tests
             // Arrange
             const string dnName = nameof(GetByIdAsync_ShouldReturnNull_WhenLocationDoesNotExist);
             var options = GetInMemoryDbContextOptions(dnName);
-            // TODO: Needs to be changed if we use UUID
-            const int nonExistingLocationId = -100;
+            var nonExistingLocationId = new Guid();
 
             //create mock dependencies
             var mockMapper = new Mock<IMapper>();

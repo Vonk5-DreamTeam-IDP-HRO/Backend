@@ -58,22 +58,11 @@ namespace Routeplanner_API.Database_Queries
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<UserConfidential?> FindUserByUsername(string username)
+        public async Task<User?> FindUserByUsername(string username)
         {
-            var temp = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-
-            if (temp == null)
-                return null;
-            return null;
-            //return new UserConfidential // not working yet properly. no username?
-            //{
-            //    UserId = temp.UserId,
-            //    Email = temp.Email,
-            //    PasswordHash = temp.PasswordHash,
-            //    User = temp.Username
-            //};
-
-            // TODO: fix returning the UserConfidential object
+            return await _context.Users
+                .Include(u => u.UserConfidential)
+                .FirstOrDefaultAsync(u => u.Username == username);
         }
     }
 }

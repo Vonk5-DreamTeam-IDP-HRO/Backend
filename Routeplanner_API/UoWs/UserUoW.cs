@@ -56,10 +56,8 @@ namespace Routeplanner_API.UoWs
             {
                 var userEntity = _mapper.Map<User>(createUserDto);
 
-                userEntity.UserConfidential.PasswordHash = _passwordHasher.HashPassword(userEntity, userEntity.UserConfidential.PasswordHash); // correct?
-
-                // Potentially set UserId if applicable and not directly from DTO
-                // userEntity.UserId = ...; 
+                // Hash the plain text password from the DTO and store it on the User entity
+                userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
 
                 var createdUser = await _userDbQueries.CreateAsync(userEntity);
                 _logger.LogInformation("User created successfully with ID: {userId}", createdUser.UserId);

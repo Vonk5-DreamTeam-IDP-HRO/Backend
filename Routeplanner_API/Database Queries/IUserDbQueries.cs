@@ -11,6 +11,6 @@ namespace Routeplanner_API.Database_Queries
         Task<bool> DeleteAsync(Guid userId);
         Task<User?> GetByIdAsync(Guid userId);
         Task<IEnumerable<User>> GetAllAsync();
-        Task<UserConfidential?> FindUserByUsername(string username);
+        Task<User?> FindUserByUsername(string username);
     }
 }

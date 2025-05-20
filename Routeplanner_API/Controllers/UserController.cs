@@ -100,7 +100,8 @@ namespace Routeplanner_API.Controllers
             {
                 return Unauthorized(result.Message);
             }
-            return Ok(result.Message);
+            var token = _userUoW.GenerateUserJwtToken(userDto);
+            return Ok(new { Token = token }); 
         }
 
         [HttpPut("{userId}")]

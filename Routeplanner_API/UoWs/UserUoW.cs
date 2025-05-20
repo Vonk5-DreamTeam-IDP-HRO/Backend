@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Helpers;
 using Routeplanner_API.Models;
-using Routeplanner_API.Database_Queries;
 using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.User;
 
@@ -72,7 +71,7 @@ namespace Routeplanner_API.UoWs
 
         public async Task<LoginDto> LoginUserAsync(UserDto receivedUserDto)
         {
-            var foundUser = await FindUserByUsername(receivedUserDto.Username);
+            User? foundUser = await FindUserByUsername(receivedUserDto.Username);
 
             if (foundUser == null)
             {
@@ -83,7 +82,7 @@ namespace Routeplanner_API.UoWs
                 };
             }
 
-            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.Password);
+            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.PasswordHash);
 
             if (verificationResult == PasswordVerificationResult.Success)
             {
@@ -154,7 +153,7 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<UserConfidential?> FindUserByUsername(string username)
+        public async Task<User?> FindUserByUsername(string username)
         {
             return await _userDbQueries.FindUserByUsername(username);
         }

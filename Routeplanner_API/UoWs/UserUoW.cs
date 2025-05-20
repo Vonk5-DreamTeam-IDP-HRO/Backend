@@ -82,7 +82,7 @@ namespace Routeplanner_API.UoWs
                 };
             }
 
-            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.PasswordHash);
+            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.Password);
 
             if (verificationResult == PasswordVerificationResult.Success)
             {

@@ -152,15 +152,15 @@ namespace Routeplanner_API.UoWs
                 throw;
             }
         }
-
-        public async Task<User?> FindUserByUsername(string username)
-        {
-            return await _userDbQueries.FindUserByUsername(username);
-        }
       
         public string GenerateUserJwtToken(UserDto user)
         {
             return _userHelper.GenerateUserJwtToken(user);
+        }
+
+        private async Task<User?> FindUserByUsername(string username)
+        {
+            return await _userDbQueries.FindUserByUsername(username);
         }
     }
 }

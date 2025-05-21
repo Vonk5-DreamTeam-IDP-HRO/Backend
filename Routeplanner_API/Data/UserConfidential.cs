@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Routeplanner_API.Models;
 
-public partial class UserConfidential
+public partial class UserConfidential 
 {
     public Guid UserId { get; init; }
 

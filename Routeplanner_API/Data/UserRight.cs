@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 
 namespace Routeplanner_API.Models;
 
-public partial class UserPermission
+public partial class UserPermission : IdentityUser
 {
     public int UserRightId { get; init; }
 

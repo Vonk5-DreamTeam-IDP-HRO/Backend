@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 
 namespace Routeplanner_API.Models;
 
-public partial class User
+public partial class User : IdentityUser // guid could be added here. check if nessecary.
 {
     public Guid UserId { get; init; }
 

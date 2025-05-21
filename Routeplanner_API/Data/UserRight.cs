@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Routeplanner_API.Models;
 
-public partial class UserPermission : IdentityUser
+public partial class UserPermission : IdentityRole<Guid>
 {
     public int UserRightId { get; init; }
 

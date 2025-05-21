@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Routeplanner_API.Models;
 
-public partial class User : IdentityUser // guid could be added here. check if nessecary.
+public partial class User : IdentityUser<Guid>
 {
     public Guid UserId { get; init; }
 

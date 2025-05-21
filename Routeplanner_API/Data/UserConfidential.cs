@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Routeplanner_API.Models;
 
-public partial class UserConfidential : IdentityUser
+public partial class UserConfidential : IdentityUser<Guid>
 {
     public Guid UserId { get; init; }
 

@@ -83,6 +83,21 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> LoginUser([FromBody] UserDto userDto)
+        {
+            var result = await _userUoW.LoginUserAsync(userDto);
+
+            if (!result.Success)
+            {
+                return Unauthorized(result.Message);
+            }
+            var token = _userUoW.GenerateUserJwtToken(userDto);
+            return Ok(new { Token = token });
+        }
+
         [HttpPut("{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -3,6 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Extensions;
 using Routeplanner_API.Models;
+using Routeplanner_API.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 

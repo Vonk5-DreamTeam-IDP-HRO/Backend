@@ -3,6 +3,7 @@ using Routeplanner_API.Models;
 using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.User;
 using Routeplanner_API.Database_Queries;
+using Microsoft.AspNetCore.Identity;
 
 namespace Routeplanner_API.UoWs
 {
@@ -91,8 +92,6 @@ namespace Routeplanner_API.UoWs
                 Success = false,
                 Message = "Invalid password"
             };
-        }
-
         }
 
         public async Task<UserDto?> UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)

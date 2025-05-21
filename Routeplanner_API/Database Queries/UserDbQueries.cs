@@ -13,16 +13,6 @@ namespace Routeplanner_API.Database_Queries
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<User?> GetByIdAsync(Guid userId)
-        {
-            return await _context.Users.FirstOrDefaultAsync(l => l.UserId == userId);
-        }
-
-        public async Task<IEnumerable<User>> GetAllAsync()
-        {
-            return await _context.Users.ToListAsync();
-        }
-
         public async Task<User> CreateAsync(User user)
         {
             ArgumentNullException.ThrowIfNull(user);

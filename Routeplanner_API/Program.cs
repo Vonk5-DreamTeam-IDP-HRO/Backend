@@ -2,12 +2,16 @@ using Routeplanner_API;
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Extensions;
-using Routeplanner_API.Models;
-using Microsoft.AspNetCore.Identity;
+using Routeplanner_API.JWT;
+using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Routeplanner_API.JWT;
+using Microsoft.AspNetCore.Identity;
+using Routeplanner_API.Models;
+
+//dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer deze toevoegen werkt niet 
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +72,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+
+// Update Swagger configuration with valid OpenAPI version
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -81,6 +87,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

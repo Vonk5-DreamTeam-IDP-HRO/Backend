@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Routeplanner_API.Models;
+using Routeplanner_API.Data;
 
 //dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer deze toevoegen werkt niet 
 

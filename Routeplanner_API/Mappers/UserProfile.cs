@@ -14,7 +14,7 @@ namespace Routeplanner_API.Mappers
             CreateMap<User, UserDto>()
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src =>
                     src.UserConfidential != null ? src.UserConfidential.Email : null))
-                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.PasswordHash));
+                .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.PasswordHash));
 
             // Map from UserDto to User entity
             // Primarily for updating UserConfidential data based on UserDto.

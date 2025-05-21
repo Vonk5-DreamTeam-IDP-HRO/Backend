@@ -1,21 +1,29 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Routeplanner_API.Database_Queries;
+using Routeplanner_API.Helpers;
 using Routeplanner_API.Models;
 using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.User;
-using Routeplanner_API.Database_Queries;
-using Microsoft.AspNetCore.Identity;
 
 namespace Routeplanner_API.UoWs
 {
     public class UserUoW
     {
         private readonly IUserDbQueries _userDbQueries;
+        private readonly IUserHelper _userHelper;
         private readonly IMapper _mapper;
         private readonly ILogger<UserUoW> _logger;
+        private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
 
-        public UserUoW(IUserDbQueries userDbQueries, IMapper mapper, ILogger<UserUoW> logger)
+        public UserUoW(IUserDbQueries userDbQueries, IUserHelper userHelper, IMapper mapper, ILogger<UserUoW> logger)
         {
             _userDbQueries = userDbQueries ?? throw new ArgumentNullException(nameof(userDbQueries));
+            _userHelper = userHelper ?? throw new ArgumentNullException(nameof(userHelper));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -49,8 +57,6 @@ namespace Routeplanner_API.UoWs
 
                 // Hash the plain text password from the DTO and store it on the User entity
                 userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
-                // Potentially set UserId if applicable and not directly from DTO
-                // userEntity.UserId = ...; 
 
                 var createdUser = await _userDbQueries.CreateAsync(userEntity);
                 _logger.LogInformation("User created successfully with ID: {userId}", createdUser.UserId);
@@ -145,6 +151,16 @@ namespace Routeplanner_API.UoWs
                 _logger.LogError(ex, "Error deleting user with ID: {userId}: {ErrorMessage}", userId, ex.Message);
                 throw;
             }
+        }
+
+        public string GenerateUserJwtToken(UserDto user)
+        {
+            return _userHelper.GenerateUserJwtToken(user);
+        }
+
+        private async Task<User?> FindUserByUsername(string username)
+        {
+            return await _userDbQueries.FindUserByUsername(username);
         }
     }
 }

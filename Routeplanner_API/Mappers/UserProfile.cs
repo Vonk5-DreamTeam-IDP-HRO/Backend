@@ -43,14 +43,13 @@ namespace Routeplanner_API.Mappers
             CreateMap<CreateUserDto, User>()
                 .ForMember(dest => dest.UserId, opt => opt.Ignore()) // UserId is GUID database-generated
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
-                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => src.PasswordHash)) // Map directly to User.PasswordHash
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // PasswordHash will be set after hashing in UoW
                 .ForMember(dest => dest.UserRightId, opt => opt.MapFrom(src => src.UserRightId)) // Map from DTO's UserRightId
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
                 .ForMember(dest => dest.UserConfidential, opt => opt.MapFrom(src => new UserConfidential
                 {
                     // UserId for UserConfidential will be set by EF Core relationship fix-up
                     Email = src.Email
-                    // PasswordHash is on User entity, not UserConfidential
                 }))
                 // Ignore navigation properties; they are typically handled separately after creation.
                 .ForMember(dest => dest.Locations, opt => opt.Ignore())

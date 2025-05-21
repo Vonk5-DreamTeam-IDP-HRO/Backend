@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Routeplanner_API.Models;
-using Routeplanner_API.Database_Queries;
+using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.User;
 
 namespace Routeplanner_API.UoWs
@@ -45,6 +45,8 @@ namespace Routeplanner_API.UoWs
             {
                 var userEntity = _mapper.Map<User>(createUserDto);
 
+                // Hash the plain text password from the DTO and store it on the User entity
+                userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
                 // Potentially set UserId if applicable and not directly from DTO
                 // userEntity.UserId = ...; 
 
@@ -57,6 +59,39 @@ namespace Routeplanner_API.UoWs
                 _logger.LogError(ex, "Error creating user: {ErrorMessage}", ex.Message);
                 throw;
             }
+        }
+
+        public async Task<LoginDto> LoginUserAsync(UserDto receivedUserDto)
+        {
+            User? foundUser = await FindUserByUsername(receivedUserDto.Username);
+
+            if (foundUser == null)
+            {
+                return new LoginDto
+                {
+                    Success = false,
+                    Message = "Invalid username"
+                };
+            }
+
+            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.Password);
+
+            if (verificationResult == PasswordVerificationResult.Success)
+            {
+                return new LoginDto
+                {
+                    Success = true,
+                    Message = "Login successful"
+                };
+            }
+
+            return new LoginDto
+            {
+                Success = false,
+                Message = "Invalid password"
+            };
+        }
+
         }
 
         public async Task<UserDto?> UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)

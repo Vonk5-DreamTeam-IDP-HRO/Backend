@@ -7,5 +7,6 @@ namespace Routeplanner_API.DTO.Location
         public double Latitude { get; init; }
         public double Longitude { get; init; }
         public string? Description { get; init; }
+        public LocationDetailDto? LocationDetail { get; set; }
     }
 }

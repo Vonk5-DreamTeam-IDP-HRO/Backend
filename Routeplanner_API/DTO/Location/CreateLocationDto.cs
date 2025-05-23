@@ -1,3 +1,4 @@
+using Routeplanner_API.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Routeplanner_API.DTO.Location
@@ -22,5 +23,7 @@ namespace Routeplanner_API.DTO.Location
 
         [Required]
         public Guid UserId { get; init; }
+
+        public CreateLocationDetailDto? LocationDetail { get; init; }
     }
 }

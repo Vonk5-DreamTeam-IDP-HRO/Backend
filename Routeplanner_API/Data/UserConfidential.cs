@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 
 namespace Routeplanner_API.Models;
 
-public partial class UserConfidential
+public partial class UserConfidential : IdentityUser<Guid>
 {
     public Guid UserId { get; init; }
 

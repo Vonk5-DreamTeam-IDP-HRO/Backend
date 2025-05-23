@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Routeplanner_API.Models;
 
-public partial class RouteplannerDbContext : DbContext
+public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermission, Guid>
 {
     public RouteplannerDbContext()
     {

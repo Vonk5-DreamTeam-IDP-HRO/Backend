@@ -11,7 +11,7 @@ namespace Routeplanner_API.DTO.User
         public string Email { get; init; } = null!;
 
         [Required]
-        public string PasswordHash { get; init; } = null!;
+        public string Password { get; init; } = null!;
 
         [Required]
         public int UserRightId { get; init; }

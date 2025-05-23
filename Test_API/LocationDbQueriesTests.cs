@@ -28,7 +28,7 @@ namespace Test_API.Tests
             var  newLocationId = Guid.NewGuid();
 
             var existingLocation = new Location
-                { LocationId = newLocationId, Name = "EuromastTest", Latitude = 51.903663052, Longitude = 4.459498162, Description = "" };
+                { LocationId = new Guid(), Name = "Test Location", Latitude = 10.0, Longitude = 20.0, Description = "" };
 
             await using (var context = new RouteplannerDbContext(options))
             {
@@ -77,7 +77,6 @@ namespace Test_API.Tests
             // Arrange
             const string dnName = nameof(GetByIdAsync_ShouldReturnNull_WhenLocationDoesNotExist);
             var options = GetInMemoryDbContextOptions(dnName);
-            // TODO: Needs to be changed if we use UUID
             var nonExistingLocationId = new Guid();
 
             //create mock dependencies

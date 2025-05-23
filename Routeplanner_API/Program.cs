@@ -1,4 +1,4 @@
-using Routeplanner_API;
+﻿using Routeplanner_API;
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Extensions;
@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Routeplanner_API.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 //dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer deze toevoegen werkt niet 
 
@@ -42,8 +43,9 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();
 
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-builder.Services.Configure<JwtSettings>(jwtSettings);
+var jwtSettings = builder.Configuration.GetValidatedJwtSettings(logger);
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
 builder.Services.AddIdentity<User, UserPermission>()
     .AddEntityFrameworkStores<RouteplannerDbContext>()
@@ -65,9 +67,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"])) // fix this.
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
     };
 });
 

@@ -12,10 +12,11 @@ namespace Routeplanner_API.Extensions
             ArgumentNullException.ThrowIfNull(configuration);
             ArgumentNullException.ThrowIfNull(logger);
 
-            var jwtSecret = configuration["Jwt__Secret"];
-            var jwtIssuer = configuration["Jwt__Issuer"];
-            var jwtAudience = configuration["Jwt__Audience"];
-            var expiryMinutesString = configuration["Jwt__ExpiryMinutes"];
+            var jwtSecret = configuration["Jwt__Secret"] ?? configuration["Jwt:Secret"];
+            var jwtIssuer = configuration["Jwt__Issuer"] ?? configuration["Jwt:Issuer"];
+            var jwtAudience = configuration["Jwt__Audience"] ?? configuration["Jwt:Audience"];
+            var expiryMinutesString = configuration["Jwt__ExpiryMinutes"] ?? configuration["Jwt:ExpiryMinutes"];
+            logger.LogDebug("Attempting to retrieve JWT settings from configuration.");
 
             if (string.IsNullOrWhiteSpace(jwtSecret))
             {

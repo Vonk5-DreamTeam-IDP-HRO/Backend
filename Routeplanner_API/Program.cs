@@ -14,6 +14,7 @@ using Routeplanner_API.Helpers;
 
 //dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer deze toevoegen werkt niet 
 
+DotNetEnv.Env.Load(); // Load environment variables from .env file for local development
 
 var builder = WebApplication.CreateBuilder(args);
 

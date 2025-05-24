@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Routeplanner_API.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Routeplanner_API.Helpers;
 
 //dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer deze toevoegen werkt niet 
 
@@ -33,24 +34,25 @@ builder.Services.AddScoped<ILocationDbQueries, LocationDbQueries>();
 builder.Services.AddScoped<IRouteDbQueries, RouteDbQueries>();
 builder.Services.AddScoped<IUserDbQueries, UserDbQueries>();
 
-// Register Unit of Works / Services
+// Register Unit of Works
 builder.Services.AddScoped<Routeplanner_API.UoWs.LocationUoW>();
 builder.Services.AddScoped<Routeplanner_API.UoWs.RouteUoW>();
 builder.Services.AddScoped<Routeplanner_API.UoWs.UserUoW>();
+
+// Register Helpers
+builder.Services.AddScoped<IUserHelper, UserHelper>();
 
 // Add AutoMapper and discover profiles in the current assembly
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();
 
-JwtSettings jwtSettings = builder.Configuration.GetValidatedJwtSettings(logger);
-
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+// JWT
+var jwtSettings = builder.Configuration.GetValidatedJwtSettings(logger);
 
 builder.Services.AddIdentity<User, UserPermission>()
     .AddEntityFrameworkStores<RouteplannerDbContext>()
     .AddDefaultTokenProviders();
-
 
 builder.Services.AddAuthentication(options =>
 {
@@ -69,7 +71,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings.Issuer,
         ValidAudience = jwtSettings.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret!))
     };
 });
 

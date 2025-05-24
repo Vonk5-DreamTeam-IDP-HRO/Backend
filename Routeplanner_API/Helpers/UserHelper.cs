@@ -5,15 +5,18 @@ using System.Security.Claims;
 using System.Text;
 using Routeplanner_API.DTO.User;
 using Routeplanner_API.JWT;
+using Microsoft.Extensions.Options;
 
 namespace Routeplanner_API.Helpers
 {
     public class UserHelper : IUserHelper
-    {       
+    {
+        private readonly JwtSettings _jwtSettings;
         private readonly ILogger<UserHelper> _logger;
-
-        public UserHelper(ILogger<UserHelper> logger)
+        
+        public UserHelper(IOptions<JwtSettings> jwtOptions, ILogger<UserHelper> logger)
         {
+            _jwtSettings = jwtOptions.Value ?? throw new ArgumentNullException(nameof(jwtOptions));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -26,16 +29,14 @@ namespace Routeplanner_API.Helpers
                 new Claim(ClaimTypes.Role, "User")
             };
 
-            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_key"));
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            JwtSettings jwtSetting = CreateJwtSettingsObject();
-
             JwtSecurityToken token = new JwtSecurityToken(
-                issuer: jwtSetting.Issuer,
-                audience: jwtSetting.Audience,
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: jwtSetting.ExpiryMinutes,
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -53,27 +54,14 @@ namespace Routeplanner_API.Helpers
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_key"));
             SigningCredentials credentials = new (key, SecurityAlgorithms.HmacSha256);
 
-            JwtSettings jwtSetting = CreateJwtSettingsObject();
-
             JwtSecurityToken token = new JwtSecurityToken(
-                issuer: jwtSetting.Issuer,
-                audience: jwtSetting.Audience,
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: jwtSetting.ExpiryMinutes,
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        private JwtSettings CreateJwtSettingsObject()
-        {
-            return new JwtSettings()
-            {
-                Secret = "to do", 
-                Issuer = "RoutplannerAPI.com",
-                Audience = "RoutplannerAPI.com",
-                ExpiryMinutes = DateTime.Now.AddHours(3),
-            };
         }
     }
 }

@@ -7,44 +7,50 @@ namespace Routeplanner_API.Extensions
 {
     public static class JwtSettingsExtensions
     {
-        public static JwtSettings GetValidatedJwtSettings(this IConfiguration configuration, ILogger logger, string sectionName = "Jwt")
+        public static JwtSettings GetValidatedJwtSettings(this IConfiguration configuration, ILogger logger)
         {
             ArgumentNullException.ThrowIfNull(configuration);
             ArgumentNullException.ThrowIfNull(logger);
 
-            logger.LogDebug("Binding JwtSettings from configuration section '{Section}'", sectionName);
+            var jwtSecret = configuration["Jwt__Secret"];
+            var jwtIssuer = configuration["Jwt__Issuer"];
+            var jwtAudience = configuration["Jwt__Audience"];
+            var expiryMinutesString = configuration["Jwt__ExpiryMinutes"];
 
-            JwtSettings jwtSettings = new JwtSettings();
-            var section = configuration.GetSection(sectionName);
-            section.Bind(jwtSettings);
-
-            if (string.IsNullOrWhiteSpace(jwtSettings.Secret))
+            if (string.IsNullOrWhiteSpace(jwtSecret))
             {
                 logger.LogError("JWT Secret is missing or empty in configuration.");
                 throw new InvalidOperationException("JWT Secret must be provided.");
             }
 
-            if (string.IsNullOrWhiteSpace(jwtSettings.Issuer))
+            if (string.IsNullOrWhiteSpace(jwtIssuer))
             {
                 logger.LogError("JWT Issuer is missing or empty in configuration.");
                 throw new InvalidOperationException("JWT Issuer must be provided.");
             }
 
-            if (string.IsNullOrWhiteSpace(jwtSettings.Audience))
+            if (string.IsNullOrWhiteSpace(jwtAudience))
             {
                 logger.LogError("JWT Audience is missing or empty in configuration.");
                 throw new InvalidOperationException("JWT Audience must be provided.");
             }
 
-            if (jwtSettings.ExpiryMinutes == null || jwtSettings.ExpiryMinutes <= DateTime.MinValue)
+            int expiryMinutes;
+            if (!int.TryParse(expiryMinutesString, out expiryMinutes) || expiryMinutes <= 0)
             {
-                logger.LogWarning("JWT ExpiryMinutes not set or invalid. Defaulting to 180 minutes from now.");
-                jwtSettings.ExpiryMinutes = DateTime.UtcNow.AddMinutes(180);
+                logger.LogWarning("JWT ExpiryMinutes not set or invalid. Defaulting to 180 minutes.");
+                expiryMinutes = 180;
             }
 
             logger.LogInformation("JwtSettings successfully validated.");
 
-            return jwtSettings;
+            return new JwtSettings
+            {
+                Secret = jwtSecret,
+                Issuer = jwtIssuer,
+                Audience = jwtAudience,
+                ExpiryMinutes = expiryMinutes
+            };
         }
     }
 }

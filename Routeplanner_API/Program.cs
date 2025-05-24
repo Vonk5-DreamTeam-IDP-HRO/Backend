@@ -43,7 +43,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddControllers();
 
-var jwtSettings = builder.Configuration.GetValidatedJwtSettings(logger);
+JwtSettings jwtSettings = builder.Configuration.GetValidatedJwtSettings(logger);
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 

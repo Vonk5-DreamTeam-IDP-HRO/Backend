@@ -14,7 +14,7 @@ namespace Routeplanner_API.Extensions
 
             logger.LogDebug("Binding JwtSettings from configuration section '{Section}'", sectionName);
 
-            var jwtSettings = new JwtSettings();
+            JwtSettings jwtSettings = new JwtSettings();
             var section = configuration.GetSection(sectionName);
             section.Bind(jwtSettings);
 
@@ -38,8 +38,8 @@ namespace Routeplanner_API.Extensions
 
             if (jwtSettings.ExpiryMinutes == null || jwtSettings.ExpiryMinutes <= DateTime.MinValue)
             {
-                logger.LogWarning("JWT ExpiryMinutes not set or invalid. Defaulting to 60 minutes from now.");
-                jwtSettings.ExpiryMinutes = DateTime.UtcNow.AddMinutes(60);
+                logger.LogWarning("JWT ExpiryMinutes not set or invalid. Defaulting to 180 minutes from now.");
+                jwtSettings.ExpiryMinutes = DateTime.UtcNow.AddMinutes(180);
             }
 
             logger.LogInformation("JwtSettings successfully validated.");

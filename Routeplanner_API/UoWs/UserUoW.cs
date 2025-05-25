@@ -82,6 +82,15 @@ namespace Routeplanner_API.UoWs
                 };
             }
 
+            if (foundUser.PasswordHash == null)
+            {
+                _logger.LogWarning("User {Username} has no password hash.", foundUser.UserName);
+                return new LoginDto
+                {
+                    Success = false,
+                    Message = "Invalid login attempt." // More generic message
+                };
+            }
             var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.Password);
 
             if (verificationResult == PasswordVerificationResult.Success)

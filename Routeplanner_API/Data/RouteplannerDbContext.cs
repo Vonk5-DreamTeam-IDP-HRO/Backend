@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Routeplanner_API.Models;
 
 // DbContext for the Routeplanner application, inheriting from IdentityDbContext
-// to manage user authentication (User) and authorization(UserPermission).
+// to manage user authentication (User) and authorization (UserPermission).
 public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermission, Guid>
 {
     public RouteplannerDbContext()
@@ -25,8 +26,6 @@ public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermiss
     public virtual DbSet<OpeningTime> OpeningTimes { get; set; }
 
     public virtual DbSet<Route> Routes { get; set; }
-
-    public virtual DbSet<UserConfidential> UserConfidentials { get; set; }
 
     public virtual DbSet<UserPermission> UserRights { get; set; }
 
@@ -223,37 +222,19 @@ public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermiss
                 .HasConstraintName("users_right_id_fkey");
         });
 
-        modelBuilder.Entity<UserConfidential>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("user_confidential_pkey");
-
-            entity.ToTable("user_confidential", "auth");
-
-            entity.HasIndex(e => e.Email, "user_confidential_email_key").IsUnique();
-
-            entity.Property(e => e.UserId)
-                .ValueGeneratedNever()
-                .HasColumnName("user_id");
-            entity.Property(e => e.Email)
-                .HasMaxLength(100)
-                .HasColumnName("email");
-
-            entity.HasOne(d => d.User).WithOne(p => p.UserConfidential)
-                .HasForeignKey<UserConfidential>(d => d.UserId)
-                .HasConstraintName("user_confidential_user_id_fkey");
-        });
-
         modelBuilder.Entity<UserPermission>(entity =>
         {
-            entity.HasKey(e => e.UserRightId).HasName("user_rights_pkey");
+            entity.HasKey(e => e.Id).HasName("user_rights_pkey");
 
             entity.ToTable("user_rights", "auth");
 
-            entity.HasIndex(e => e.UserRightName, "user_rights_right_name_key").IsUnique();
+            entity.HasIndex(e => e.Name, "user_rights_right_name_key").IsUnique();
 
-            entity.Property(e => e.UserRightId).HasColumnName("right_id");
-            entity.Property(e => e.UserRightName)
-                .HasMaxLength(20)
+            entity.Property(e => e.Id).HasColumnName("right_id");
+
+            // Map the inherited Name property to the 'right_name' column.
+            entity.Property(e => e.Name)
+                .HasMaxLength(256)
                 .HasColumnName("right_name");
         });
 

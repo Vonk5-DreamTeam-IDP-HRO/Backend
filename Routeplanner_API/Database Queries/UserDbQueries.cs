@@ -61,7 +61,6 @@ namespace Routeplanner_API.Database_Queries
         public async Task<User?> FindUserByUsername(string username)
         {
             return await _context.Users
-                .Include(u => u.UserConfidential)
                 .FirstOrDefaultAsync(u => u.UserName == username);
         }
     }

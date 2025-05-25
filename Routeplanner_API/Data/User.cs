@@ -10,7 +10,7 @@ public partial class User : IdentityUser<Guid>
 
     public override string? UserName { get; set; }
 
-    public int UserRightId { get; set; }
+    public Guid UserRightId { get; set; }
 
     public override string? PasswordHash { get; set; }
 
@@ -21,6 +21,4 @@ public partial class User : IdentityUser<Guid>
     public virtual UserPermission Right { get; set; } = null!;
 
     public virtual ICollection<Route> Routes { get; set; } = new List<Route>();
-
-    public virtual UserConfidential? UserConfidential { get; set; }
 }

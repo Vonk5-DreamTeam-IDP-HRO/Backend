@@ -37,19 +37,20 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<LocationDto>(location);
         }
 
-        public async Task<LocationDto> CreateLocationAsync(CreateLocationDto createLocationDto)
+        public async Task<LocationDto> CreateLocationAsync(CreateLocationDto createLocationDto, Guid userId)
         {
-            _logger.LogInformation("Creating new location");
+            _logger.LogInformation("Creating new location for UserId: {UserId}", userId);
 
             try
             {
-                var locationEntity = _mapper.Map<Location>(createLocationDto);
-
-                // Potentially set UserId if applicable and not directly from DTO
-                // locationEntity.UserId = ...; 
+                // Pass userId to AutoMapper via context items for it to set the init-only UserId property
+                var locationEntity = _mapper.Map<Location>(createLocationDto, opt => opt.Items["UserId"] = userId);
+                
+                // The LocationProfile is configured to pick up UserId from context.Items.
+                // No need to set locationEntity.UserId manually here.
 
                 var createdLocation = await _locationDbQueries.CreateAsync(locationEntity);
-                _logger.LogInformation("Location created successfully with ID: {LocationId}", createdLocation.LocationId);
+                _logger.LogInformation("Location created successfully with ID: {LocationId} for UserId: {UserId}", createdLocation.LocationId, userId);
                 return _mapper.Map<LocationDto>(createdLocation);
             }
             catch (Exception ex)

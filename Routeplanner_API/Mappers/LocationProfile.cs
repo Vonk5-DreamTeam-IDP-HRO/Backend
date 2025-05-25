@@ -16,7 +16,8 @@ namespace Routeplanner_API.Mappers
             // Mapping from CreateLocationDto to Location (EF Core entity)
             CreateMap<CreateLocationDto, Location>()
                 .ForMember(dest => dest.LocationId, opt => opt.Ignore()) // Don't map ID for creation
-                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId)) // Map UserId from DTO
+                // UserId is now passed via context.Items in the Map call from LocationUoW
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom((src, dest, destMember, context) => (Guid?)context.Items["UserId"]))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForMember(dest => dest.LocationDetail, opt => opt.MapFrom(src => src.LocationDetail)); // Map nested DTO

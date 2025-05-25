@@ -55,5 +55,18 @@ namespace Routeplanner_API.Database_Queries
             await _context.SaveChangesAsync();
             return existingRoute;
         }
+
+        public async Task<bool> DeleteRouteAsync(Guid routeId)
+        {
+            var routeToDelete = await _context.Users.FindAsync(routeId);
+            if (routeToDelete == null)
+            {
+                return false;
+            }
+
+            _context.Users.Remove(routeToDelete);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

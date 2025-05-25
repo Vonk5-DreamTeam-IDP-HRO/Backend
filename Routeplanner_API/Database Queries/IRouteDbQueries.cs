@@ -8,4 +8,5 @@ public interface IRouteDbQueries
     Task<IEnumerable<Route?>> GetAllAsync();
     Task<Route> CreateAsync(Route route);
     Task<Route?> UpdateAsync(Route route);
+    Task<bool> DeleteRouteAsync(Guid userId);
 }

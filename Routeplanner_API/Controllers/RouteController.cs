@@ -104,5 +104,28 @@ namespace Routeplanner_API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while adding the route.");
             }
         }
+
+        [HttpDelete("{routeId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteUser(Guid routeId)
+        {
+            try
+            {
+                var success = await _routeUoW.DeleteRouteAsync(routeId);
+                if (!success)
+                {
+                    _logger.LogWarning("Attempted to delete non-existent route with ID {routeId}.", routeId);
+                    return NotFound($"Route with ID {routeId} not found for deletion.");
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting route with ID {routeId}.", routeId);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while deleting route {routeId}.");
+            }
+        }
     }
 }

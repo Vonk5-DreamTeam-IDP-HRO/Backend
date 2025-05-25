@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.DTO.Location;
 using Routeplanner_API.DTO.User;
 using Routeplanner_API.UoWs;
-using System.Text.Json;
 
 namespace Routeplanner_API.Controllers
 {
@@ -20,6 +20,8 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
+        // Should be only accessible by admins or special authorized people
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
@@ -37,6 +39,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("{userId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -60,6 +63,9 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+        // Should be only accessible by admins or special authorized people
+        // as example using: [Authorize (Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -83,7 +89,7 @@ namespace Routeplanner_API.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LoginUser([FromBody] UserDto userDto)
@@ -99,6 +105,9 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPut("{userId}")]
+        [Authorize]
+        // Should be only accessible by admins or special authorized people
+        // as example using: [Authorize (Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -129,6 +138,9 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpDelete("{userId}")]
+        [Authorize]
+        // Should be only accessible by admins or special authorized people
+        // as example using: [Authorize (Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

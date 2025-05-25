@@ -25,7 +25,7 @@ namespace Routeplanner_API.Database_Queries
         {
             ArgumentNullException.ThrowIfNull(user);
 
-            var existingUser = await _context.Users.FindAsync(user.UserId);
+            var existingUser = await _context.Users.FindAsync(user.Id);
             if (existingUser == null)
             {
                 return null;
@@ -50,7 +50,7 @@ namespace Routeplanner_API.Database_Queries
 
         public async Task<User?> GetByIdAsync(Guid userId)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            return await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
@@ -62,7 +62,7 @@ namespace Routeplanner_API.Database_Queries
         {
             return await _context.Users
                 .Include(u => u.UserConfidential)
-                .FirstOrDefaultAsync(u => u.Username == username);
+                .FirstOrDefaultAsync(u => u.UserName == username);
         }
     }
 }

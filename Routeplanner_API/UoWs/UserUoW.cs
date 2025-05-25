@@ -59,7 +59,7 @@ namespace Routeplanner_API.UoWs
                 userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
 
                 var createdUser = await _userDbQueries.CreateAsync(userEntity);
-                _logger.LogInformation("User created successfully with ID: {userId}", createdUser.UserId);
+                _logger.LogInformation("User created successfully with ID: {userId}", createdUser.Id);
                 return _mapper.Map<UserDto>(createdUser);
             }
             catch (Exception ex)

@@ -24,15 +24,15 @@ namespace Routeplanner_API.Mappers
                 {
                     if (dest.UserConfidential == null)
                     {
-                        // Assumes dest.UserId is already populated on the User entity being mapped to.
-                        dest.UserConfidential = new UserConfidential { UserId = dest.UserId };
+                        // Assumes dest.Id is already populated on the User entity being mapped to.
+                        dest.UserConfidential = new UserConfidential { UserId = dest.Id };
                     }
                     // UserDto is expected to provide Email and PasswordHash.
                     dest.UserConfidential.Email = src.Email;
                 })
                 // Ignore other User properties not sourced from UserDto
-                .ForMember(dest => dest.UserId, opt => opt.Ignore())
-                .ForMember(dest => dest.Username, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.UserName, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Locations, opt => opt.Ignore())
                 .ForMember(dest => dest.Routes, opt => opt.Ignore())
@@ -41,8 +41,8 @@ namespace Routeplanner_API.Mappers
             // Map from CreateUserDto to User entity
             // Creates a new User and its associated UserConfidential entity.
             CreateMap<CreateUserDto, User>()
-                .ForMember(dest => dest.UserId, opt => opt.Ignore()) // UserId is GUID database-generated
-                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.Id, opt => opt.Ignore()) // Id is GUID database-generated
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Username))
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // PasswordHash will be set after hashing in UoW
                 .ForMember(dest => dest.UserRightId, opt => opt.MapFrom(src => src.UserRightId)) // Map from DTO's UserRightId
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
@@ -59,10 +59,10 @@ namespace Routeplanner_API.Mappers
             // Map from UpdateUserDto to User entity
             // For partial updates of a User and its UserConfidential data.
             CreateMap<UpdateUserDto, User>()
-                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Username))
                 .ForMember(dest => dest.UserConfidential, opt => opt.Ignore()) // Handled in AfterMap
                                                                                // Ignore properties not typically updated or managed by this DTO.
-                .ForMember(dest => dest.UserId, opt => opt.Ignore())
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // obviously ignored because only update and must not be updated.
                 .ForMember(dest => dest.Locations, opt => opt.Ignore())
                 .ForMember(dest => dest.Routes, opt => opt.Ignore())
@@ -85,7 +85,7 @@ namespace Routeplanner_API.Mappers
                     {
                         if (dest.UserConfidential == null)
                         {
-                            dest.UserConfidential = new UserConfidential { UserId = dest.UserId };
+                            dest.UserConfidential = new UserConfidential { UserId = dest.Id };
                         }
                         dest.UserConfidential.Email = src.Email;
                     }

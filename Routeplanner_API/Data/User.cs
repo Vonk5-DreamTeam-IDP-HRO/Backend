@@ -8,7 +8,7 @@ public partial class User : IdentityUser<Guid>
 {
     // UserId is inherited as 'Id' from IdentityUser<Guid>
 
-    public override string UserName { get; set; } = null!;
+    public override string? UserName { get; set; }
 
     public int UserRightId { get; set; }
 

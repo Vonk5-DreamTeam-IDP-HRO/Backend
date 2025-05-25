@@ -4,6 +4,7 @@ using System.Text.Json;
 using Routeplanner_API.UoWs;
 using AutoMapper;
 using Routeplanner_API.DTO.Route;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Routeplanner_API.Controllers
 {
@@ -21,6 +22,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -43,8 +45,8 @@ namespace Routeplanner_API.Controllers
             }
         }
 
-        // Placeholder for GetRouteById, needed for CreatedAtAction
         [HttpGet("{routeId}", Name = "GetRouteById")]
+        [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -68,6 +70,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -90,7 +93,7 @@ namespace Routeplanner_API.Controllers
             }
             catch (AutoMapperMappingException ex) // Catching potential mapping errors from UoW
             {
-                 _logger.LogError(ex, "Error adding route due to mapping issue: {ErrorMessage}", ex.Message);
+                _logger.LogError(ex, "Error adding route due to mapping issue: {ErrorMessage}", ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred during data mapping: {ex.InnerException?.Message ?? ex.Message}");
             }
             catch (JsonException ex) // Should be less likely now but good to keep for other JSON issues

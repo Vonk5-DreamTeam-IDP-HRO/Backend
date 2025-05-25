@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Routeplanner_API.DTO.Location;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Routeplanner_API.Controllers
 {
@@ -21,6 +23,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<LocationDto>>> GetLocations()
@@ -39,6 +42,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("categories")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<string?>>> GetUniqueCategories()
@@ -58,6 +62,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("{locationId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -82,6 +87,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -95,9 +101,19 @@ namespace Routeplanner_API.Controllers
                 return BadRequest(ModelState);
             }
 
+            // Get UserId from authenticated user's claims
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid userId))
+            {
+                _logger.LogWarning("CreateLocation called by an authenticated user with missing or invalid UserId claim.");
+                // Consider returning 400 Bad Request or 401 Unauthorized if claim is essential and missing/malformed
+                return StatusCode(StatusCodes.Status400BadRequest, "User ID claim is missing or invalid.");
+            }
+
             try
             {
-                var createdLocation = await _locationUoW.CreateLocationAsync(createLocationDto);
+                // Pass the authenticated userId to the Unit of Work method
+                var createdLocation = await _locationUoW.CreateLocationAsync(createLocationDto, userId);
                 return CreatedAtAction(nameof(GetLocationById), new { locationId = createdLocation.LocationId },
                     createdLocation);
             }
@@ -125,6 +141,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPut("{locationId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -161,6 +178,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpDelete("{locationId}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -186,6 +204,7 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("GroupedSelectableLocations")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetGroupedSelectableLocations()

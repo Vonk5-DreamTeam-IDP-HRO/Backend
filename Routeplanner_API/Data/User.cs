@@ -6,13 +6,13 @@ namespace Routeplanner_API.Models;
 
 public partial class User : IdentityUser<Guid>
 {
-    public Guid UserId { get; init; }
+    // UserId is inherited as 'Id' from IdentityUser<Guid>
 
-    public string Username { get; set; } = null!;
+    public override string UserName { get; set; } = null!;
 
     public int UserRightId { get; set; }
 
-    public string PasswordHash { get; set; } = null!;
+    public override string? PasswordHash { get; set; }
 
     public DateTime? CreatedAt { get; init; }
 

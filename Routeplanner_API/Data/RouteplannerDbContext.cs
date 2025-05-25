@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Routeplanner_API.Models;
 
+// DbContext for the Routeplanner application, inheriting from IdentityDbContext
+// to manage user authentication (User) and authorization(UserPermission).
 public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermission, Guid>
 {
     public RouteplannerDbContext()
@@ -24,14 +26,13 @@ public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermiss
 
     public virtual DbSet<Route> Routes { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
-
     public virtual DbSet<UserConfidential> UserConfidentials { get; set; }
 
     public virtual DbSet<UserPermission> UserRights { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.HasPostgresExtension("uuid-ossp");
 
         modelBuilder.Entity<Location>(entity =>
@@ -196,13 +197,13 @@ public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermiss
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("users_pkey");
+            entity.HasKey(e => e.Id).HasName("users_pkey");
 
             entity.ToTable("users", "auth");
 
-            entity.HasIndex(e => e.Username, "users_username_key").IsUnique();
+            entity.HasIndex(e => e.UserName, "users_username_key").IsUnique();
 
-            entity.Property(e => e.UserId)
+            entity.Property(e => e.Id)
                 .HasDefaultValueSql("uuid_generate_v4()")
                 .HasColumnName("user_id");
             entity.Property(e => e.CreatedAt)
@@ -212,7 +213,7 @@ public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermiss
                 .HasMaxLength(72)
                 .HasColumnName("password_hash");
             entity.Property(e => e.UserRightId).HasColumnName("right_id");
-            entity.Property(e => e.Username)
+            entity.Property(e => e.UserName)
                 .HasMaxLength(25)
                 .HasColumnName("username");
 

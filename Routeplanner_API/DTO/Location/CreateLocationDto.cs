@@ -21,9 +21,6 @@ namespace Routeplanner_API.DTO.Location
 
         public string? Description { get; init; }
 
-        [Required]
-        public Guid UserId { get; init; }
-
         public CreateLocationDetailDto? LocationDetail { get; init; }
     }
 }

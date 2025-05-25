@@ -108,8 +108,8 @@ namespace Test_API.Tests
                 Latitude = 51.903663052,
                 Longitude = 4.459498162,
                 Description = "Test description for euromast",
-                UserId = Guid.NewGuid()
             };
+            var newLocationId = Guid.NewGuid();
 
             var mappedLocation = new Location
             {
@@ -123,7 +123,7 @@ namespace Test_API.Tests
 
             var returnedLocationDto = new LocationDto
             {
-                LocationId = Guid.NewGuid(),
+                LocationId = newLocationId,
                 Name = newLocation.Name,
                 Latitude = newLocation.Latitude,
                 Longitude = newLocation.Longitude,
@@ -151,7 +151,7 @@ namespace Test_API.Tests
             var locationUoW = new LocationUoW(locationDbQueries, mockMapper.Object, mockLogger.Object);
 
             // Act
-            var result = await locationUoW.CreateLocationAsync(newLocation);
+            var result = await locationUoW.CreateLocationAsync(newLocation, newLocationId);
 
             // Assert
             Assert.NotNull(result);

@@ -2,6 +2,8 @@
 using AutoMapper;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.DTO.Route;
+using Routeplanner_API.DTO.User;
+using Routeplanner_API.Models;
 
 namespace Routeplanner_API.UoWs
 {
@@ -77,31 +79,57 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<RouteDto?> UpdateRouteAsync(RouteDto routeDto) // Should ideally be UpdateRouteDto
+        public async Task<RouteDto?> UpdateRouteAsync(Guid routeId, UpdateRouteDto updateRouteDto)
         {
-            _logger.LogInformation("Updating route with ID: {RouteId}", routeDto.RouteId);
-            // Consider using a specific UpdateRouteDto and mapping from that
-            var routeEntity = _mapper.Map<Routeplanner_API.Models.Route>(routeDto); 
-            var updatedRoute = await _routeDbQueries.UpdateAsync(routeEntity);
-            if (updatedRoute == null)
+            _logger.LogInformation("Updating route with ID: {routeId}", routeId);
+
+            var existingRoute = await _routeDbQueries.GetByIdAsync(routeId);
+            if (existingRoute == null)
             {
-                _logger.LogWarning("Route with ID: {RouteId} not found for update", routeDto.RouteId);
+                _logger.LogWarning("Route with ID: {routeId} not found for update", routeId);
                 return null;
             }
-            return _mapper.Map<RouteDto>(updatedRoute);
+
+            try
+            {
+                // Map the changes from DTO to the existing entity
+                _mapper.Map(updateRouteDto, existingRoute);
+
+                // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
+                // existingRoute.UpdatedAt = DateTime.UtcNow;
+
+                var updatedRoute = await _routeDbQueries.UpdateRouteAsync(existingRoute);
+                _logger.LogInformation("Route with ID: {routeId} updated successfully", routeId);
+                return _mapper.Map<RouteDto>(updatedRoute);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating route with ID: {routeId}: {ErrorMessage}", routeId, ex.Message);
+                throw;
+            }
         }
 
-        /*public async Task<bool> DeleteRouteAsync(int routeId)
+        public async Task<bool> DeleteRouteAsync(Guid routeId)
         {
-            _logger.LogInformation("Deleting route with ID: {RouteId}", routeId);
-            var route = await _routeDbQueries.GetByIdAsync(routeId);
-            if (route == null)
+            _logger.LogInformation("Deleting route with ID: {routeId}", routeId);
+            try
             {
-                _logger.LogWarning("Route with ID: {RouteId} not found for deletion", routeId);
-                return false;
+                var result = await _routeDbQueries.DeleteRouteAsync(routeId);
+                if (result)
+                {
+                    _logger.LogInformation("Route with ID: {routeId} deleted successfully", routeId);
+                }
+                else
+                {
+                    _logger.LogWarning("Route with ID: {routeId} not found for deletion", routeId);
+                }
+                return result;
             }
-            await _routeDbQueries.DeleteAsync(route);
-            return true;
-        }*/
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting route with ID: {routeId}: {ErrorMessage}", routeId, ex.Message);
+                throw;
+            }
+        }
     }
 }

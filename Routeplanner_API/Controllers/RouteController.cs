@@ -4,6 +4,8 @@ using System.Text.Json;
 using Routeplanner_API.UoWs;
 using AutoMapper;
 using Routeplanner_API.DTO.Route;
+using Routeplanner_API.DTO.Location;
+using Routeplanner_API.DTO.User;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Routeplanner_API.Controllers
@@ -105,6 +107,58 @@ namespace Routeplanner_API.Controllers
             {
                 _logger.LogError(ex, "Error occurred while adding a new route.");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while adding the route.");
+            }
+        }
+
+        [HttpPut("{routeId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<LocationDto>> UpdateRoute(Guid routeId, [FromBody] UpdateRouteDto updateRouteDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("UpdateRoute called with invalid model state for ID {routeId}.", routeId);
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var updatedRoute = await _routeUoW.UpdateRouteAsync(routeId, updateRouteDto);
+                if (updatedRoute == null)
+                {
+                    _logger.LogWarning("Attempted to update non-existent route with ID {routeId}.", routeId);
+                    return NotFound($"Route with ID {routeId} not found for update.");
+                }
+                return Ok(updatedRoute);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating route with ID {routeId}. Input: {@updateRouteDto}", routeId, updateRouteDto);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while updating route {routeId}.");
+            }
+        }
+
+        [HttpDelete("{routeId}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteUser(Guid routeId)
+        {
+            try
+            {
+                var success = await _routeUoW.DeleteRouteAsync(routeId);
+                if (!success)
+                {
+                    _logger.LogWarning("Attempted to delete non-existent route with ID {routeId}.", routeId);
+                    return NotFound($"Route with ID {routeId} not found for deletion.");
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting route with ID {routeId}.", routeId);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while deleting route {routeId}.");
             }
         }
     }

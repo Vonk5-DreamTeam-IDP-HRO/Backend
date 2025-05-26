@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
 
 namespace Routeplanner_API.Database_Queries
@@ -23,14 +24,12 @@ namespace Routeplanner_API.Database_Queries
 
         public async Task<User?> UpdateAsync(User user)
         {
-            ArgumentNullException.ThrowIfNull(user);
-
             var existingUser = await _context.Users.FindAsync(user.Id);
             if (existingUser == null)
             {
                 return null;
             }
-
+            _context.Entry(existingUser).CurrentValues.SetValues(user);
             await _context.SaveChangesAsync();
             return existingUser;
         }

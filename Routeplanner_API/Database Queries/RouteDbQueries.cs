@@ -35,25 +35,29 @@ namespace Routeplanner_API.Database_Queries
             return route;
         }
 
-        public async Task<Route?> UpdateAsync(Route route)
+        public async Task<Route?> UpdateRouteAsync(Route route)
         {
-            ArgumentNullException.ThrowIfNull(route);
             var existingRoute = await _context.Routes.FindAsync(route.RouteId);
             if (existingRoute == null)
             {
                 return null;
             }
-            // EF Core's change tracker will automatically detect changes to properties
-            // when SaveChangesAsync is called. If you are mapping from a DTO,
-            // ensure all intended properties are updated on 'existingRoute'.
-            // AutoMapper can help here in the service layer.
-            // For a direct update like this, you'd typically update properties of 'existingRoute'
-            // from 'route' (the input parameter).
-            // Example of updating properties (assuming 'route' has the new values):
             _context.Entry(existingRoute).CurrentValues.SetValues(route);
-            existingRoute.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return existingRoute;
+        }
+
+        public async Task<bool> DeleteRouteAsync(Guid routeId)
+        {
+            var routeToDelete = await _context.Users.FindAsync(routeId);
+            if (routeToDelete == null)
+            {
+                return false;
+            }
+
+            _context.Users.Remove(routeToDelete);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

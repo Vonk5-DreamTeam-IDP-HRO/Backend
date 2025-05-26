@@ -63,13 +63,10 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        // Should be only accessible by admins or special authorized people
-        // as example using: [Authorize (Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
+        public async Task<ActionResult<CreateUserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
         {
             if (!ModelState.IsValid)
             {
@@ -80,7 +77,10 @@ namespace Routeplanner_API.Controllers
             try
             {
                 var createdUser = await _userUoW.CreateUserAsync(createUserDto);
-                return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, createdUser);
+
+                var token = _userUoW.GenerateUserJwtToken(createdUser);
+
+                return Ok(new { Token = token });
             }
             catch (Exception ex)
             {

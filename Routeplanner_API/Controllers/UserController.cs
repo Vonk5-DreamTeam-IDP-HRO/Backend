@@ -117,7 +117,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> UpdateUser(Guid userId, [FromBody] UpdateUserDto updateUserDto)
+        public async Task<ActionResult<UpdateUserDto>> UpdateUser(Guid userId, [FromBody] UpdateUserDto updateUserDto)
         {
             _logger.LogInformation("Executing UserController.UpdateUser");
             if (!ModelState.IsValid)

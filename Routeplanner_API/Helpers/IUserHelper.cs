@@ -6,6 +6,6 @@ namespace Routeplanner_API.Helpers
     {
         string GenerateUserJwtToken(UserDto user);
 
-        string GenerateAdminJwtToken(UserDto admin);
+        //string GenerateAdminJwtToken(UserDto admin);
     }
 }

@@ -42,7 +42,7 @@ namespace Routeplanner_API.Helpers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateAdminJwtToken(UserDto user) // Will we use this? How will this be used? 
+        /*public string GenerateAdminJwtToken(UserDto user) // Will we use this? How will this be used? 
         {
             Claim[] claims = new[]
             {
@@ -62,6 +62,6 @@ namespace Routeplanner_API.Helpers
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        }*/
     }
 }

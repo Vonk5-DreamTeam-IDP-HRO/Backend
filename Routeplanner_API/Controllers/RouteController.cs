@@ -119,7 +119,6 @@ namespace Routeplanner_API.Controllers
                 _logger.LogWarning("UpdateRoute called with invalid model state for ID {routeId}.", routeId);
                 return BadRequest(ModelState);
             }
-
             try
             {
                 var updatedRoute = await _routeUoW.UpdateRouteAsync(routeId, updateRouteDto);

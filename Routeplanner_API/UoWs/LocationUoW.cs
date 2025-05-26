@@ -60,7 +60,7 @@ namespace Routeplanner_API.UoWs
             }
         }
 
-        public async Task<LocationDto?> UpdateLocationAsync(Guid locationId, UpdateLocationDto updateLocationDto)
+        public async Task<LocationDto?> UpdateLocationAsync(Guid locationId, LocationDto locationDto)
         {
             _logger.LogInformation("Updating location with ID: {LocationId}", locationId);
 
@@ -74,7 +74,7 @@ namespace Routeplanner_API.UoWs
             try
             {
                 // Map the changes from DTO to the existing entity
-                _mapper.Map(updateLocationDto, existingLocation);
+                _mapper.Map(locationDto, existingLocation);
 
                 // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
                 // existingLocation.UpdatedAt = DateTime.UtcNow;

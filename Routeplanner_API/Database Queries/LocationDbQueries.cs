@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
 using Routeplanner_API.DTO.Location;
+using System;
 
 namespace Routeplanner_API.Database_Queries
 {
@@ -45,6 +46,7 @@ namespace Routeplanner_API.Database_Queries
         public async Task<Location?> UpdateAsync(Location location)
         {
             var existingLocation = await _context.Locations.FindAsync(location.LocationId);
+
             if (existingLocation == null)
             {
                 return null;
@@ -57,7 +59,7 @@ namespace Routeplanner_API.Database_Queries
             // For a direct update like this, you'd typically update properties of 'existingLocation'
             // from 'location' (the input parameter).
 
-            // Example of updating properties (assuming 'location' has the new values):
+            existingLocation.LocationDetail = location.LocationDetail;
             _context.Entry(existingLocation).CurrentValues.SetValues(location);
             existingLocation.UpdatedAt = DateTime.UtcNow;
 

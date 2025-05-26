@@ -26,6 +26,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
+            _logger.LogInformation("Executing UserController.GetUsers");
             try
             {
                 var users = await _userUoW.GetUsersAsync();
@@ -45,6 +46,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<UserDto>> GetUserById(Guid userId)
         {
+            _logger.LogInformation("Executing UserController.GetUserById");
             try
             {
                 var user = await _userUoW.GetUsersByIdAsync(userId);
@@ -68,6 +70,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<CreateUserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
         {
+            _logger.LogInformation("Executing UserController.CreateUser");
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("CreateUser called with invalid model state.");
@@ -94,6 +97,8 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LoginUser([FromBody] UserDto userDto)
         {
+            _logger.LogInformation("Executing UserController.LoginUser");
+
             var result = await _userUoW.LoginUserAsync(userDto);
 
             if (!result.Success)
@@ -114,6 +119,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<LocationDto>> UpdateUser(Guid userId, [FromBody] UpdateUserDto updateUserDto)
         {
+            _logger.LogInformation("Executing UserController.UpdateUser");
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("UpdateUser called with invalid model state for ID {userId}.", userId);
@@ -146,6 +152,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteUser(Guid userId)
         {
+            _logger.LogInformation("Executing UserController.DeleteUser");
             try
             {
                 var success = await _userUoW.DeleteUserAsync(userId);

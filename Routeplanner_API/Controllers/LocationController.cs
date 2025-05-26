@@ -27,6 +27,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<LocationDto>>> GetLocations()
         {
+            _logger.LogInformation("Executing LocationController.GetLocations");
             try
             {
                 var locations = await _locationUoW.GetLocationsAsync();
@@ -45,6 +46,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<string?>>> GetUniqueCategories()
         {
+            _logger.LogInformation("Executing LocationController.GetUniqueCategories");
             try
             {
                 _logger.LogInformation("Getting unique location categories");
@@ -65,6 +67,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<LocationDto>> GetLocationById(Guid locationId)
         {
+            _logger.LogInformation("Executing LocationController.GetLocationsById");
             try
             {
                 var location = await _locationUoW.GetLocationByIdAsync(locationId);
@@ -92,6 +95,8 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<LocationDto>> CreateLocation([FromBody] CreateLocationDto createLocationDto)
         {
+            _logger.LogInformation("Executing LocationController.CreateLocation");
+
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("CreateLocation called with invalid model state.");
@@ -145,6 +150,8 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<LocationDto>> UpdateLocation(Guid locationId, [FromBody] LocationDto locationDto)
         {
+            _logger.LogInformation("Executing LocationController.UpdateLocation");
+
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("UpdateLocation called with invalid model state for ID {LocationId}.", locationId);
@@ -175,6 +182,8 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteLocation(Guid locationId)
         {
+            _logger.LogInformation("Executing LocationController.DeleteLocation");
+
             try
             {
                 var success = await _locationUoW.DeleteLocationAsync(locationId);
@@ -199,7 +208,8 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetGroupedSelectableLocations()
         {
-            _logger.LogInformation("API endpoint called: GetGroupedSelectableLocations");
+            _logger.LogInformation("Executing LocationController.GetGroupedSelectableLocations");
+
             try
             {
                 var groupedLocations = await _locationUoW.GetGroupedSelectableLocationsAsync();

@@ -30,6 +30,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<RouteDto>>> GetRoutes()
         {
+            _logger.LogInformation("Executing RouteController.GetRoutes");
             try
             {
                 var routes = await _routeUoW.GetRoutesAsync();
@@ -54,6 +55,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<RouteDto>> GetRouteById(Guid routeId)
         {
+            _logger.LogInformation("Executing RouteController.GetRouteById");
             try
             {
                 var route = await _routeUoW.GetRouteByIdAsync(routeId);
@@ -76,8 +78,10 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> AddRoute([FromBody] CreateRouteDto createRouteDto)
+        public async Task<IActionResult> CreateRoute([FromBody] CreateRouteDto createRouteDto)
         {
+            _logger.LogInformation("Executing RouteController.CreateRoute");
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -117,6 +121,8 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<LocationDto>> UpdateRoute(Guid routeId, [FromBody] UpdateRouteDto updateRouteDto)
         {
+            _logger.LogInformation("Executing RouteController.UpdateRoute");
+
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("UpdateRoute called with invalid model state for ID {routeId}.", routeId);
@@ -143,8 +149,9 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteUser(Guid routeId)
+        public async Task<IActionResult> DeleteRoute(Guid routeId)
         {
+            _logger.LogInformation("Executing RouteController.DeleteRoute");
             try
             {
                 var success = await _routeUoW.DeleteRouteAsync(routeId);

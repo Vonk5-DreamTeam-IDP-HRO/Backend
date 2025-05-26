@@ -45,7 +45,7 @@ namespace Routeplanner_API.Database_Queries
 
         public async Task<Location?> UpdateAsync(Location location)
         {
-            var existingLocation = await _context.Locations.FindAsync(location.LocationId);
+            Location? existingLocation = await _context.Locations.FindAsync(location.LocationId);
 
             if (existingLocation == null)
             {

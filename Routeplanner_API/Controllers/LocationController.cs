@@ -23,7 +23,6 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<LocationDto>>> GetLocations()
@@ -42,7 +41,6 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("categories")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<string?>>> GetUniqueCategories()
@@ -62,7 +60,6 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("{locationId}")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -204,7 +201,6 @@ namespace Routeplanner_API.Controllers
         }
 
         [HttpGet("GroupedSelectableLocations")]
-        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetGroupedSelectableLocations()

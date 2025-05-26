@@ -143,8 +143,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> UpdateLocation(Guid locationId,
-            [FromBody] UpdateLocationDto updateLocationDto)
+        public async Task<ActionResult<LocationDto>> UpdateLocation(Guid locationId, [FromBody] LocationDto locationDto)
         {
             if (!ModelState.IsValid)
             {
@@ -154,23 +153,18 @@ namespace Routeplanner_API.Controllers
 
             try
             {
-                var updatedLocation = await _locationUoW.UpdateLocationAsync(locationId, updateLocationDto);
+                var updatedLocation = await _locationUoW.UpdateLocationAsync(locationId, locationDto);
                 if (updatedLocation == null)
                 {
                     _logger.LogWarning("Attempted to update non-existent location with ID {LocationId}.", locationId);
                     return NotFound($"Location with ID {locationId} not found for update.");
                 }
-
                 return Ok(updatedLocation);
             }
-           
             catch (Exception ex)
             {
-                _logger.LogError(ex,
-                    "Error occurred while updating location with ID {LocationId}. Input: {@UpdateLocationDto}",
-                    locationId, updateLocationDto);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"An unexpected error occurred while updating location {locationId}.");
+                _logger.LogError(ex, "Error occurred while updating location with ID {LocationId}. Input: {@locationDto}", locationId, locationDto);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while updating location {locationId}.");
             }
         }
 

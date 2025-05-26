@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
 using Routeplanner_API.DTO.Location;
+using System;
 
 namespace Routeplanner_API.Database_Queries
 {
@@ -46,32 +47,40 @@ namespace Routeplanner_API.Database_Queries
         {
             ArgumentNullException.ThrowIfNull(location);
 
-            var existingLocation = await _context.Locations.FindAsync(location.LocationId);
+            // Load existing Location including LocationDetail
+            var existingLocation = await _context.Locations
+                .Include(l => l.LocationDetail)
+                .FirstOrDefaultAsync(l => l.LocationId == location.LocationId);
+
             if (existingLocation == null)
             {
                 return null;
             }
 
-            // EF Core's change tracker will automatically detect changes to properties
-            // when SaveChangesAsync is called. If you are mapping from a DTO,
-            // ensure all intended properties are updated on 'existingLocation'.
-            // AutoMapper can help here in the service layer.
-            // For a direct update like this, you'd typically update properties of 'existingLocation'
-            // from 'location' (the input parameter).
-
-            // Example of updating properties (assuming 'location' has the new values):
+            // Update scalar properties
             _context.Entry(existingLocation).CurrentValues.SetValues(location);
             existingLocation.UpdatedAt = DateTime.UtcNow;
 
-            // If you only want to update specific fields and 'location' is a detached entity
-            // with only those fields set, you might need more granular updates:
-            // existingLocation.Name = location.Name;
-            // existingLocation.Description = location.Description;
-            // ... etc.
+            // Update or assign LocationDetail
+            if (location.LocationDetail != null)
+            {
+                if (existingLocation.LocationDetail == null)
+                {
+                    // No detail existed before, so assign new one
+                    existingLocation.LocationDetail = location.LocationDetail;
+                }
+                else
+                {
+                    // Update existing detail
+                    _context.Entry(existingLocation.LocationDetail).CurrentValues
+                        .SetValues(location.LocationDetail);
+                }
+            }
 
             await _context.SaveChangesAsync();
             return existingLocation;
         }
+
 
         public async Task<bool> DeleteAsync(Guid locationId)
         {

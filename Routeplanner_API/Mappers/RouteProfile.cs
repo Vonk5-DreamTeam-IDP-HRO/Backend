@@ -16,7 +16,10 @@ namespace Routeplanner_API.Mappers
             // Mapping from CreateRouteDto to Route (EF Core entity)
             CreateMap<CreateRouteDto, Route>()
                 .ForMember(dest => dest.RouteId, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedByNavigation, opt => opt.Ignore()) 
+                // Use context during mapping to set CreatedBy. Context contains dict wwith
+                // all items passed from the controller.
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => (Guid?)context.Items["UserId"]))
+                .ForMember(dest => dest.CreatedByNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.LocationRoutes, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));

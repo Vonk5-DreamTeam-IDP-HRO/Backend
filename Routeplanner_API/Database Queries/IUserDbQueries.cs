@@ -12,5 +12,6 @@ namespace Routeplanner_API.Database_Queries
         Task<User?> GetByIdAsync(Guid userId);
         Task<IEnumerable<User>> GetAllAsync();
         Task<User?> FindUserByUsername(string username);
+        Task<UserPermission?> GetUserRight();
     }
 }

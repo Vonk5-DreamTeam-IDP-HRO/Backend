@@ -12,8 +12,5 @@ namespace Routeplanner_API.DTO.User
 
         [Required]
         public string Password { get; init; } = null!;
-
-        [Required]
-        public Guid UserRightId { get; init; }
     }
 }

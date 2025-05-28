@@ -29,7 +29,7 @@ public class UserProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Username))
             .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-            .ForMember(dest => dest.UserRightId, opt => opt.MapFrom(src => src.UserRightId))
+            //.ForMember(dest => dest.UserRightId, opt => opt.MapFrom(src => src.UserRightId))
             .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Locations, opt => opt.Ignore())

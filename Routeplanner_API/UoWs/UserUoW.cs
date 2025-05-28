@@ -51,33 +51,39 @@ namespace Routeplanner_API.UoWs
         {
             _logger.LogInformation("Creating new user");
 
-            try
+            var validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(createUserDto);
+            if(validateUsernameAndEmail == null)
             {
-                User? userEntity = _mapper.Map<User>(createUserDto);
-
-                // Hash the plain text password from the DTO and store it on the User entity
-                userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
-
-                UserPermission? userPermission = await GetUserRight();
-                if(userPermission != null)
+                try
                 {
-                    userEntity.UserRightId = userPermission.Id;
-                }
-                else
-                {
-                    _logger.LogError("Error creating user: no userRightId in the database.");
-                    throw new Exception();
-                }
+                    User? userEntity = _mapper.Map<User>(createUserDto);
 
-                User? createdUser = await _userDbQueries.CreateAsync(userEntity);
-                _logger.LogInformation("User created successfully with ID: {userId}", createdUser.Id);
-                return _mapper.Map<UserDto>(createdUser);
+                    // Hash the plain text password from the DTO and store it on the User entity
+                    userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
+
+                    UserPermission? userPermission = await GetUserRight();
+                    if (userPermission != null)
+                    {
+                        userEntity.UserRightId = userPermission.Id;
+                    }
+                    else
+                    {
+                        _logger.LogError("Error creating user: no userRightId in the database.");
+                        throw new Exception();
+                    }
+
+                    User? createdUser = await _userDbQueries.CreateAsync(userEntity);
+                    _logger.LogInformation("User created successfully with ID: {userId}", createdUser.Id);
+                    return _mapper.Map<UserDto>(createdUser);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error creating user: {ErrorMessage}", ex.Message);
+                    throw;
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating user: {ErrorMessage}", ex.Message);
-                throw;
-            }
+            _logger.LogError(validateUsernameAndEmail);
+            throw new Exception();
         }
 
         public async Task<LoginDto> LoginUserAsync(UserDto receivedUserDto)
@@ -131,23 +137,29 @@ namespace Routeplanner_API.UoWs
                 return null;
             }
 
-            try
+            var validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(createUserDto);
+            if (validateUsernameAndEmail == null)
             {
-                // Map the changes from DTO to the existing entity
-                _mapper.Map(updateUserDto, existingUser);
+                try
+                {
+                    // Map the changes from DTO to the existing entity
+                    _mapper.Map(updateUserDto, existingUser);
 
-                // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
-                // existingUser.UpdatedAt = DateTime.UtcNow;
+                    // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
+                    // existingUser.UpdatedAt = DateTime.UtcNow;
 
-                var updatedUser = await _userDbQueries.UpdateAsync(existingUser);
-                _logger.LogInformation("User with ID: {userId} updated successfully", userId);
-                return _mapper.Map<UserDto>(updatedUser);
+                    var updatedUser = await _userDbQueries.UpdateAsync(existingUser);
+                    _logger.LogInformation("User with ID: {userId} updated successfully", userId);
+                    return _mapper.Map<UserDto>(updatedUser);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating user with ID: {userId}: {ErrorMessage}", userId, ex.Message);
+                    throw;
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating user with ID: {userId}: {ErrorMessage}", userId, ex.Message);
-                throw;
-            }
+            _logger.LogError(validateUsernameAndEmail);
+            throw new Exception();
         }
 
         public async Task<bool> DeleteUserAsync(Guid userId)
@@ -182,6 +194,32 @@ namespace Routeplanner_API.UoWs
         {
             return await _userDbQueries.FindUserByUsername(username);
         }
+
+        private async Task<User?> FindUserByEmail(string email)
+        {
+            return await _userDbQueries.FindUserByEmail(email);
+        }
+
+        private async Task<string?> ValidateIfUsernameAndEmailAreUnique(CreateUserDto createUserDto)
+        {
+            var userFoundByUsername = await FindUserByUsername(createUserDto.Username);
+            var userFoundByEmail = await FindUserByEmail(createUserDto.Email);
+
+            if (userFoundByUsername != null && userFoundByEmail != null)
+            {
+                return "A user with this username and email already exists.";
+            }
+            else if (userFoundByUsername != null)
+            {
+                return "Username is already taken.";
+            }
+            else if (userFoundByEmail != null)
+            {
+                return "Email is already taken.";
+            }
+            return null; // No conflicts, user can be created
+        }
+
 
         private async Task<UserPermission?> GetUserRight()
         {

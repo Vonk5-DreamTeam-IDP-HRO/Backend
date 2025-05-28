@@ -63,6 +63,12 @@ namespace Routeplanner_API.Database_Queries
                 .FirstOrDefaultAsync(u => u.UserName == username);
         }
 
+        public async Task<User?> FindUserByEmail(string email)
+        {
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
         public async Task<UserPermission?> GetUserRight()
         {
             return await _context.UserRights.FirstOrDefaultAsync(u => u.Name == "user");

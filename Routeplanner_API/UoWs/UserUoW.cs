@@ -222,8 +222,8 @@ namespace Routeplanner_API.UoWs
 
         private async Task<string?> ValidateIfUsernameAndEmailAreUnique(UpdateUserDto updateUserDto)
         {
-            var userFoundByUsername = await FindUserByUsername(updateUserDto.Username);
-            var userFoundByEmail = await FindUserByEmail(updateUserDto.Email);
+            var userFoundByUsername = await FindUserByUsername(updateUserDto.Username!);
+            var userFoundByEmail = await FindUserByEmail(updateUserDto.Email!);
 
             if (userFoundByUsername != null && userFoundByEmail != null)
             {

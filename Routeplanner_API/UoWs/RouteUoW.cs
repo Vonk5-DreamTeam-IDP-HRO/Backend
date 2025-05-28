@@ -12,6 +12,7 @@ namespace Routeplanner_API.UoWs
         private readonly IRouteDbQueries _routeDbQueries;
         private readonly ILogger<RouteUoW> _logger;
         private readonly IMapper _mapper;
+        // private IConfiguration configuration; // Removed as it's part of an unused constructor
 
         public RouteUoW(IRouteDbQueries routeDbQueries, ILogger<RouteUoW> logger, IMapper mapper)
         {
@@ -19,6 +20,12 @@ namespace Routeplanner_API.UoWs
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
+
+        // Removed unused constructor:
+        // public RouteUoW(IConfiguration configuration)
+        // {
+        //     this.configuration = configuration;
+        // }
 
         public async Task<IEnumerable<RouteDto>> GetRoutesAsync()
         {
@@ -39,26 +46,31 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<RouteDto>(route);
         }
 
-        public async Task<RouteDto> CreateRouteAsync(CreateRouteDto createRouteDto, Guid userId)
+        public async Task<RouteDto> CreateRouteAsync(CreateRouteDto createRouteDto)
         {
-            _logger.LogInformation("Creating new route from DTO for UserId: {UserId}", userId);
+            _logger.LogInformation("Creating new route from DTO");
             try
             {
                 if (createRouteDto == null)
                 {
                     throw new ArgumentNullException(nameof(createRouteDto));
                 }
-                // Pass userId to AutoMapper via context items
-                var routeEntity = _mapper.Map<Routeplanner_API.Models.Route>(createRouteDto, opt => opt.Items["UserId"] = userId);
+                var routeEntity = _mapper.Map<Routeplanner_API.Models.Route>(createRouteDto);
+                
+                // Potentially set UserId if applicable and not directly from DTO, e.g. from authenticated user
+                // routeEntity.UserId = ...; 
+                // routeEntity.CreatedAt = DateTime.UtcNow; // Handled by DB or EF Core config
+                // routeEntity.UpdatedAt = DateTime.UtcNow; // Handled by DB or EF Core config
 
                 var createdRoute = await _routeDbQueries.CreateAsync(routeEntity);
-                _logger.LogInformation("Route created successfully with ID: {RouteId}", createdRoute.RouteId);
+                _logger.LogInformation("Route created successfully with ID: {RouteId}", createdRoute.RouteId); // Assuming RouteId exists
                 return _mapper.Map<RouteDto>(createdRoute);
             }
             catch (AutoMapperMappingException ex)
             {
                 _logger.LogError(ex, "Error mapping CreateRouteDto to Route entity: {ErrorMessage}", ex.Message);
-                throw;
+                // Consider re-throwing a more specific application exception or handling appropriately
+                throw; 
             }
             catch (Exception ex)
             {
@@ -83,7 +95,8 @@ namespace Routeplanner_API.UoWs
                 // Map the changes from DTO to the existing entity
                 _mapper.Map(updateRouteDto, existingRoute);
 
-                existingRoute.UpdatedAt = DateTime.UtcNow;
+                // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
+                // existingRoute.UpdatedAt = DateTime.UtcNow;
 
                 var updatedRoute = await _routeDbQueries.UpdateRouteAsync(existingRoute);
                 _logger.LogInformation("Route with ID: {routeId} updated successfully", routeId);

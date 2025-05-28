@@ -7,7 +7,6 @@ using Routeplanner_API.DTO.Route;
 using Routeplanner_API.DTO.Location;
 using Routeplanner_API.DTO.User;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace Routeplanner_API.Controllers
 {
@@ -89,15 +88,7 @@ namespace Routeplanner_API.Controllers
             }
             try
             {
-                // Get UserId from authenticated user's claims
-                var userIdString = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid userId))
-                {
-                    _logger.LogWarning("CreateRoute called by an authenticated user with missing or invalid UserId claim.");
-                    return StatusCode(StatusCodes.Status400BadRequest, "User ID claim is missing or invalid.");
-                }
-
-                var createdRouteDto = await _routeUoW.CreateRouteAsync(createRouteDto, userId);
+                var createdRouteDto = await _routeUoW.CreateRouteAsync(createRouteDto);
 
                 return CreatedAtAction(nameof(GetRouteById), new { routeId = createdRouteDto.RouteId }, createdRouteDto);
             }

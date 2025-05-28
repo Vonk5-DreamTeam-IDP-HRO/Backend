@@ -137,7 +137,7 @@ namespace Routeplanner_API.UoWs
                 return null;
             }
 
-            var validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(createUserDto);
+            var validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(updateUserDto);
             if (validateUsernameAndEmail == null)
             {
                 try
@@ -220,6 +220,25 @@ namespace Routeplanner_API.UoWs
             return null; // No conflicts, user can be created
         }
 
+        private async Task<string?> ValidateIfUsernameAndEmailAreUnique(UpdateUserDto updateUserDto)
+        {
+            var userFoundByUsername = await FindUserByUsername(updateUserDto.Username);
+            var userFoundByEmail = await FindUserByEmail(updateUserDto.Email);
+
+            if (userFoundByUsername != null && userFoundByEmail != null)
+            {
+                return "A user with this username and email already exists.";
+            }
+            else if (userFoundByUsername != null)
+            {
+                return "Username is already taken.";
+            }
+            else if (userFoundByEmail != null)
+            {
+                return "Email is already taken.";
+            }
+            return null; // No conflicts, user can be created
+        }
 
         private async Task<UserPermission?> GetUserRight()
         {

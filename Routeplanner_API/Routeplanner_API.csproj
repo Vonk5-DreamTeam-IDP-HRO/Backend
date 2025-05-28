@@ -8,13 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Enums\**" />
     <Compile Remove="Frontend\**" />
-    <Content Remove="Enums\**" />
     <Content Remove="Frontend\**" />
-    <EmbeddedResource Remove="Enums\**" />
     <EmbeddedResource Remove="Frontend\**" />
-    <None Remove="Enums\**" />
     <None Remove="Frontend\**" />
   </ItemGroup>
 

@@ -4,10 +4,10 @@ namespace Routeplanner_API.DTO
 {
     public class StatusCodeResponseDto<T>
     {
-        public StatusCodeResponse StatusCodeResponse;
+        public StatusCodeResponse StatusCodeResponse { get; set; }
 
-        public string? Message;
+        public string? Message { get; set; }
 
-        public T? Data; 
+        public T? Data { get; set; }
     }
 }

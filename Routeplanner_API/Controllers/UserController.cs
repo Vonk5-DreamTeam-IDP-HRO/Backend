@@ -88,11 +88,17 @@ namespace Routeplanner_API.Controllers
 
         [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<StatusCodeResponseDto<string?>>> LoginUser([FromBody] UserDto userDto)
-        {
-            // modelstate check
+        {            
             _logger.LogInformation("Executing UserController.LoginUser");
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("LoginUser called with invalid model state.");
+                return _userUoW.CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "LoginUser called with invalid model state.", null);
+            }
             try
             {
                 return await _userUoW.LoginUserAsync(userDto);
@@ -135,7 +141,7 @@ namespace Routeplanner_API.Controllers
         [Authorize]
         // Should be only accessible by admins or special authorized people
         // as example using: [Authorize (Roles = "Admin")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<StatusCodeResponseDto<bool>>> DeleteUser(Guid userId)

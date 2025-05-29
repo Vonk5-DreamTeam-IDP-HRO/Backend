@@ -75,7 +75,7 @@ namespace Routeplanner_API.UoWs
                 User? createdUser = await _userDbQueries.CreateAsync(userEntity);
 
                 _logger.LogInformation($"User created successfully with ID: {createdUser.Id}"); 
-                return CreateStatusResponseDto<string?>(StatusCodeResponse.Success, $"User created successfully with ID: {createdUser.Id}", GenerateUserJwtToken(_mapper.Map<UserDto>(createdUser)));
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.Created, $"User created successfully with ID: {createdUser.Id}", GenerateUserJwtToken(_mapper.Map<UserDto>(createdUser)));
             }
             _logger.LogError(validateUsernameAndEmail);
             return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, validateUsernameAndEmail, null);
@@ -108,7 +108,7 @@ namespace Routeplanner_API.UoWs
             if (existingUser == null)
             {
                 _logger.LogWarning($"User with ID: {userId} not found for update");
-                return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.BadRequest, $"User with ID: {userId} not found for update", null); 
+                return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.NotFound, $"User with ID: {userId} not found for update", null); 
             }
 
             string? validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(updateUserDto);
@@ -143,7 +143,7 @@ namespace Routeplanner_API.UoWs
             else
             {
                 _logger.LogWarning("User with ID: {userId} not found for deletion", userId);
-                return CreateStatusResponseDto<bool>(StatusCodeResponse.BadRequest, $"User with ID: {userId} not found for deletion", false);
+                return CreateStatusResponseDto<bool>(StatusCodeResponse.NotFound, $"User with ID: {userId} not found for deletion", false);
             }
         }
 

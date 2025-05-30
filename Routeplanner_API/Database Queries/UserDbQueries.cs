@@ -62,5 +62,10 @@ namespace Routeplanner_API.Database_Queries
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.UserName == username);
         }
+
+        public async Task<UserPermission?> GetUserRight()
+        {
+            return await _context.UserRights.FirstOrDefaultAsync(u => u.Name == "user");
+        }
     }
 }

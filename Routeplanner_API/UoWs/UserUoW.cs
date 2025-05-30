@@ -53,12 +53,23 @@ namespace Routeplanner_API.UoWs
 
             try
             {
-                var userEntity = _mapper.Map<User>(createUserDto);
+                User? userEntity = _mapper.Map<User>(createUserDto);
 
                 // Hash the plain text password from the DTO and store it on the User entity
                 userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
 
-                var createdUser = await _userDbQueries.CreateAsync(userEntity);
+                UserPermission? userPermission = await GetUserRight();
+                if(userPermission != null)
+                {
+                    userEntity.UserRightId = userPermission.Id;
+                }
+                else
+                {
+                    _logger.LogError("Error creating user: no userRightId in the database.");
+                    throw new Exception();
+                }
+
+                User? createdUser = await _userDbQueries.CreateAsync(userEntity);
                 _logger.LogInformation("User created successfully with ID: {userId}", createdUser.Id);
                 return _mapper.Map<UserDto>(createdUser);
             }
@@ -170,6 +181,11 @@ namespace Routeplanner_API.UoWs
         private async Task<User?> FindUserByUsername(string username)
         {
             return await _userDbQueries.FindUserByUsername(username);
+        }
+
+        private async Task<UserPermission?> GetUserRight()
+        {
+            return await _userDbQueries.GetUserRight();
         }
     }
 }

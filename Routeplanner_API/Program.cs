@@ -49,7 +49,14 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddControllers();
 
 // JWT
-var jwtSettings = builder.Configuration.GetValidatedJwtSettings(logger);
+var validatedJwtSettings = builder.Configuration.GetValidatedJwtSettings(logger);
+builder.Services.Configure<JwtSettings>(options =>
+{
+    options.Secret = validatedJwtSettings.Secret;
+    options.Issuer = validatedJwtSettings.Issuer;
+    options.Audience = validatedJwtSettings.Audience;
+    options.ExpiryMinutes = validatedJwtSettings.ExpiryMinutes;
+});
 
 builder.Services.AddIdentity<User, UserPermission>()
     .AddEntityFrameworkStores<RouteplannerDbContext>()
@@ -70,16 +77,44 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings.Issuer,
-        ValidAudience = jwtSettings.Audience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret!))
+        ValidIssuer = validatedJwtSettings.Issuer,
+        ValidAudience = validatedJwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(validatedJwtSettings.Secret!))
     };
 });
 
 builder.Services.AddEndpointsApiExplorer();
 
 // Update Swagger configuration with valid OpenAPI version
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Routeplanner API", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
+
 
 var app = builder.Build();
 

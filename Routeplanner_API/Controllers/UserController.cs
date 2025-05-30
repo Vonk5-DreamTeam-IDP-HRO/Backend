@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.Location;
 using Routeplanner_API.DTO.User;
+using Routeplanner_API.Enums;
+using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
+using System.Collections.Generic;
 
 namespace Routeplanner_API.Controllers
 {
@@ -24,18 +28,18 @@ namespace Routeplanner_API.Controllers
         // Should be only accessible by admins or special authorized people
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+        public async Task<ActionResult<StatusCodeResponseDto<IEnumerable<UserDto>>>> GetUsers()
         {
             _logger.LogInformation("Executing UserController.GetUsers");
             try
             {
                 var users = await _userUoW.GetUsersAsync();
-                return Ok(users);
+                return _userUoW.CreateStatusResponseDto<IEnumerable<UserDto>>(StatusCodeResponse.Success, null, users);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while getting all users.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while retrieving users.");
+                return _userUoW.CreateStatusResponseDto<IEnumerable<UserDto>>(StatusCodeResponse.InternalServerError, "An unexpected error occurred while retrieving users.", null);
             }
         }
 
@@ -44,23 +48,17 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserDto>> GetUserById(Guid userId)
+        public async Task<ActionResult<StatusCodeResponseDto<UserDto?>>> GetUserById(Guid userId)
         {
             _logger.LogInformation("Executing UserController.GetUserById");
             try
             {
-                var user = await _userUoW.GetUsersByIdAsync(userId);
-                if (user == null)
-                {
-                    _logger.LogInformation("User with ID {userId} not found.", userId);
-                    return NotFound($"User with ID {userId} not found.");
-                }
-                return Ok(user);
+                return await _userUoW.GetUsersByIdAsync(userId);               
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while getting user with ID {userId}.", userId);
-                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while retrieving user {userId}.");
+                return _userUoW.CreateStatusResponseDto<UserDto?>(StatusCodeResponse.InternalServerError, $"An unexpected error occurred while retrieving user {userId}.", null);
             }
         }
 
@@ -68,45 +66,48 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CreateUserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
+        public async Task<ActionResult<StatusCodeResponseDto<string?>>> CreateUser([FromBody] CreateUserDto createUserDto)
         {
             _logger.LogInformation("Executing UserController.CreateUser");
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("CreateUser called with invalid model state.");
-                return BadRequest(ModelState);
+                return _userUoW.CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "CreateUser called with invalid model state.", null);
             }
 
             try
             {
-                var createdUser = await _userUoW.CreateUserAsync(createUserDto);
-
-                var token = _userUoW.GenerateUserJwtToken(createdUser);
-
-                return Ok(new { Token = token });
+                return await _userUoW.CreateUserAsync(createUserDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while creating a new user. Input: {@createUserDto}", createUserDto);
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while creating the user.");
+                return _userUoW.CreateStatusResponseDto<string?>(StatusCodeResponse.InternalServerError, "An unexpected error occurred while creating the user.", null);
             }
         }
 
         [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> LoginUser([FromBody] UserDto userDto)
-        {
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<StatusCodeResponseDto<string?>>> LoginUser([FromBody] UserDto userDto)
+        {            
             _logger.LogInformation("Executing UserController.LoginUser");
-
-            var result = await _userUoW.LoginUserAsync(userDto);
-
-            if (!result.Success)
+            if (!ModelState.IsValid)
             {
-                return Unauthorized(result.Message);
+                _logger.LogWarning("LoginUser called with invalid model state.");
+                return _userUoW.CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "LoginUser called with invalid model state.", null);
             }
-            var token = _userUoW.GenerateUserJwtToken(userDto);
-            return Ok(new { Token = token });
+            try
+            {
+                return await _userUoW.LoginUserAsync(userDto);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while logging in a user. Input: {@userDto}", userDto);
+                return _userUoW.CreateStatusResponseDto<string?>(StatusCodeResponse.InternalServerError, "An unexpected error occurred while logging in the user.", null);
+            }
         }
 
         [HttpPut("{userId}")]
@@ -117,29 +118,22 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UpdateUserDto>> UpdateUser(Guid userId, [FromBody] UpdateUserDto updateUserDto)
+        public async Task<ActionResult<StatusCodeResponseDto<UserDto?>>> UpdateUser(Guid userId, [FromBody] UpdateUserDto updateUserDto)
         {
             _logger.LogInformation("Executing UserController.UpdateUser");
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("UpdateUser called with invalid model state for ID {userId}.", userId);
-                return BadRequest(ModelState);
+                return _userUoW.CreateStatusResponseDto<UserDto?>(StatusCodeResponse.BadRequest, "UpdateUser called with invalid model state.", null);
             }
-
             try
             {
-                var updatedUser = await _userUoW.UpdateUserAsync(userId, updateUserDto);
-                if (updatedUser == null)
-                {
-                    _logger.LogWarning("Attempted to update non-existent user with ID {userId}.", userId);
-                    return NotFound($"User with ID {userId} not found for update.");
-                }
-                return Ok(updatedUser);
+                return await _userUoW.UpdateUserAsync(userId, updateUserDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while updating user with ID {userId}. Input: {@updateUserDto}", userId, updateUserDto);
-                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while updating user {userId}.");
+                return _userUoW.CreateStatusResponseDto<UserDto?>(StatusCodeResponse.InternalServerError, $"An unexpected error occurred while updating user {userId}.", null);
             }
         }
 
@@ -147,26 +141,20 @@ namespace Routeplanner_API.Controllers
         [Authorize]
         // Should be only accessible by admins or special authorized people
         // as example using: [Authorize (Roles = "Admin")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteUser(Guid userId)
+        public async Task<ActionResult<StatusCodeResponseDto<bool>>> DeleteUser(Guid userId)
         {
             _logger.LogInformation("Executing UserController.DeleteUser");
             try
             {
-                var success = await _userUoW.DeleteUserAsync(userId);
-                if (!success)
-                {
-                    _logger.LogWarning("Attempted to delete non-existent user with ID {userId}.", userId);
-                    return NotFound($"User with ID {userId} not found for deletion.");
-                }
-                return NoContent();
+                return await _userUoW.DeleteUserAsync(userId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while deleting user with ID {userId}.", userId);
-                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while deleting user {userId}.");
+                _logger.LogError(ex, $"An unexpected error occurred while deleting user {userId}.");
+                return _userUoW.CreateStatusResponseDto<bool>(StatusCodeResponse.InternalServerError, $"An unexpected error occurred while deleting user {userId}.", false);
             }
         }
     }

@@ -9,6 +9,8 @@ using Routeplanner_API.Helpers;
 using Routeplanner_API.Models;
 using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.User;
+using Routeplanner_API.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace Routeplanner_API.UoWs
 {
@@ -31,161 +33,131 @@ namespace Routeplanner_API.UoWs
         public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
             _logger.LogInformation("Getting all users");
+
             var users = await _userDbQueries.GetAllAsync();
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
-        public async Task<UserDto?> GetUsersByIdAsync(Guid userId)
+        public async Task<StatusCodeResponseDto<UserDto?>> GetUsersByIdAsync(Guid userId)
         {
             _logger.LogInformation("Getting user with ID: {userId}", userId);
-            var user = await _userDbQueries.GetByIdAsync(userId);
+
+            User? user = await _userDbQueries.GetByIdAsync(userId);
             if (user == null)
             {
                 _logger.LogWarning("User with ID: {userId} not found", userId);
-                return null;
+                return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.NotFound, $"User with ID {userId} not found.", null);
             }
-            return _mapper.Map<UserDto>(user);
+
+            return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.Success, $"User with ID {userId} found.", _mapper.Map<UserDto>(user));
         }
 
-        public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
+        public async Task<StatusCodeResponseDto<string?>> CreateUserAsync(CreateUserDto createUserDto)
         {
             _logger.LogInformation("Creating new user");
 
             var validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(createUserDto);
             if(validateUsernameAndEmail == null)
             {
-                try
+                User? userEntity = _mapper.Map<User>(createUserDto);
+
+                // Hash the plain text password from the DTO and store it on the User entity
+                userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
+
+                UserPermission? userPermission = await GetUserRight();
+                if (userPermission == null)
                 {
-                    User? userEntity = _mapper.Map<User>(createUserDto);
-
-                    // Hash the plain text password from the DTO and store it on the User entity
-                    userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
-
-                    UserPermission? userPermission = await GetUserRight();
-                    if (userPermission != null)
-                    {
-                        userEntity.UserRightId = userPermission.Id;
-                    }
-                    else
-                    {
-                        _logger.LogError("Error creating user: no userRightId in the database.");
-                        throw new Exception();
-                    }
-
-                    User? createdUser = await _userDbQueries.CreateAsync(userEntity);
-                    _logger.LogInformation("User created successfully with ID: {userId}", createdUser.Id);
-                    return _mapper.Map<UserDto>(createdUser);
+                    _logger.LogInformation("Error creating user: no userRightId in the database.");
+                    return CreateStatusResponseDto<string?>(StatusCodeResponse.InternalServerError, "Error creating user: no userRightId in the database.", null);
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error creating user: {ErrorMessage}", ex.Message);
-                    throw;
-                }
+
+                userEntity.UserRightId = userPermission.Id;
+                User? createdUser = await _userDbQueries.CreateAsync(userEntity);
+
+                _logger.LogInformation($"User created successfully with ID: {createdUser.Id}"); 
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.Created, $"User created successfully with ID: {createdUser.Id}", GenerateUserJwtToken(_mapper.Map<UserDto>(createdUser)));
             }
             _logger.LogError(validateUsernameAndEmail);
-            throw new Exception();
+            return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, validateUsernameAndEmail, null);
         }
 
-        public async Task<LoginDto> LoginUserAsync(UserDto receivedUserDto)
+        public async Task<StatusCodeResponseDto<string?>> LoginUserAsync(UserDto receivedUserDto)
         {
             User? foundUser = await FindUserByUsername(receivedUserDto.Username);
 
             if (foundUser == null)
             {
-                return new LoginDto
-                {
-                    Success = false,
-                    Message = "Invalid username"
-                };
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "Invalid username", null);
             }
 
-            if (foundUser.PasswordHash == null)
-            {
-                _logger.LogWarning("User {Username} has no password hash.", foundUser.UserName);
-                return new LoginDto
-                {
-                    Success = false,
-                    Message = "Invalid login attempt." // More generic message
-                };
-            }
-            var verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash, receivedUserDto.Password);
+            PasswordVerificationResult verificationResult = _passwordHasher.VerifyHashedPassword(foundUser, foundUser.PasswordHash!, receivedUserDto.Password);
 
             if (verificationResult == PasswordVerificationResult.Success)
             {
-                return new LoginDto
-                {
-                    Success = true,
-                    Message = "Login successful"
-                };
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.Success, "Login successful", GenerateUserJwtToken(receivedUserDto));
             }
 
-            return new LoginDto
-            {
-                Success = false,
-                Message = "Invalid password"
-            };
+            return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "Invalid password", null);
         }
 
-        public async Task<UserDto?> UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)
+        public async Task<StatusCodeResponseDto<UserDto?>> UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)
         {
             _logger.LogInformation("Updating user with ID: {userId}", userId);
 
-            var existingUser = await _userDbQueries.GetByIdAsync(userId);
+            User? existingUser = await _userDbQueries.GetByIdAsync(userId);
             if (existingUser == null)
             {
-                _logger.LogWarning("User with ID: {userId} not found for update", userId);
-                return null;
+                _logger.LogWarning($"User with ID: {userId} not found for update");
+                return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.NotFound, $"User with ID: {userId} not found for update", null); 
             }
 
-            var validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(updateUserDto);
+            string? validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(updateUserDto);
             if (validateUsernameAndEmail == null)
             {
-                try
-                {
-                    // Map the changes from DTO to the existing entity
-                    _mapper.Map(updateUserDto, existingUser);
+                // Map the changes from DTO to the existing entity
+                _mapper.Map(updateUserDto, existingUser);
 
-                    // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
-                    // existingUser.UpdatedAt = DateTime.UtcNow;
+                // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
+                // existingUser.UpdatedAt = DateTime.UtcNow;
 
-                    var updatedUser = await _userDbQueries.UpdateAsync(existingUser);
-                    _logger.LogInformation("User with ID: {userId} updated successfully", userId);
-                    return _mapper.Map<UserDto>(updatedUser);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error updating user with ID: {userId}: {ErrorMessage}", userId, ex.Message);
-                    throw;
-                }
+                User? updatedUser = await _userDbQueries.UpdateAsync(existingUser);
+                _logger.LogInformation("User with ID: {userId} updated successfully", userId);
+
+                return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.Success, "User with ID: {userId} updated successfully", _mapper.Map<UserDto>(updatedUser));
             }
+
             _logger.LogError(validateUsernameAndEmail);
-            throw new Exception();
+            return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.BadRequest, validateUsernameAndEmail, null);
         }
 
-        public async Task<bool> DeleteUserAsync(Guid userId)
+        public async Task<StatusCodeResponseDto<bool>> DeleteUserAsync(Guid userId)
         {
             _logger.LogInformation("Deleting user with ID: {userId}", userId);
-            try
+
+            bool result = await _userDbQueries.DeleteAsync(userId);
+            if (result)
             {
-                var result = await _userDbQueries.DeleteAsync(userId);
-                if (result)
-                {
-                    _logger.LogInformation("User with ID: {userId} deleted successfully", userId);
-                }
-                else
-                {
-                    _logger.LogWarning("User with ID: {userId} not found for deletion", userId);
-                }
-                return result;
+                _logger.LogInformation("User with ID: {userId} deleted successfully", userId);
+                return CreateStatusResponseDto<bool>(StatusCodeResponse.Success, $"User with ID: {userId} deleted successfully", true);
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Error deleting user with ID: {userId}: {ErrorMessage}", userId, ex.Message);
-                throw;
+                _logger.LogWarning("User with ID: {userId} not found for deletion", userId);
+                return CreateStatusResponseDto<bool>(StatusCodeResponse.NotFound, $"User with ID: {userId} not found for deletion", false);
             }
         }
 
-        public string GenerateUserJwtToken(UserDto user)
+        public StatusCodeResponseDto<T> CreateStatusResponseDto<T>(StatusCodeResponse statusCodeResponse, string? message, T? data)
+        {
+            return new StatusCodeResponseDto<T>
+            {
+                StatusCodeResponse = statusCodeResponse,
+                Message = message,
+                Data = data
+            };
+        }
+
+        private string GenerateUserJwtToken(UserDto user)
         {
             return _userHelper.GenerateUserJwtToken(user);
         }

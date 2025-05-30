@@ -215,23 +215,6 @@ public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermiss
             entity.Property(e => e.UserName)
                 .HasMaxLength(25)
                 .HasColumnName("username");
-            entity.Property(e => e.Email) // Add mapping for Email
-                .HasMaxLength(256) // Standard max length for email, adjust if needed
-                .HasColumnName("email");
-
-            // Ignore properties from IdentityUser that are not in the custom 'users' table
-            // Many properties can be used in future features, so they are ignored for now.
-            entity.Ignore(e => e.NormalizedUserName);
-            entity.Ignore(e => e.NormalizedEmail);
-            entity.Ignore(e => e.EmailConfirmed);
-            entity.Ignore(e => e.SecurityStamp);
-            entity.Ignore(e => e.ConcurrencyStamp);
-            entity.Ignore(e => e.PhoneNumber);
-            entity.Ignore(e => e.PhoneNumberConfirmed);
-            entity.Ignore(e => e.TwoFactorEnabled);
-            entity.Ignore(e => e.LockoutEnd);
-            entity.Ignore(e => e.LockoutEnabled);
-            entity.Ignore(e => e.AccessFailedCount);
 
             entity.HasOne(d => d.Right).WithMany(p => p.Users)
                 .HasForeignKey(d => d.UserRightId)
@@ -253,10 +236,6 @@ public partial class RouteplannerDbContext : IdentityDbContext<User, UserPermiss
             entity.Property(e => e.Name)
                 .HasMaxLength(256)
                 .HasColumnName("right_name");
-
-            // Ignore properties from IdentityRole that are not in the custom 'user_rights' table
-            entity.Ignore(e => e.NormalizedName);
-            entity.Ignore(e => e.ConcurrencyStamp);
         });
 
         OnModelCreatingPartial(modelBuilder);

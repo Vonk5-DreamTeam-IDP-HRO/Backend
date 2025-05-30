@@ -148,7 +148,7 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> UpdateLocation(Guid locationId, [FromBody] LocationDto locationDto)
+        public async Task<ActionResult<LocationDto>> UpdateLocation(Guid locationId, [FromBody] UpdateLocationDto locationDto)
         {
             _logger.LogInformation("Executing LocationController.UpdateLocation");
 

@@ -81,14 +81,3 @@ public async Task<ActionResult<StatusCodeResponseDto<bool>>> DeleteUser(Guid use
 	return CreateStatusResponseDto<bool>(StatusCodeResponse.Success, $"User with ID: {userId} deleted successfully", true);
 	return CreateStatusResponseDto<bool>(StatusCodeResponse.NotFound, $"User with ID: {userId} not found for deletion", false);
 	return _userUoW.CreateStatusResponseDto<bool>(StatusCodeResponse.InternalServerError, $"An unexpected error occurred while deleting user {userId}.", false);
-
-
-
-
-
-
-
-
-
-
-

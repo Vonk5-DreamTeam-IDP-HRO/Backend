@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Routeplanner_API.DTO.Location;
+using Routeplanner_API.DTO;
+using Routeplanner_API.Enums;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
@@ -25,39 +27,36 @@ namespace Routeplanner_API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<LocationDto>>> GetLocations()
+        public async Task<ActionResult<StatusCodeResponseDto<IEnumerable<LocationDto>>>> GetLocations()
         {
             _logger.LogInformation("Executing LocationController.GetLocations");
             try
             {
                 var locations = await _locationUoW.GetLocationsAsync();
-                return Ok(locations);
+                return _locationUoW.CreateStatusResponseDto<IEnumerable<LocationDto>>(StatusCodeResponse.Success, null, locations);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while getting all locations.");
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "An unexpected error occurred while retrieving locations.");
+                return _locationUoW.CreateStatusResponseDto<IEnumerable<LocationDto>>(StatusCodeResponse.InternalServerError, "An unexpected error occurred while retrieving locations.", null);
             }
         }
 
         [HttpGet("categories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<string?>>> GetUniqueCategories()
+        public async Task<ActionResult<StatusCodeResponseDto<IEnumerable<string?>>>> GetUniqueCategories()
         {
             _logger.LogInformation("Executing LocationController.GetUniqueCategories");
             try
             {
                 _logger.LogInformation("Getting unique location categories");
-                var categories = await _locationUoW.GetUniqueCategoriesAsync();
-                return Ok(categories);
+                return await _locationUoW.GetUniqueCategoriesAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while getting unique location categories.");
-                return StatusCode(StatusCodes.Status500InternalServerError, 
-                    "An unexpected error occurred while retrieving unique location categories.");
+                return _locationUoW.CreateStatusResponseDto<IEnumerable<string?>>(StatusCodeResponse.InternalServerError, "An unexpected error occurred while retrieving unique location categories.", null);
             }
         }
 
@@ -65,24 +64,17 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> GetLocationById(Guid locationId)
+        public async Task<ActionResult<StatusCodeResponseDto<LocationDto?>>> GetLocationById(Guid locationId)
         {
             _logger.LogInformation("Executing LocationController.GetLocationsById");
             try
             {
-                var location = await _locationUoW.GetLocationByIdAsync(locationId);
-                return Ok(location);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                _logger.LogWarning(ex, "Location with ID {LocationId} not found (404).", locationId);
-                return NotFound($"Location with ID {locationId} not found.");
+                return await _locationUoW.GetLocationByIdAsync(locationId);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while getting location with ID {LocationId}.", locationId);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"An unexpected error occurred while retrieving location {locationId}.");
+                return _locationUoW.CreateStatusResponseDto<LocationDto?>(StatusCodeResponse.InternalServerError, $"An unexpected error occurred while retrieving location {locationId}.", null);
             }
         }
 
@@ -93,52 +85,32 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> CreateLocation([FromBody] CreateLocationDto createLocationDto)
+        public async Task<ActionResult<StatusCodeResponseDto<LocationDto>>> CreateLocation([FromBody] CreateLocationDto createLocationDto)
         {
             _logger.LogInformation("Executing LocationController.CreateLocation");
 
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("CreateLocation called with invalid model state.");
-                return BadRequest(ModelState);
+                return _locationUoW.CreateStatusResponseDto<LocationDto>(StatusCodeResponse.BadRequest, "CreateLocation called with invalid model state.", null);
             }
 
-            // Get UserId from authenticated user's claims
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Get user ID here
+            string? userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid userId))
             {
-                _logger.LogWarning("CreateLocation called by an authenticated user with missing or invalid UserId claim.");
-                // Consider returning 400 Bad Request or 401 Unauthorized if claim is essential and missing/malformed
-                return StatusCode(StatusCodes.Status400BadRequest, "User ID claim is missing or invalid.");
+                _logger.LogWarning("Authenticated user has missing or invalid UserId claim.");
+                return _locationUoW.CreateStatusResponseDto<LocationDto>(StatusCodeResponse.Unauthorized, "User ID claim is missing or invalid.", null);
             }
 
             try
             {
-                // Pass the authenticated userId to the Unit of Work method
-                var createdLocation = await _locationUoW.CreateLocationAsync(createLocationDto, userId);
-                return CreatedAtAction(nameof(GetLocationById), new { locationId = createdLocation.LocationId },
-                    createdLocation);
+                return await _locationUoW.CreateLocationAsync(createLocationDto, userId);
             }
-
-            catch (ArgumentException ex)
-            {
-                _logger.LogWarning(ex, "Invalid argument when creating location: {@CreateLocationDto}",
-                    createLocationDto);
-                return UnprocessableEntity(ex.Message);
-            }
-
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogWarning(ex, "Conflict when creating location: {@CreateLocationDto}", createLocationDto);
-                return Conflict(ex.Message);
-            }
-
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error occurred while creating a new location. Input: {@CreateLocationDto}",
-                    createLocationDto);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "An unexpected error occurred while creating the location.");
+                _logger.LogError(ex, "Error occurred while creating a new location. Input: {@CreateLocationDto}", createLocationDto);
+                return _locationUoW.CreateStatusResponseDto<LocationDto>(StatusCodeResponse.InternalServerError, "An unexpected error occurred while creating the location.", null);
             }
         }
 
@@ -148,30 +120,24 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LocationDto>> UpdateLocation(Guid locationId, [FromBody] UpdateLocationDto locationDto)
+        public async Task<ActionResult<StatusCodeResponseDto<LocationDto?>>> UpdateLocation(Guid locationId, [FromBody] UpdateLocationDto locationDto)
         {
             _logger.LogInformation("Executing LocationController.UpdateLocation");
 
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("UpdateLocation called with invalid model state for ID {LocationId}.", locationId);
-                return BadRequest(ModelState);
+                return _locationUoW.CreateStatusResponseDto<LocationDto?>(StatusCodeResponse.BadRequest, $"UpdateLocation called with invalid model state for ID {locationId}.", null);
             }
 
             try
             {
-                var updatedLocation = await _locationUoW.UpdateLocationAsync(locationId, locationDto);
-                if (updatedLocation == null)
-                {
-                    _logger.LogWarning("Attempted to update non-existent location with ID {LocationId}.", locationId);
-                    return NotFound($"Location with ID {locationId} not found for update.");
-                }
-                return Ok(updatedLocation);
+                return await _locationUoW.UpdateLocationAsync(locationId, locationDto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while updating location with ID {LocationId}. Input: {@locationDto}", locationId, locationDto);
-                return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while updating location {locationId}.");
+                return _locationUoW.CreateStatusResponseDto<LocationDto?>(StatusCodeResponse.InternalServerError, $"An unexpected error occurred while updating location {locationId}.", null);
             }
         }
 
@@ -180,46 +146,36 @@ namespace Routeplanner_API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> DeleteLocation(Guid locationId)
+        public async Task<StatusCodeResponseDto<bool>> DeleteLocation(Guid locationId)
         {
             _logger.LogInformation("Executing LocationController.DeleteLocation");
 
             try
             {
-                var success = await _locationUoW.DeleteLocationAsync(locationId);
-                if (!success)
-                {
-                    _logger.LogWarning("Attempted to delete non-existent location with ID {LocationId}.", locationId);
-                    return NotFound($"Location with ID {locationId} not found for deletion.");
-                }
-
-                return NoContent();
+                return await _locationUoW.DeleteLocationAsync(locationId);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while deleting location with ID {LocationId}.", locationId);
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    $"An unexpected error occurred while deleting location {locationId}.");
+                return _locationUoW.CreateStatusResponseDto<bool>(StatusCodeResponse.InternalServerError, $"An unexpected error occurred while deleting location {locationId}.", false);
             }
         }
 
         [HttpGet("GroupedSelectableLocations")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetGroupedSelectableLocations()
+        public async Task<StatusCodeResponseDto<Dictionary<string, List<SelectableLocationDto>>>> GetGroupedSelectableLocations()
         {
             _logger.LogInformation("Executing LocationController.GetGroupedSelectableLocations");
 
             try
             {
-                var groupedLocations = await _locationUoW.GetGroupedSelectableLocationsAsync();
-                return Ok(groupedLocations);
+                return await _locationUoW.GetGroupedSelectableLocationsAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while getting grouped selectable locations.");
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    "An unexpected error occurred while retrieving grouped selectable locations.");
+                return _locationUoW.CreateStatusResponseDto<Dictionary<string, List<SelectableLocationDto>>>(StatusCodeResponse.InternalServerError, "An unexpected error occurred while retrieving grouped selectable locations.", null);
             }
         }
     }

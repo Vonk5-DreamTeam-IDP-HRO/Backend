@@ -115,7 +115,7 @@ namespace Routeplanner_API.UoWs
             }     
         }
 
-        public async Task<IEnumerable<SelectableLocationDto>> GetSelectableLocationsAsync() // Has 0 references? 
+        public async Task<IEnumerable<SelectableLocationDto>> GetSelectableLocationsAsync()
         {
             _logger.LogInformation("Getting all selectable locations (flat list)");
             try

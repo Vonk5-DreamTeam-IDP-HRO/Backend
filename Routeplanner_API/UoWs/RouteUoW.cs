@@ -1,9 +1,13 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using Routeplanner_API.Database_Queries;
+using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.Route;
 using Routeplanner_API.DTO.User;
+using Routeplanner_API.Enums;
 using Routeplanner_API.Models;
+using System.Security.Claims;
+
 
 namespace Routeplanner_API.UoWs
 {
@@ -27,47 +31,51 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<IEnumerable<RouteDto>>(routes);
         }
 
-        public async Task<RouteDto?> GetRouteByIdAsync(Guid routeId)
+        public async Task<StatusCodeResponseDto<RouteDto?>> GetRouteByIdAsync(Guid routeId)
         {
             _logger.LogInformation("Getting route with ID: {RouteId}", routeId);
+
             var route = await _routeDbQueries.GetByIdAsync(routeId);
             if (route == null)
             {
                 _logger.LogWarning("Route with ID: {RouteId} not found", routeId);
-                return null;
+                return CreateStatusResponseDto<RouteDto?>(StatusCodeResponse.NotFound, $"Route with ID: {routeId} not found", null);
             }
-            return _mapper.Map<RouteDto>(route);
+            return CreateStatusResponseDto<RouteDto?>(StatusCodeResponse.Success, null, _mapper.Map<RouteDto>(route));
         }
 
-        public async Task<RouteDto> CreateRouteAsync(CreateRouteDto createRouteDto, Guid userId)
+        public async Task<StatusCodeResponseDto<string?>> CreateRouteAsync(CreateRouteDto createRouteDto, Guid userId)
         {
-            _logger.LogInformation("Creating new route from DTO for UserId: {UserId}", userId);
+            _logger.LogInformation("Creating new route.");
+
             try
             {
-                if (createRouteDto == null)
-                {
-                    throw new ArgumentNullException(nameof(createRouteDto));
-                }
                 // Pass userId to AutoMapper via context items
-                var routeEntity = _mapper.Map<Routeplanner_API.Models.Route>(createRouteDto, opt => opt.Items["UserId"] = userId);
+                var routeEntity = _mapper.Map<Models.Route>(createRouteDto, opt => opt.Items["UserId"] = userId);
 
                 var createdRoute = await _routeDbQueries.CreateAsync(routeEntity);
                 _logger.LogInformation("Route created successfully with ID: {RouteId}", createdRoute.RouteId);
-                return _mapper.Map<RouteDto>(createdRoute);
+
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.Success, $"Route created successfully with ID: {createdRoute.RouteId}", createdRoute.RouteId.ToString());
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogError(ex, "Error adding route due to null argument.");
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "Error adding route due to null argument.", null);
             }
             catch (AutoMapperMappingException ex)
             {
-                _logger.LogError(ex, "Error mapping CreateRouteDto to Route entity: {ErrorMessage}", ex.Message);
-                throw;
+                _logger.LogError(ex, "Error adding route due to mapping issue: {ErrorMessage}", ex.Message);
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.InternalServerError, $"An error occurred during data mapping: {ex.Message}", null);
             }
-            catch (Exception ex)
+            catch (JsonException ex)
             {
-                _logger.LogError(ex, "Error creating route: {ErrorMessage}", ex.Message);
-                throw;
+                _logger.LogError(ex, "Error adding route due to JSON processing issue.");
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "Error adding route due to JSON processing issue.", null);
             }
         }
 
-        public async Task<RouteDto?> UpdateRouteAsync(Guid routeId, UpdateRouteDto updateRouteDto)
+        public async Task<StatusCodeResponseDto<RouteDto?>> UpdateRouteAsync(Guid routeId, UpdateRouteDto updateRouteDto)
         {
             _logger.LogInformation("Updating route with ID: {routeId}", routeId);
 
@@ -75,48 +83,45 @@ namespace Routeplanner_API.UoWs
             if (existingRoute == null)
             {
                 _logger.LogWarning("Route with ID: {routeId} not found for update", routeId);
-                return null;
+                return CreateStatusResponseDto<RouteDto?>(StatusCodeResponse.NotFound, $"Route with ID: {routeId} not found for update", null);
             }
 
-            try
-            {
-                // Map the changes from DTO to the existing entity
-                _mapper.Map(updateRouteDto, existingRoute);
+            // Map the changes from DTO to the existing entity
+            _mapper.Map(updateRouteDto, existingRoute);
 
-                existingRoute.UpdatedAt = DateTime.UtcNow;
+            existingRoute.UpdatedAt = DateTime.UtcNow;
 
-                var updatedRoute = await _routeDbQueries.UpdateRouteAsync(existingRoute);
-                _logger.LogInformation("Route with ID: {routeId} updated successfully", routeId);
-                return _mapper.Map<RouteDto>(updatedRoute);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating route with ID: {routeId}: {ErrorMessage}", routeId, ex.Message);
-                throw;
-            }
+            var updatedRoute = await _routeDbQueries.UpdateRouteAsync(existingRoute);
+            _logger.LogInformation("Route with ID: {routeId} updated successfully", routeId);
+            return CreateStatusResponseDto<RouteDto?>(StatusCodeResponse.Success, $"Route with ID: {routeId} updated successfully", _mapper.Map<RouteDto>(updatedRoute));
         }
 
-        public async Task<bool> DeleteRouteAsync(Guid routeId)
+        public async Task<StatusCodeResponseDto<bool>> DeleteRouteAsync(Guid routeId)
         {
             _logger.LogInformation("Deleting route with ID: {routeId}", routeId);
-            try
+
+            bool result = await _routeDbQueries.DeleteRouteAsync(routeId);
+            if (result)
             {
-                var result = await _routeDbQueries.DeleteRouteAsync(routeId);
-                if (result)
-                {
-                    _logger.LogInformation("Route with ID: {routeId} deleted successfully", routeId);
-                }
-                else
-                {
-                    _logger.LogWarning("Route with ID: {routeId} not found for deletion", routeId);
-                }
-                return result;
+                _logger.LogInformation("Route with ID: {routeId} deleted successfully", routeId);
+                return CreateStatusResponseDto<bool>(StatusCodeResponse.Success, $"Route with ID: {routeId} deleted successfully", true);
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Error deleting route with ID: {routeId}: {ErrorMessage}", routeId, ex.Message);
-                throw;
+                _logger.LogWarning("Route with ID: {routeId} not found for deletion", routeId);
+                return CreateStatusResponseDto<bool>(StatusCodeResponse.NotFound, $"Route with ID: {routeId} not found for deletion", false);
             }
         }
+
+        public StatusCodeResponseDto<T> CreateStatusResponseDto<T>(StatusCodeResponse statusCodeResponse, string? message, T? data)
+        {
+            return new StatusCodeResponseDto<T>
+            {
+                StatusCodeResponse = statusCodeResponse,
+                Message = message,
+                Data = data
+            };
+        }
+
     }
 }

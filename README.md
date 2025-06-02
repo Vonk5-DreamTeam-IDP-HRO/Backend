@@ -48,6 +48,21 @@ The project follows a clean architecture pattern with:
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
+### Database Schema
+
+The database follows a relational model with Entity Framework Core models. The following diagram shows the relationships between the C# entities:
+
+```mermaid
+erDiagram
+    USERS ||--o{ LOCATIONS : creates
+    USERS ||--o{ ROUTES : creates
+    USERS }o--|| USER_RIGHTS : has
+    LOCATIONS ||--o| LOCATION_DETAILS : has
+    LOCATIONS ||--o{ OPENING_TIMES : has
+    LOCATIONS ||--o{ LOCATION_ROUTE : contains
+    ROUTES ||--o{ LOCATION_ROUTE : contains
+```
+
 ## 📋 Prerequisites
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)

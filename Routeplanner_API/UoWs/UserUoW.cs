@@ -194,18 +194,18 @@ namespace Routeplanner_API.UoWs
 
         private async Task<string?> ValidateIfUsernameAndEmailAreUnique(UpdateUserDto updateUserDto)
         {
-            var userFoundByUsername = await FindUserByUsername(updateUserDto.Username!);
-            var userFoundByEmail = await FindUserByEmail(updateUserDto.Email!);
+            var userByUsername = await FindUserByUsername(updateUserDto.Username!);
+            var userByEmail = await FindUserByEmail(updateUserDto.Email!);
 
-            if (userFoundByUsername != null && userFoundByEmail != null)
+            if (userByUsername != null && userByEmail != null)
             {
                 return "A user with this username and email already exists.";
             }
-            else if (userFoundByUsername != null)
+            else if (userByUsername != null)
             {
                 return "Username is already taken.";
             }
-            else if (userFoundByEmail != null)
+            else if (userByEmail != null)
             {
                 return "Email is already taken.";
             }

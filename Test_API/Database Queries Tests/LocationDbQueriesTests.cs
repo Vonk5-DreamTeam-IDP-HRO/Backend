@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+/*using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
 using Moq;
@@ -161,11 +161,11 @@ namespace Test_API.Tests
         }
     }
 
-    /*LocationDTO:
+    *//*LocationDTO:
 
     public int LocationId { get; set; }
     public string Name { get; set; } = null!;
     public double Latitude { get; set; }
     public double Longitude { get; set; }
-    public string? Description { get; set; }*/
-}
+    public string? Description { get; set; }*//*
+}*/

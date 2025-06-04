@@ -1,3 +1,4 @@
+using Routeplanner_API.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Routeplanner_API.DTO.Route
@@ -15,5 +16,8 @@ namespace Routeplanner_API.DTO.Route
 
         // CreatedBy will be set via the service layer from the authenticated user (which is a Guid)
         public Guid? CreatedBy { get; set; }
+
+        [Required] 
+        public required ICollection<LocationRoute> LocationRoutes { get; set; }
     }
 }

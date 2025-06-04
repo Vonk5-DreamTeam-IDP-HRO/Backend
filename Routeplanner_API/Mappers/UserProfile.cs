@@ -12,6 +12,7 @@ public class UserProfile : Profile
         // Map User -> UserDto
         CreateMap<User, UserDto>()
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.UserName))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.PasswordHash));
 
@@ -46,20 +47,20 @@ public class UserProfile : Profile
             .ForMember(dest => dest.Routes, opt => opt.Ignore())
                 .ForMember(dest => dest.Right, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-    
-            CreateMap<UpdateUserDto, User>()
-                .AfterMap((src, dest) =>
-                {
-                    if (src.Email != null)
-                    {
-                        dest.Email = src.Email;
-                    }
 
-                    // Handle User PasswordHash update
-                    if (src.PasswordHash != null)
-                    {
-                        dest.PasswordHash = src.PasswordHash;
-                    }
-                });
+        CreateMap<UpdateUserDto, User>()
+            .AfterMap((src, dest) =>
+            {
+                if (src.Email != null)
+                {
+                    dest.Email = src.Email;
+                }
+
+                // Handle User PasswordHash update
+                if (src.PasswordHash != null)
+                {
+                    dest.PasswordHash = src.PasswordHash;
+                }
+            });
     }
 }

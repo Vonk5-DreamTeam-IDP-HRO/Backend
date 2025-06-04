@@ -75,7 +75,7 @@ namespace Routeplanner_API.UoWs
                 userEntity.UserRightId = userPermission.Id;
                 User? createdUser = await _userDbQueries.CreateAsync(userEntity);
 
-                _logger.LogInformation($"User created successfully with ID: {createdUser.Id}"); 
+                _logger.LogInformation($"User created successfully with ID: {createdUser.Id}");
                 return CreateStatusResponseDto<string?>(StatusCodeResponse.Created, $"User created successfully with ID: {createdUser.Id}", GenerateUserJwtToken(_mapper.Map<UserDto>(createdUser)));
             }
             _logger.LogError(validateUsernameAndEmail);
@@ -95,7 +95,7 @@ namespace Routeplanner_API.UoWs
 
             if (verificationResult == PasswordVerificationResult.Success)
             {
-                return CreateStatusResponseDto<string?>(StatusCodeResponse.Success, "Login successful", GenerateUserJwtToken(receivedUserDto));
+                return CreateStatusResponseDto<string?>(StatusCodeResponse.Success, "Login successful", GenerateUserJwtToken(_mapper.Map<UserDto>(foundUser)));
             }
 
             return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "Invalid password", null);
@@ -109,7 +109,7 @@ namespace Routeplanner_API.UoWs
             if (existingUser == null)
             {
                 _logger.LogWarning($"User with ID: {userId} not found for update");
-                return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.NotFound, $"User with ID: {userId} not found for update", null); 
+                return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.NotFound, $"User with ID: {userId} not found for update", null);
             }
 
             string? validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(updateUserDto);

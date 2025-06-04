@@ -1,3 +1,4 @@
+using Routeplanner_API.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace Routeplanner_API.DTO.Route
@@ -9,5 +10,7 @@ namespace Routeplanner_API.DTO.Route
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public bool? IsPrivate { get; set; }
+
+        public required ICollection<LocationRoute> LocationRoutes { get; set; }
     }
 }

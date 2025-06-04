@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Routeplanner_API.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Routeplanner_API.Helpers;
+using System.IdentityModel.Tokens.Jwt;
 
 //dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer deze toevoegen werkt niet 
 
@@ -50,6 +51,14 @@ builder.Services.AddControllers();
 
 // JWT
 var validatedJwtSettings = builder.Configuration.GetValidatedJwtSettings(logger);
+
+logger.LogInformation("JWT Config: Issuer={Issuer}, Audience={Audience}, Secret.Length={SecretLength}",
+    validatedJwtSettings.Issuer,
+    validatedJwtSettings.Audience,
+    validatedJwtSettings.Secret?.Length);
+
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
 builder.Services.Configure<JwtSettings>(options =>
 {
     options.Secret = validatedJwtSettings.Secret;
@@ -80,6 +89,15 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = validatedJwtSettings.Issuer,
         ValidAudience = validatedJwtSettings.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(validatedJwtSettings.Secret!))
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogError(context.Exception, "JWT Authentication failed: {Message}", context.Exception.Message);
+            return Task.CompletedTask;
+        }
     };
 });
 

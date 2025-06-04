@@ -5,17 +5,20 @@ using Routeplanner_API.DTO.Location;
 using Routeplanner_API.DTO;
 using Routeplanner_API.Enums;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace Routeplanner_API.UoWs
 {
     public class LocationUoW
     {
+        private readonly RouteplannerDbContext _context;
         private readonly ILocationDbQueries _locationDbQueries;
         private readonly IMapper _mapper;
         private readonly ILogger<LocationUoW> _logger;
 
-        public LocationUoW(ILocationDbQueries locationDbQueries, IMapper mapper, ILogger<LocationUoW> logger)
+        public LocationUoW(RouteplannerDbContext context, ILocationDbQueries locationDbQueries, IMapper mapper, ILogger<LocationUoW> logger)
         {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _locationDbQueries = locationDbQueries ?? throw new ArgumentNullException(nameof(locationDbQueries));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -56,7 +59,17 @@ namespace Routeplanner_API.UoWs
 
         public async Task<StatusCodeResponseDto<LocationDto>> CreateLocationAsync(CreateLocationDto createLocationDto, Guid userId)
         {
-            _logger.LogInformation("Creating new location");
+            _logger.LogInformation("Creating new location for userId: {UserId}", userId);
+
+            var existingUser = await _context.Users.FindAsync(userId);
+            if (existingUser == null)
+            {
+                _logger.LogWarning("UserId {UserId} not found in DB", userId);
+                return CreateStatusResponseDto<LocationDto>(
+                    StatusCodeResponse.Unauthorized,
+                    "User does not exist in the database.",
+                    null);
+            }
 
             // Use userId directly
             Location locationEntity = _mapper.Map<Location>(createLocationDto, opt => opt.Items["UserId"] = userId);
@@ -72,6 +85,14 @@ namespace Routeplanner_API.UoWs
             {
                 _logger.LogWarning(ex, "Invalid argument when creating location: {@CreateLocationDto}", createLocationDto);
                 return CreateStatusResponseDto<LocationDto>(StatusCodeResponse.BadRequest, $"Invalid argument when creating location: {createLocationDto}", null);
+            }
+            catch (DbUpdateException dbEx)
+            {
+                _logger.LogError(dbEx, "Database error when creating location: {@CreateLocationDto}", createLocationDto);
+                return CreateStatusResponseDto<LocationDto>(
+                    StatusCodeResponse.InternalServerError,
+                    "An unexpected database error occurred.",
+                    null);
             }
         }
 

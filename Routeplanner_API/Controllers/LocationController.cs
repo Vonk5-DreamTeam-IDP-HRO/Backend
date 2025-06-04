@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections;
+using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.UoWs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -176,6 +177,22 @@ namespace Routeplanner_API.Controllers
             {
                 _logger.LogError(ex, "Error occurred while getting grouped selectable locations.");
                 return _locationUoW.CreateStatusResponseDto<Dictionary<string, List<SelectableLocationDto>>>(StatusCodeResponse.InternalServerError, "An unexpected error occurred while retrieving grouped selectable locations.", null);
+            }
+        }
+
+        [HttpGet ("AllLocationsForOneCategory")]
+        public async Task<StatusCodeResponseDto<IEnumerable<SelectableLocationDto>>> GetAllSelectableLocationsFromOneCategory(string nameCategory)
+        {
+            _logger.LogInformation("Executing LocationController.GetAllSelectableLocationsFromOneCategory");
+
+            try
+            {
+                return await _locationUoW.GetAllLocationFromOneCategory(nameCategory);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occured while getting all locations from one category.");
+                return _locationUoW.CreateStatusResponseDto<IEnumerable<SelectableLocationDto>>(StatusCodeResponse.InternalServerError, "An unexpected error occured while getting all locations from one category", null);
             }
         }
     }

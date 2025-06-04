@@ -103,6 +103,22 @@ namespace Routeplanner_API.Database_Queries
                                  .ToListAsync();
         }
 
+        public async Task<IEnumerable<SelectableLocationDto>> GetAllLocationsFromOneCategoryAsync(string categoryName)
+        {
+            return await _context.Locations
+                .Join(
+                    _context.LocationDetails.Where(ld => ld.Category == categoryName),
+                    location => location.LocationId,
+                    locationDetail => locationDetail.LocationId,
+                    (location, locationDetail) => new SelectableLocationDto
+                    {
+                        LocationId = location.LocationId,
+                        Name = location.Name,
+                        Category = locationDetail.Category
+                    })
+                .ToListAsync();
+
+        }
         public async Task<IEnumerable<SelectableLocationDto>> GetSelectableLocationsAsync()
         {
             return await _context.Locations

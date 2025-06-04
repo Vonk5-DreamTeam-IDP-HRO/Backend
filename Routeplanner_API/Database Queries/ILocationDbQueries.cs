@@ -1,3 +1,4 @@
+using System.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.DTO.Location;
 using Routeplanner_API.Models;
@@ -15,6 +16,7 @@ namespace Routeplanner_API.Database_Queries
         Task<bool> DeleteAsync(Guid locationId);
         Task<IEnumerable<string?>> GetUniqueCategoriesAsync();
         Task<IEnumerable<SelectableLocationDto>> GetSelectableLocationsAsync();
+        Task<IEnumerable<SelectableLocationDto>> GetAllLocationsFromOneCategoryAsync(string categoryName);
 
     }
 }

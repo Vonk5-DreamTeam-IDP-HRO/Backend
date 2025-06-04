@@ -149,6 +149,18 @@ namespace Routeplanner_API.UoWs
             return CreateStatusResponseDto<Dictionary<string, List<SelectableLocationDto>>>(StatusCodeResponse.Success, $"Successfully retrieved and grouped {groupedLocations.Count} categories.", groupedLocations);
         }
 
+        public async Task<StatusCodeResponseDto<IEnumerable<SelectableLocationDto>>> GetAllLocationFromOneCategory(string nameCategory)
+        {
+            _logger.LogInformation("Getting all locations that falls under specific given category");
+
+            IEnumerable<SelectableLocationDto> AllLocation = await _locationDbQueries.GetSelectableLocationsAsync();
+            // TODO: Make seperate Db call in _locationDbQueries. 
+            IEnumerable<SelectableLocationDto> sortedLocation = AllLocation.Where(L => L.Category == nameCategory);
+
+            _logger.LogInformation("Succesfull retrieved and sorted all locations from one category.");
+            return CreateStatusResponseDto(StatusCodeResponse.Success, "Sucessfully retrieved and sorted all location that contains the given category", sortedLocation);
+        }
+
         public StatusCodeResponseDto<T> CreateStatusResponseDto<T>(StatusCodeResponse statusCodeResponse, string? message, T? data)
         {
             return new StatusCodeResponseDto<T>

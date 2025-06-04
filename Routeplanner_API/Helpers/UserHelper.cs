@@ -24,8 +24,8 @@ namespace Routeplanner_API.Helpers
         {
             Claim[] claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Role, "User")
             };
 
@@ -41,6 +41,7 @@ namespace Routeplanner_API.Helpers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
 
         /*public string GenerateAdminJwtToken(UserDto user) // Will we use this? How will this be used? 
         {

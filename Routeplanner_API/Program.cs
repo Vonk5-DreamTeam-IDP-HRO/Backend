@@ -13,8 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Routeplanner_API.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 
-//dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer deze toevoegen werkt niet 
-
 DotNetEnv.Env.Load(); // Load environment variables from .env file for local development
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,9 +65,9 @@ builder.Services.Configure<JwtSettings>(options =>
     options.ExpiryMinutes = validatedJwtSettings.ExpiryMinutes;
 });
 
-builder.Services.AddIdentity<User, UserPermission>()
-    .AddEntityFrameworkStores<RouteplannerDbContext>()
-    .AddDefaultTokenProviders();
+// builder.Services.AddIdentity<User, UserPermission>()
+//     .AddEntityFrameworkStores<RouteplannerDbContext>()
+//     .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {

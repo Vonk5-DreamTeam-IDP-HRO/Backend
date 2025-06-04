@@ -11,6 +11,7 @@ public class UserProfile : Profile
     {
         // Map User -> UserDto
         CreateMap<User, UserDto>()
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.PasswordHash));
 

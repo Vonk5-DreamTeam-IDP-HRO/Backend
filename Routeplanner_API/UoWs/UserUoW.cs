@@ -60,6 +60,7 @@ namespace Routeplanner_API.UoWs
             if(validateUsernameAndEmail == null)
             {
                 User? userEntity = _mapper.Map<User>(createUserDto);
+                userEntity.Id = Guid.NewGuid();
 
                 // Hash the plain text password from the DTO and store it on the User entity
                 userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);

@@ -19,11 +19,13 @@ namespace Routeplanner_API.Database_Queries
         public async Task<Route?> GetByIdAsync(Guid routeId)
         {
             return await _context.Routes
+                .Include(r => r.LocationRoutes)
                 .FirstOrDefaultAsync(r => r.RouteId == routeId);
         }
         public async Task<IEnumerable<Route?>> GetAllAsync()
         {
             return await _context.Routes
+                .Include(r => r.LocationRoutes)
                 .ToListAsync();
         }
 

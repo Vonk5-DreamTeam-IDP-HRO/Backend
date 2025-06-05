@@ -11,7 +11,8 @@ namespace Routeplanner_API.Mappers
         public RouteProfile()
         {
             // Mapping from Route (EF Core entity) to RouteDto
-            CreateMap<Route, RouteDto>();
+            CreateMap<Route, RouteDto>()
+                .ForMember(dest => dest.LocationIds, opt => opt.MapFrom(src => src.LocationRoutes.Select(lr => lr.LocationId)));
 
             // Mapping from CreateRouteDto to Route (EF Core entity)
             CreateMap<CreateRouteDto, Route>()

@@ -43,7 +43,6 @@
 
   <ItemGroup>
     <Folder Include="Helpers Tests\" />
-    <Folder Include="UoWs Tests\" />
   </ItemGroup>
 
 </Project>

@@ -4,13 +4,8 @@ using Moq;
 using Routeplanner_API.DTO.User;
 using Routeplanner_API.Helpers;
 using Routeplanner_API.JWT;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Test_API.Helpers_Tests
 {

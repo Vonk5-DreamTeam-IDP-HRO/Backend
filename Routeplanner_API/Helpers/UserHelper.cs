@@ -16,6 +16,10 @@ namespace Routeplanner_API.Helpers
         
         public UserHelper(IOptions<JwtSettings> jwtOptions, ILogger<UserHelper> logger)
         {
+            if (jwtOptions == null)
+            {
+                throw new ArgumentNullException(nameof(jwtOptions));
+            }
             _jwtSettings = jwtOptions.Value ?? throw new ArgumentNullException(nameof(jwtOptions));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

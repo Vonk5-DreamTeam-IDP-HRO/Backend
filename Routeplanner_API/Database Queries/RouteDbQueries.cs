@@ -49,13 +49,13 @@ namespace Routeplanner_API.Database_Queries
 
         public async Task<bool> DeleteRouteAsync(Guid routeId)
         {
-            var routeToDelete = await _context.Users.FindAsync(routeId);
+            var routeToDelete = await _context.Routes.FindAsync(routeId);
             if (routeToDelete == null)
             {
                 return false;
             }
 
-            _context.Users.Remove(routeToDelete);
+            _context.Routes.Remove(routeToDelete);
             await _context.SaveChangesAsync();
             return true;
         }

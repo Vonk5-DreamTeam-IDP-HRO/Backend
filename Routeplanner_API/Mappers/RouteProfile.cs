@@ -11,18 +11,26 @@ namespace Routeplanner_API.Mappers
         public RouteProfile()
         {
             // Mapping from Route (EF Core entity) to RouteDto
-            CreateMap<Route, RouteDto>();
+            CreateMap<Route, RouteDto>()
+                .ForMember(dest => dest.LocationIds, opt => opt.MapFrom(src => src.LocationRoutes.Select(lr => lr.LocationId)));
 
             // Mapping from CreateRouteDto to Route (EF Core entity)
             CreateMap<CreateRouteDto, Route>()
                 .ForMember(dest => dest.RouteId, opt => opt.Ignore())
-                // Use context during mapping to set CreatedBy. Context contains dict wwith
-                // all items passed from the controller.
                 .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom((src, dest, destMember, context) => (Guid?)context.Items["UserId"]))
                 .ForMember(dest => dest.CreatedByNavigation, opt => opt.Ignore())
                 .ForMember(dest => dest.LocationRoutes, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
-                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.LocationRoutes, opt => opt.Ignore())
+                .AfterMap((src, dest) =>
+                {
+                    dest.LocationRoutes = src.LocationIds.Select(id => new LocationRoute
+                    {
+                        LocationId = id,
+                    }).ToList();
+                })
+                ;
 
             // Mapping from UpdateRouteDto to Route (EF Core entity)
             CreateMap<UpdateRouteDto, Route>()

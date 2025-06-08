@@ -1,5 +1,6 @@
 ﻿using Routeplanner_API.Models;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Routeplanner_API.DTO.Route
 {
@@ -12,6 +13,6 @@ namespace Routeplanner_API.DTO.Route
         public bool? IsPrivate { get; set; }
         public DateTime? CreatedAt { get; init; }
         public DateTime? UpdatedAt { get; set; }
-        public ICollection<LocationRoute> LocationRoutes { get; set; }
+        public ICollection<Guid> LocationIds { get; set; }
     }
 }

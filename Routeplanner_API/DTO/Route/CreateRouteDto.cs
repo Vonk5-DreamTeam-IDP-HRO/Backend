@@ -8,7 +8,7 @@ namespace Routeplanner_API.DTO.Route
         [Required]
         [StringLength(255)]
         public string Name { get; set; } = string.Empty;
-
+        [StringLength(1000)]
         public string? Description { get; set; }
 
         [Required]
@@ -17,7 +17,7 @@ namespace Routeplanner_API.DTO.Route
         // CreatedBy will be set via the service layer from the authenticated user (which is a Guid)
         public Guid? CreatedBy { get; set; }
 
-        [Required] 
-        public required ICollection<LocationRoute> LocationRoutes { get; set; }
+        [Required, MinLength(2)] 
+        public required ICollection<Guid> LocationIds { get; set; } = new List<Guid>();
     }
 }

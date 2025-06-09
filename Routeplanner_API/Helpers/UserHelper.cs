@@ -1,19 +1,21 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using Routeplanner_API.DTO;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Routeplanner_API.DTO.User;
+using Routeplanner_API.JWT;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Routeplanner_API.DTO.User;
-using Routeplanner_API.JWT;
-using Microsoft.Extensions.Options;
 
 namespace Routeplanner_API.Helpers
 {
+    /// <summary>
+    /// Provides helper methods related to user authentication and JWT token generation.
+    /// </summary>
     public class UserHelper : IUserHelper
     {
         private readonly JwtSettings _jwtSettings;
         private readonly ILogger<UserHelper> _logger;
-        
+
         public UserHelper(IOptions<JwtSettings> jwtOptions, ILogger<UserHelper> logger)
         {
             if (jwtOptions == null)
@@ -24,6 +26,11 @@ namespace Routeplanner_API.Helpers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Generates a JWT token for the specified user.
+        /// </summary>
+        /// <param name="user">The user DTO containing user information.</param>
+        /// <returns>A JWT token string.</returns>
         public string GenerateUserJwtToken(UserDto user)
         {
             Claim[] claims = new[]
@@ -45,28 +52,5 @@ namespace Routeplanner_API.Helpers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-
-        /*public string GenerateAdminJwtToken(UserDto user) // Will we use this? How will this be used? 
-        {
-            Claim[] claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Role, "Admin") 
-            };
-
-            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_key"));
-            SigningCredentials credentials = new (key, SecurityAlgorithms.HmacSha256);
-
-            JwtSecurityToken token = new JwtSecurityToken(
-                issuer: _jwtSettings.Issuer,
-                audience: _jwtSettings.Audience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }*/
     }
 }

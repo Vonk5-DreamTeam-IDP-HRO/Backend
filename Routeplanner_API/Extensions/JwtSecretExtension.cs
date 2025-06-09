@@ -1,12 +1,19 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Routeplanner_API.JWT;
-using System;
+﻿using Routeplanner_API.JWT;
 
 namespace Routeplanner_API.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="IConfiguration"/> to retrieve and validate JWT settings.
+    /// </summary>
     public static class JwtSettingsExtensions
     {
+        /// <summary>
+        /// Retrieves and validates JWT settings from configuration, throwing exceptions if required values are missing or invalid.
+        /// </summary>
+        /// <param name="configuration">The configuration instance.</param>
+        /// <param name="logger">The logger instance.</param>
+        /// <returns>A validated <see cref="JwtSettings"/> instance.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when required JWT settings are missing or invalid.</exception>
         public static JwtSettings GetValidatedJwtSettings(this IConfiguration configuration, ILogger logger)
         {
             ArgumentNullException.ThrowIfNull(configuration);

@@ -1,10 +1,8 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System;
-using DotNetEnv;
-
 namespace Routeplanner_API.Extensions
 {
+    /// <summary>
+    /// Provides extension methods for <see cref="IConfiguration"/> to retrieve and validate connection strings.
+    /// </summary>
     public static class ConfigurationExtensions
     {
         /// <summary>

@@ -1,16 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Routeplanner_API.Database_Queries;
-using System.Text.Json;
-using Routeplanner_API.UoWs;
-using AutoMapper;
-using Routeplanner_API.DTO.Route;
-using Routeplanner_API.DTO.Location;
-using Routeplanner_API.DTO.User;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.DTO;
+using Routeplanner_API.DTO.Route;
 using Routeplanner_API.Enums;
 using Routeplanner_API.Models;
+using Routeplanner_API.UoWs;
+using System.Security.Claims;
 
 namespace Routeplanner_API.Controllers
 {

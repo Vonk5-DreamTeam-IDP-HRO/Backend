@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
+using k8s.KubeConfigModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.Location;
+using Routeplanner_API.DTO.User;
 using Routeplanner_API.Enums;
+using Routeplanner_API.Helpers;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
+using User = Routeplanner_API.Models.User;
 
 namespace Test_API.UoWs_Tests
 {
@@ -127,7 +131,96 @@ namespace Test_API.UoWs_Tests
         }
 
         // To do: Create, Update
-        
+        [Fact]
+        public async Task CreateLocationAsync_ReturnsSuccess_WhenCreatingSucceeds()
+        {
+            // Arrange
+            var userId = Guid.NewGuid();
+            var locationId = Guid.NewGuid();
+
+            // Setup mock user
+            var user = new User
+            {
+                Id = userId,
+                UserName = "testuser",
+                Email = "test@example.com",
+                PasswordHash = "hashedpassword"
+            };
+
+            // Mock DbSet for Users
+            var mockDbSet = new Mock<DbSet<User>>();
+            _contextMock.Setup(c => c.Users).Returns(mockDbSet.Object);
+            _contextMock.Setup(c => c.Users.FindAsync(userId)).ReturnsAsync(user);
+
+            // Create the DTOs
+            var createLocationDetailDto = new CreateLocationDetailDto
+            {
+                Address = "123 Test St",
+                City = "Test City",
+                Country = "Test Country",
+                ZipCode = "12345",
+                PhoneNumber = "123-456-7890",
+                Website = "http://test.com",
+                Category = "Park",
+                Accessibility = "Wheelchair accessible"
+            };
+
+            var createLocationDto = new CreateLocationDto
+            {
+                Name = "Test Location",
+                Latitude = 51.9225,
+                Longitude = 4.47917,
+                Description = "A test location",
+                LocationDetail = createLocationDetailDto
+            };
+
+            // Mock the mapped entity and created entity
+            var locationEntity = new Location
+            {
+                LocationId = locationId,
+                Name = createLocationDto.Name,
+                Latitude = createLocationDto.Latitude,
+                Longitude = createLocationDto.Longitude,
+                Description = createLocationDto.Description,
+                UserId = userId
+            };
+
+            var locationDto = new LocationDto
+            {
+                LocationId = locationId,
+                Name = createLocationDto.Name,
+                Latitude = createLocationDto.Latitude,
+                Longitude = createLocationDto.Longitude,
+                Description = createLocationDto.Description
+            };
+
+            // Setup mapping
+            _mapperMock.Setup(m => m.Map<Location>(
+                It.IsAny<CreateLocationDto>(),
+                It.IsAny<Action<IMappingOperationOptions<object, Location>>>())
+            ).Returns(locationEntity);
+
+            _mapperMock.Setup(m => m.Map<LocationDto>(locationEntity))
+                .Returns(locationDto);
+
+            // Setup location creation
+            _locationDbQueriesMock.Setup(q => q.CreateAsync(It.IsAny<Location>()))
+                .ReturnsAsync(locationEntity);
+
+            // Act
+            var result = await _locationUoW.CreateLocationAsync(createLocationDto, userId);
+
+            // Assert
+            Assert.Equal(StatusCodeResponse.Success, result.StatusCodeResponse);
+            Assert.Contains($"Location created successfully with ID: {locationId}", result.Message);
+            Assert.Equal(locationDto, result.Data);
+
+            // Verify method calls
+            _contextMock.Verify(c => c.Users.FindAsync(userId), Times.Once);
+            _locationDbQueriesMock.Verify(q => q.CreateAsync(It.IsAny<Location>()), Times.Once);
+            _mapperMock.Verify(m => m.Map<LocationDto>(It.IsAny<Location>()), Times.Once);
+        }
+
         [Fact]
         public async Task DeleteLocationAsync_ReturnsSuccess_WhenDeletionSucceeds()
         {

@@ -1,17 +1,14 @@
-﻿using Routeplanner_API;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.Extensions;
-using Routeplanner_API.JWT;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
-using Routeplanner_API.Models;
-using Microsoft.Extensions.DependencyInjection;
 using Routeplanner_API.Helpers;
+using Routeplanner_API.JWT;
+using Routeplanner_API.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 DotNetEnv.Env.Load(); // Load environment variables from .env file for local development
 

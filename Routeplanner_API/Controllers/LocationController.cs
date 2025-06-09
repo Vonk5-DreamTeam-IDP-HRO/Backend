@@ -1,13 +1,9 @@
-﻿using System.Collections;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Routeplanner_API.UoWs;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Routeplanner_API.DTO.Location;
 using Routeplanner_API.DTO;
+using Routeplanner_API.DTO.Location;
 using Routeplanner_API.Enums;
-using Microsoft.AspNetCore.Authorization;
+using Routeplanner_API.UoWs;
 using System.Security.Claims;
 
 namespace Routeplanner_API.Controllers

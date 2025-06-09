@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using Routeplanner_API.Models;
 using Routeplanner_API.DTO.Location;
-using System;
+using Routeplanner_API.Models;
 
 namespace Routeplanner_API.Database_Queries
 {
+    /// <summary>
+    /// Provides database operations for locations, including retrieval, creation, updating, and deletion.
+    /// Also supports queries for unique categories and selectable locations.
+    /// </summary>
     public class LocationDbQueries : ILocationDbQueries
     {
         private readonly RouteplannerDbContext _context;
@@ -14,40 +17,48 @@ namespace Routeplanner_API.Database_Queries
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        /// <summary>
+        /// Retrieves a location by its unique identifier.
+        /// </summary>
+        /// <param name="locationId">The ID of the location to retrieve.</param>
+        /// <returns>The location if found; otherwise, null.</returns>
         public async Task<Location?> GetByIdAsync(Guid locationId)
         {
-            return await _context.Locations
-            // Uncomment if you want to include LocationDetail and OpeningTimes
-                                 // .Include(l => l.LocationDetail) 
-                                 // .Include(l => l.OpeningTimes) // Add other includes as needed
-                                 .FirstOrDefaultAsync(l => l.LocationId == locationId);
+            return await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == locationId);
         }
 
+        /// <summary>
+        /// Retrieves all locations.
+        /// </summary>
+        /// <returns>A list of all locations.</returns>
         public async Task<IEnumerable<Location>> GetAllAsync()
         {
-            return await _context.Locations
-                                 // .Include(l => l.LocationDetail)
-                                 // .Include(l => l.OpeningTimes)
-                                 .ToListAsync();
+            return await _context.Locations.ToListAsync();
         }
 
+        /// <summary>
+        /// Creates a new location.
+        /// </summary>
+        /// <param name="location">The location entity to create.</param>
+        /// <returns>The created location.</returns>
         public async Task<Location> CreateAsync(Location location)
         {
             ArgumentNullException.ThrowIfNull(location);
-
-            // location.CreatedAt = DateTime.UtcNow; // Already handled by AutoMapper profile
-            // location.UpdatedAt = DateTime.UtcNow; // Already handled by AutoMapper profile
 
             await _context.Locations.AddAsync(location);
             await _context.SaveChangesAsync();
             return location;
         }
 
+        /// <summary>
+        /// Updates an existing location and its details.
+        /// </summary>
+        /// <param name="location">The location entity with updated values.</param>
+        /// <returns>The updated location if found; otherwise, null.</returns>
         public async Task<Location?> UpdateAsync(Location location)
         {
             ArgumentNullException.ThrowIfNull(location);
 
-            // Load existing Location including LocationDetail
             var existingLocation = await _context.Locations
                 .Include(l => l.LocationDetail)
                 .FirstOrDefaultAsync(l => l.LocationId == location.LocationId);
@@ -66,12 +77,10 @@ namespace Routeplanner_API.Database_Queries
             {
                 if (existingLocation.LocationDetail == null)
                 {
-                    // No detail existed before, so assign new one
                     existingLocation.LocationDetail = location.LocationDetail;
                 }
                 else
                 {
-                    // Update existing detail
                     _context.Entry(existingLocation.LocationDetail).CurrentValues
                         .SetValues(location.LocationDetail);
                 }
@@ -81,7 +90,11 @@ namespace Routeplanner_API.Database_Queries
             return existingLocation;
         }
 
-
+        /// <summary>
+        /// Deletes a location by its ID.
+        /// </summary>
+        /// <param name="locationId">The ID of the location to delete.</param>
+        /// <returns>True if the location was deleted; otherwise, false.</returns>
         public async Task<bool> DeleteAsync(Guid locationId)
         {
             var locationToDelete = await _context.Locations.FindAsync(locationId);
@@ -95,6 +108,10 @@ namespace Routeplanner_API.Database_Queries
             return true;
         }
 
+        /// <summary>
+        /// Retrieves a list of unique location categories.
+        /// </summary>
+        /// <returns>A list of distinct category names.</returns>
         public async Task<IEnumerable<string?>> GetUniqueCategoriesAsync()
         {
             return await _context.LocationDetails
@@ -103,6 +120,11 @@ namespace Routeplanner_API.Database_Queries
                                  .ToListAsync();
         }
 
+        /// <summary>
+        /// Retrieves selectable locations filtered by a specific category.
+        /// </summary>
+        /// <param name="categoryName">The category name to filter locations by.</param>
+        /// <returns>A list of selectable locations in the specified category.</returns>
         public async Task<IEnumerable<SelectableLocationDto>> GetAllLocationsFromOneCategoryAsync(string categoryName)
         {
             return await _context.Locations
@@ -117,8 +139,12 @@ namespace Routeplanner_API.Database_Queries
                         Category = locationDetail.Category
                     })
                 .ToListAsync();
-
         }
+
+        /// <summary>
+        /// Retrieves all selectable locations.
+        /// </summary>
+        /// <returns>A list of selectable locations.</returns>
         public async Task<IEnumerable<SelectableLocationDto>> GetSelectableLocationsAsync()
         {
             return await _context.Locations
@@ -130,7 +156,7 @@ namespace Routeplanner_API.Database_Queries
                     {
                         LocationId = location.LocationId,
                         Name = location.Name,
-                        Category = locationDetail.Category // This comes from LocationDetail
+                        Category = locationDetail.Category
                     })
                 .ToListAsync();
         }

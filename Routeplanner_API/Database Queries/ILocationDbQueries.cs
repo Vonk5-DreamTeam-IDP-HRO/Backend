@@ -1,9 +1,5 @@
-using System.Collections;
-using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.DTO.Location;
 using Routeplanner_API.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Routeplanner_API.Database_Queries
 {

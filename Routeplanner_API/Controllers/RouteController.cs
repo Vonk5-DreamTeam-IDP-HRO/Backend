@@ -14,6 +14,9 @@ using Routeplanner_API.Models;
 
 namespace Routeplanner_API.Controllers
 {
+    /// <summary>
+    /// API controller for managing route-related operations such as retrieval, creation, updating, and deletion of routes.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class RouteController : ControllerBase
@@ -27,6 +30,10 @@ namespace Routeplanner_API.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Retrieves a list of all routes.
+        /// </summary>
+        /// <returns>A status response containing a collection of <see cref="RouteDto"/> objects.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,6 +58,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a route by its unique identifier.
+        /// </summary>
+        /// <param name="routeId">The unique identifier of the route to retrieve.</param>
+        /// <returns>A status response containing the <see cref="RouteDto"/> or null if not found.</returns>
         [HttpGet("{routeId}", Name = "GetRouteById")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -70,6 +82,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new route using the provided data.
+        /// </summary>
+        /// <param name="createRouteDto">The data required to create a new route.</param>
+        /// <returns>A status response containing an identifier or message related to the created route.</returns>
         [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -103,6 +120,12 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates an existing route identified by its ID using the provided data.
+        /// </summary>
+        /// <param name="routeId">The unique identifier of the route to update.</param>
+        /// <param name="updateRouteDto">The updated data for the route.</param>
+        /// <returns>A status response containing the updated <see cref="RouteDto"/> or null if not found.</returns>
         [HttpPut("{routeId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -128,6 +151,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a route identified by its unique ID.
+        /// </summary>
+        /// <param name="routeId">The unique identifier of the route to delete.</param>
+        /// <returns>A status response indicating success or failure of the deletion.</returns>
         [HttpDelete("{routeId}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

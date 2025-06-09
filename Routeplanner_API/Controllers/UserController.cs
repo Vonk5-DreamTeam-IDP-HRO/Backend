@@ -1,15 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Routeplanner_API.DTO;
-using Routeplanner_API.DTO.Location;
 using Routeplanner_API.DTO.User;
 using Routeplanner_API.Enums;
 using Routeplanner_API.Models;
 using Routeplanner_API.UoWs;
-using System.Collections.Generic;
 
 namespace Routeplanner_API.Controllers
 {
+    /// <summary>
+    /// API controller for managing user-related operations such as retrieval, creation, updating, and deletion of users.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -23,9 +24,14 @@ namespace Routeplanner_API.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Retrieves a list of all users from the system.
+        /// </summary>
+        /// <returns>A status response containing a list of <see cref="UserDto"/> objects.</returns>
         [HttpGet]
         [Authorize]
         // Should be only accessible by admins or special authorized people
+        // as example using: [Authorize (Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<StatusCodeResponseDto<IEnumerable<UserDto>>>> GetUsers()
@@ -43,6 +49,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a single user by their unique identifier.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user to retrieve.</param>
+        /// <returns>A status response containing the <see cref="UserDto"/> or an appropriate error message.</returns>
         [HttpGet("{userId}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -62,6 +73,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new user in the system using the provided data.
+        /// </summary>
+        /// <param name="createUserDto">The data required to create a new user.</param>
+        /// <returns>A status response containing the result message or an appropriate error message.</returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -86,6 +102,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Authenticates a user based on the provided credentials.
+        /// </summary>
+        /// <param name="userDto">The user credentials for login.</param>
+        /// <returns>A status response containing an authentication token or an appropriate error message.</returns>
         [HttpPost("Login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -110,6 +131,12 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates an existing user's information based on the provided data.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user to update.</param>
+        /// <param name="updateUserDto">The updated user information.</param>
+        /// <returns>A status response containing the updated <see cref="UserDto"/> or an appropriate error message.</returns>
         [HttpPut("{userId}")]
         [Authorize]
         // Should be only accessible by admins or special authorized people
@@ -137,6 +164,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a user by their unique identifier.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user to delete.</param>
+        /// <returns>A status response indicating whether the deletion was successful or an appropriate error message.</returns>
         [HttpDelete("{userId}")]
         [Authorize]
         // Should be only accessible by admins or special authorized people

@@ -12,6 +12,9 @@ using System.Security.Claims;
 
 namespace Routeplanner_API.Controllers
 {
+    /// <summary>
+    /// API controller for managing location-related operations such as retrieval, creation, updating, and deletion of locations.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class LocationController : ControllerBase
@@ -25,6 +28,10 @@ namespace Routeplanner_API.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Retrieves a list of all locations.
+        /// </summary>
+        /// <returns>A status response containing a collection of <see cref="LocationDto"/> objects.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -43,6 +50,10 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a list of unique location categories.
+        /// </summary>
+        /// <returns>A status response containing a collection of unique category strings.</returns>
         [HttpGet("categories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -61,6 +72,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a location by its unique identifier.
+        /// </summary>
+        /// <param name="locationId">The unique identifier of the location to retrieve.</param>
+        /// <returns>A status response containing the <see cref="LocationDto"/> or null if not found.</returns>
         [HttpGet("{locationId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -79,6 +95,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new location using the provided data.
+        /// </summary>
+        /// <param name="createLocationDto">The data required to create a new location.</param>
+        /// <returns>A status response containing the created <see cref="LocationDto"/>.</returns>
         [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -115,6 +136,12 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates an existing location with the provided data.
+        /// </summary>
+        /// <param name="locationId">The unique identifier of the location to update.</param>
+        /// <param name="locationDto">The updated location information.</param>
+        /// <returns>A status response containing the updated <see cref="LocationDto"/> or null.</returns>
         [HttpPut("{locationId}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -142,6 +169,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a location by its unique identifier.
+        /// </summary>
+        /// <param name="locationId">The unique identifier of the location to delete.</param>
+        /// <returns>A status response indicating whether the deletion was successful.</returns>
         [HttpDelete("{locationId}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -162,6 +194,10 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves selectable locations grouped by a key.
+        /// </summary>
+        /// <returns>A status response containing a dictionary grouping keys to lists of <see cref="SelectableLocationDto"/>.</returns>
         [HttpGet("GroupedSelectableLocations")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -180,6 +216,11 @@ namespace Routeplanner_API.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves all selectable locations for a specified category.
+        /// </summary>
+        /// <param name="nameCategory">The name of the category to filter locations by.</param>
+        /// <returns>A status response containing a collection of <see cref="SelectableLocationDto"/> for the given category.</returns>
         [HttpGet ("AllLocationsForOneCategory")]
         public async Task<StatusCodeResponseDto<IEnumerable<SelectableLocationDto>>> GetAllSelectableLocationsFromOneCategory(string nameCategory)
         {

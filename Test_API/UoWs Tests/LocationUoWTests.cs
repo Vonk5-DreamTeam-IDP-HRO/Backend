@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Routeplanner_API.Database_Queries;
@@ -16,6 +17,13 @@ namespace Test_API.UoWs_Tests
         private readonly Mock<ILocationDbQueries> _locationDbQueriesMock = new Mock<ILocationDbQueries>();
         private readonly Mock<IMapper> _mapperMock = new Mock<IMapper>();
         private readonly Mock<ILogger<LocationUoW>> _loggerMock = new Mock<ILogger<LocationUoW>>();
+
+        private readonly LocationUoW _locationUoW;
+
+        public LocationUoWTests()
+        {
+            _locationUoW = new LocationUoW(_contextMock.Object, _locationDbQueriesMock.Object, _mapperMock.Object, _loggerMock.Object);
+        }
 
         [Fact]
         public async Task GetLocationsAsync_Returns_MappedLocations()
@@ -119,7 +127,7 @@ namespace Test_API.UoWs_Tests
         }
 
         // To do: Create, Update
-
+        
         [Fact]
         public async Task DeleteLocationAsync_ReturnsSuccess_WhenDeletionSucceeds()
         {

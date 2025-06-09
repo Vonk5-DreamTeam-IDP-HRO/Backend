@@ -1,16 +1,16 @@
-﻿using System.Text.Json;
-using AutoMapper;
+﻿using AutoMapper;
 using Routeplanner_API.Database_Queries;
 using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.Route;
-using Routeplanner_API.DTO.User;
 using Routeplanner_API.Enums;
-using Routeplanner_API.Models;
-using System.Security.Claims;
-
+using System.Text.Json;
 
 namespace Routeplanner_API.UoWs
 {
+    /// <summary>
+    /// Unit of Work for route-related operations.
+    /// Handles CRUD and mapping for routes.
+    /// </summary>
     public class RouteUoW
     {
         private readonly IRouteDbQueries _routeDbQueries;
@@ -24,6 +24,10 @@ namespace Routeplanner_API.UoWs
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
+        /// <summary>
+        /// Retrieves all routes asynchronously.
+        /// </summary>
+        /// <returns>A collection of route DTOs.</returns>
         public async Task<IEnumerable<RouteDto>> GetRoutesAsync()
         {
             _logger.LogInformation("Getting all routes");
@@ -31,6 +35,11 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<IEnumerable<RouteDto>>(routes);
         }
 
+        /// <summary>
+        /// Retrieves a route by its ID asynchronously.
+        /// </summary>
+        /// <param name="routeId">The route's unique identifier.</param>
+        /// <returns>Status response DTO containing the route DTO or null if not found.</returns>
         public async Task<StatusCodeResponseDto<RouteDto?>> GetRouteByIdAsync(Guid routeId)
         {
             _logger.LogInformation("Getting route with ID: {RouteId}", routeId);
@@ -44,6 +53,12 @@ namespace Routeplanner_API.UoWs
             return CreateStatusResponseDto<RouteDto?>(StatusCodeResponse.Success, null, _mapper.Map<RouteDto>(route));
         }
 
+        /// <summary>
+        /// Creates a new route asynchronously.
+        /// </summary>
+        /// <param name="createRouteDto">Data transfer object for route creation.</param>
+        /// <param name="userId">ID of the user creating the route.</param>
+        /// <returns>Status response DTO containing the created route ID or error message.</returns>
         public async Task<StatusCodeResponseDto<string?>> CreateRouteAsync(CreateRouteDto createRouteDto, Guid userId)
         {
             _logger.LogInformation("Creating new route.");
@@ -75,6 +90,12 @@ namespace Routeplanner_API.UoWs
             }
         }
 
+        /// <summary>
+        /// Updates an existing route asynchronously.
+        /// </summary>
+        /// <param name="routeId">The ID of the route to update.</param>
+        /// <param name="updateRouteDto">Data transfer object with updated route information.</param>
+        /// <returns>Status response DTO containing the updated route DTO or error message.</returns>
         public async Task<StatusCodeResponseDto<RouteDto?>> UpdateRouteAsync(Guid routeId, UpdateRouteDto updateRouteDto)
         {
             _logger.LogInformation("Updating route with ID: {routeId}", routeId);
@@ -86,7 +107,6 @@ namespace Routeplanner_API.UoWs
                 return CreateStatusResponseDto<RouteDto?>(StatusCodeResponse.NotFound, $"Route with ID: {routeId} not found for update", null);
             }
 
-            // Map the changes from DTO to the existing entity
             _mapper.Map(updateRouteDto, existingRoute);
 
             existingRoute.UpdatedAt = DateTime.UtcNow;
@@ -96,6 +116,11 @@ namespace Routeplanner_API.UoWs
             return CreateStatusResponseDto<RouteDto?>(StatusCodeResponse.Success, $"Route with ID: {routeId} updated successfully", _mapper.Map<RouteDto>(updatedRoute));
         }
 
+        /// <summary>
+        /// Deletes a route asynchronously.
+        /// </summary>
+        /// <param name="routeId">The ID of the route to delete.</param>
+        /// <returns>Status response DTO indicating success or failure of the deletion.</returns>
         public async Task<StatusCodeResponseDto<bool>> DeleteRouteAsync(Guid routeId)
         {
             _logger.LogInformation("Deleting route with ID: {routeId}", routeId);
@@ -113,6 +138,14 @@ namespace Routeplanner_API.UoWs
             }
         }
 
+        /// <summary>
+        /// Creates a standard status response DTO.
+        /// </summary>
+        /// <typeparam name="T">Type of the data payload.</typeparam>
+        /// <param name="statusCodeResponse">Status code of the response.</param>
+        /// <param name="message">Optional message.</param>
+        /// <param name="data">Data payload.</param>
+        /// <returns>A new <see cref="StatusCodeResponseDto{T}"/> instance.</returns>
         public StatusCodeResponseDto<T> CreateStatusResponseDto<T>(StatusCodeResponse statusCodeResponse, string? message, T? data)
         {
             return new StatusCodeResponseDto<T>
@@ -122,6 +155,5 @@ namespace Routeplanner_API.UoWs
                 Data = data
             };
         }
-
     }
 }

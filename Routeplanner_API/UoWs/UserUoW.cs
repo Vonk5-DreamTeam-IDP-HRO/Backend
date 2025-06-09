@@ -1,19 +1,17 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using Routeplanner_API.Database_Queries;
-using Routeplanner_API.Helpers;
-using Routeplanner_API.Models;
 using Routeplanner_API.DTO;
 using Routeplanner_API.DTO.User;
 using Routeplanner_API.Enums;
-using Microsoft.Extensions.Logging;
+using Routeplanner_API.Helpers;
+using Routeplanner_API.Models;
 
 namespace Routeplanner_API.UoWs
 {
+    /// <summary>
+    /// Unit of Work for user-related operations, handling user CRUD and authentication logic.
+    /// </summary>
     public class UserUoW
     {
         private readonly IUserDbQueries _userDbQueries;
@@ -30,6 +28,10 @@ namespace Routeplanner_API.UoWs
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Retrieves all users.
+        /// </summary>
+        /// <returns>Enumerable of user DTOs.</returns>
         public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
             _logger.LogInformation("Getting all users");
@@ -38,6 +40,11 @@ namespace Routeplanner_API.UoWs
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
+        /// <summary>
+        /// Retrieves a user by their ID.
+        /// </summary>
+        /// <param name="userId">User's unique identifier.</param>
+        /// <returns>StatusCodeResponseDto with the user DTO or not found message.</returns>
         public async Task<StatusCodeResponseDto<UserDto?>> GetUsersByIdAsync(Guid userId)
         {
             _logger.LogInformation("Getting user with ID: {userId}", userId);
@@ -52,17 +59,21 @@ namespace Routeplanner_API.UoWs
             return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.Success, $"User with ID {userId} found.", _mapper.Map<UserDto>(user));
         }
 
+        /// <summary>
+        /// Creates a new user with the provided data.
+        /// </summary>
+        /// <param name="createUserDto">DTO containing user creation info.</param>
+        /// <returns>StatusCodeResponseDto with JWT token string on success or error message.</returns>
         public async Task<StatusCodeResponseDto<string?>> CreateUserAsync(CreateUserDto createUserDto)
         {
             _logger.LogInformation("Creating new user");
 
             var validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(createUserDto);
-            if(validateUsernameAndEmail == null)
+            if (validateUsernameAndEmail == null)
             {
                 User? userEntity = _mapper.Map<User>(createUserDto);
                 userEntity.Id = Guid.NewGuid();
 
-                // Hash the plain text password from the DTO and store it on the User entity
                 userEntity.PasswordHash = _passwordHasher.HashPassword(userEntity, createUserDto.Password);
 
                 UserPermission? userPermission = await GetUserRight();
@@ -82,6 +93,11 @@ namespace Routeplanner_API.UoWs
             return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, validateUsernameAndEmail, null);
         }
 
+        /// <summary>
+        /// Authenticates a user and returns a JWT token if successful.
+        /// </summary>
+        /// <param name="receivedUserDto">User DTO with login credentials.</param>
+        /// <returns>StatusCodeResponseDto with JWT token or error message.</returns>
         public async Task<StatusCodeResponseDto<string?>> LoginUserAsync(UserDto receivedUserDto)
         {
             User? foundUser = await FindUserByUsername(receivedUserDto.Username);
@@ -101,6 +117,12 @@ namespace Routeplanner_API.UoWs
             return CreateStatusResponseDto<string?>(StatusCodeResponse.BadRequest, "Invalid password", null);
         }
 
+        /// <summary>
+        /// Updates an existing user with new data.
+        /// </summary>
+        /// <param name="userId">User's unique identifier.</param>
+        /// <param name="updateUserDto">DTO containing update info.</param>
+        /// <returns>StatusCodeResponseDto with updated user DTO or error message.</returns>
         public async Task<StatusCodeResponseDto<UserDto?>> UpdateUserAsync(Guid userId, UpdateUserDto updateUserDto)
         {
             _logger.LogInformation("Updating user with ID: {userId}", userId);
@@ -115,11 +137,7 @@ namespace Routeplanner_API.UoWs
             string? validateUsernameAndEmail = await ValidateIfUsernameAndEmailAreUnique(updateUserDto);
             if (validateUsernameAndEmail == null)
             {
-                // Map the changes from DTO to the existing entity
                 _mapper.Map(updateUserDto, existingUser);
-
-                // Ensure UpdatedAt is set (AutoMapper profile also does this, but explicit here is fine too)
-                // existingUser.UpdatedAt = DateTime.UtcNow;
 
                 User? updatedUser = await _userDbQueries.UpdateAsync(existingUser);
                 _logger.LogInformation("User with ID: {userId} updated successfully", userId);
@@ -131,6 +149,11 @@ namespace Routeplanner_API.UoWs
             return CreateStatusResponseDto<UserDto?>(StatusCodeResponse.BadRequest, validateUsernameAndEmail, null);
         }
 
+        /// <summary>
+        /// Deletes a user by their ID.
+        /// </summary>
+        /// <param name="userId">User's unique identifier.</param>
+        /// <returns>StatusCodeResponseDto indicating success or failure.</returns>
         public async Task<StatusCodeResponseDto<bool>> DeleteUserAsync(Guid userId)
         {
             _logger.LogInformation("Deleting user with ID: {userId}", userId);
@@ -148,6 +171,9 @@ namespace Routeplanner_API.UoWs
             }
         }
 
+        /// <summary>
+        /// Creates a standardized status response DTO.
+        /// </summary>
         public StatusCodeResponseDto<T> CreateStatusResponseDto<T>(StatusCodeResponse statusCodeResponse, string? message, T? data)
         {
             return new StatusCodeResponseDto<T>
@@ -190,7 +216,7 @@ namespace Routeplanner_API.UoWs
             {
                 return "Email is already taken.";
             }
-            return null; // No conflicts, user can be created
+            return null;
         }
 
         private async Task<string?> ValidateIfUsernameAndEmailAreUnique(UpdateUserDto updateUserDto)
@@ -210,7 +236,7 @@ namespace Routeplanner_API.UoWs
             {
                 return "Email is already taken.";
             }
-            return null; // No conflicts, user can be created
+            return null;
         }
 
         private async Task<UserPermission?> GetUserRight()

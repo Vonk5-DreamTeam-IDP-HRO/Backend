@@ -217,7 +217,6 @@ namespace Routeplanner_API.UoWs
             _logger.LogInformation("Getting all locations that falls under specific given category");
 
             IEnumerable<SelectableLocationDto> AllLocation = await _locationDbQueries.GetSelectableLocationsAsync();
-            // TODO: Make seperate Db call in _locationDbQueries. 
             IEnumerable<SelectableLocationDto> sortedLocation = AllLocation.Where(L => L.Category == nameCategory);
 
             _logger.LogInformation("Succesfull retrieved and sorted all locations from one category.");
